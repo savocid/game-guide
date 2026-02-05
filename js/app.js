@@ -1,5 +1,5 @@
 function loadTest() {
-	console.log("hi")
+	console.log("hi2")
 }
 
 function buildData(data) {
