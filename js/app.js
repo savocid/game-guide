@@ -1,5 +1,5 @@
 function loadTest() {
-	
+	console.log("hi")
 }
 
 function buildData(data) {
