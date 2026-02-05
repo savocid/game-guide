@@ -24,7 +24,7 @@
 			"id": "a786eb2a-12eb-4657-b403-765c64d3d8d2",
 			"parent": "a786ef2a-12sb-4657-b403-765c64d3d8d2",
 			"order": 0,
-			"src": "/media/Dark_Chronicle_poster_3.png",
+			"src": "./guide1/media/Dark_Chronicle_poster_3.png",
 			"caption": "Dark Chronicle",
 			"width": "50%",
 			"height": "50%",
@@ -49,7 +49,7 @@
 			"parent": "a786ef2a-12eb-4657-b403-765c64d3d2d2",
 			"order": 0,
 			"tabs": {
-				"a786ef2a-12eb-4657-b403-7s5c64d3d2d2": {"title": "New", "order": 1},
+				"a786ef2a-12eb-4657-b403-7s5c64d3d2d2": {"title": "Old", "order": 0},
 				"a786ef2a-12eb-4257-b403-7s5c64d3d2d2": {"title": "New", "order": 1}
 			}
 		},

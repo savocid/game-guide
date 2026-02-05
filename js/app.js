@@ -1,5 +1,19 @@
-function loadTest() {
-	console.log("hi2")
+async function loadTest() {
+	
+	try {
+		const response = await fetch('https://raw.githubusercontent.com/savocid/game-guide/refs/heads/main/guide1/data.json');
+		const data = await response.json();
+		console.log('Loaded:', data);
+		data
+		if (data) {
+			data.content.forEach(content => {
+				const base = content.parent && (document.getElementById(`${content.parent}`)) || document.getElementById("content")
+				base.innerHTML += buildData(content)
+			});
+		}
+	} catch (err) {
+		console.error('Error loading guide:', err);
+	}
 }
 
 function buildData(data) {
@@ -7,11 +21,11 @@ function buildData(data) {
 	switch (data.type)
 	{
 		case "page":
-			return `<div class='${data.type}' id='${data.id}' data-title='${data.title}' style='${data.width && (`width='${data.width}'`)}' ${data.height && (`width='${data.height}'`)}'></div>`;
+			return `<div class='${data.type}' id='${data.id}' data-title='${data.title}' style='${data.width ? `width:${data.width};` : ''}${data.height ? `height:${data.height};` : ''}'></div>`;
 		case "section":
-			return `<div class='${data.type}' id='${data.id}' data-title='${data.title}' style='${data.width && (`width='${data.width}'`)}' ${data.height && (`width='${data.height}'`)}'></div>`;
+			return `<div class='${data.type}' id='${data.id}' data-title='${data.title}' style='${data.width ? `width:${data.width};` : ''}${data.height ? `height:${data.height};` : ''}'></div>`;
 		case "panel":
-			return `<div class='${data.type}' id='${data.id}' style='${data.width && (`width='${data.width}'`)}' ${data.height && (`width='${data.height}'`)}'></div>`;
+			return `<div class='${data.type}' id='${data.id}' style='${data.width ? `width:${data.width};` : ''}${data.height ? `height:${data.height};` : ''}'></div>`;
 		case "tabs":
 			var output = `<div class='${data.type}' id='${data.id}'>`;
 			const tabs = Object.entries(data.tabs).sort((a, b) => a[1].order - b[1].order)
@@ -25,7 +39,7 @@ function buildData(data) {
 			
 			return output;
 		case "table":
-			var output = `<table class='${data.type}' id='${data.id}' style='${data.width && (`width='${data.width}'`)}' ${data.height && (`width='${data.height}'`)}'>`;
+			var output = `<table class='${data.type}' id='${data.id}' style='${data.width ? `width:${data.width};` : ''}${data.height ? `height:${data.height};` : ''}'>`;
 
 			output += "<thead><tr>";
 			data.table.headers.forEach(header => {
@@ -60,7 +74,7 @@ function buildData(data) {
 		case "sub-header":
 			return `<h4 class='${data.type}' id='${data.id}'>${processText(data.text)}</h4>`;
 		case "text":
-			return `<p class='${data.type}' id='${data.id}' style='${data.width && (`width='${data.width}'`)}' ${data.height && (`width='${data.height}'`)}'>${processText(data.text)}</p>`;
+			return `<p class='${data.type}' id='${data.id}' style='${data.width ? `width:${data.width};` : ''}${data.height ? `height:${data.height};` : ''}'>${processText(data.text)}</p>`;
 		default:
 			return "";
 	}
