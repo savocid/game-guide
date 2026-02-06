@@ -1,26 +1,34 @@
 #content {
 
-.page {
-	padding: 0 2rem;
-}
-
-.page > *:first-child {
-	padding-top: 2rem;
-}
-.page > *:last-child {
-	padding-bottom: 2rem;
+&& > * {
+	padding: 2rem 2rem;
 }
 
 a {
 	text-decoration: none;
 	font-weight:inherit;
 	font-size:inherit;
+	cursor: pointer;
+	color: darkslateblue;
+	text-shadow: 1px 1px 0px rgba(255,255,255,0.3);
 }
 
-a:hover,
-a:active {
+a:not([data-page-open]):hover,
+a:not([data-page-open]):active {
 	text-decoration: underline;
 }
+
+a[data-page-open] {
+	cursor: default;
+	color: black;
+	text-decoration: underline;
+}
+
+.page:not([data-page-open]) {
+	display: none;
+}
+
+
 
 table {
 	border-collapse: collapse;
@@ -36,6 +44,11 @@ th, td {
 
 div[data-tab]:not([data-tab-open]) {
 	display: none;
+}
+
+.image {
+	display: flex;
+	flex-direction: column;
 }
 
 .image img {
@@ -76,7 +89,35 @@ div[data-tab]:not([data-tab-open]) {
 
 .image .caption {
 	text-align: center;
+	padding: 0.5rem;
 }
+
+
+.navigator {
+	background: bisque;
+    border-radius: 1rem;
+    width: fit-content;
+	font-weight: bold;
+	margin: 2rem;
+	border: 2px solid rgba(0, 0, 0, 0.2);
+}
+
+.navigator > ul {
+	list-style-position: inside;
+}
+.navigator li > ul {
+	padding-left: 2rem;
+}
+
+.image,
+.text,
+.section,
+.header
+.sub-header {
+	padding: 0.5rem 0 0;
+}
+
+
 
 
 }
