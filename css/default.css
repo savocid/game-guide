@@ -1,8 +1,36 @@
+#content {
+
+.page {
+	padding: 0 2rem;
+}
+
+.page > *:first-child {
+	padding-top: 2rem;
+}
+.page > *:last-child {
+	padding-bottom: 2rem;
+}
+
+a {
+	text-decoration: none;
+	font-weight:inherit;
+	font-size:inherit;
+}
+
+a:hover,
+a:active {
+	text-decoration: underline;
+}
+
 table {
 	border-collapse: collapse;
+	background: white;
 }
 table, th, td {
     border: 1px solid #000;
+}
+th, td {
+	padding: 0.25rem 0.5rem;
 }
 
 
@@ -10,11 +38,45 @@ div[data-tab]:not([data-tab-open]) {
 	display: none;
 }
 
-div.image {
-	width: inherit;
-	height: inherit;
+.image img {
+	width: 100%;
+	height: 100%;
 }
 
-.page {
+.tabs > .labelWrap {
+	display: flex;
+}
+.tabs .labelWrap label {
+	padding: 0.5rem 1rem;
 	width: 100%;
+	display:block;
+	text-align: center;
+	border: 1px solid rgba(0,0,0,0.5);
+	cursor: pointer;
+	user-select: none;
+	background:hsl(0,0%,80%);
+}
+.tabs .labelWrap label:has(input:checked):not(:active) {
+	background:hsl(0,0%,60%);
+}
+.tabs .labelWrap label:active {
+	background:hsl(0,0%,50%);
+}
+
+
+.tabs .labelWrap label:not(:last-child) {
+	border-right: none;
+}
+
+
+
+.tabs > .labelWrap input {
+	display: none;
+}
+
+.image .caption {
+	text-align: center;
+}
+
+
 }

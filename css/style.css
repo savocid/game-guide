@@ -11,6 +11,7 @@
 	--confirm: #2a9d8f;
 }
 
+
 body {
 	font-family: 'Roboto', Arial, sans-serif;
 	background: #f7f7fa;
@@ -29,6 +30,26 @@ header {
 	display: flex;
     align-items: center;
     justify-content: space-between;
+	min-height: 100px;
+}
+header .header {
+	--color1: lightseagreen;
+    --color2: gold;
+    text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.15);
+    letter-spacing: 2px;
+    font-weight: 900;
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(90deg, var(--color1) 0%, var(--color1) 50%, var(--color2) 50%, var(--color2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+
+	font-size: 3rem;
+	font-weight: bold;
+	text-transform:uppercase;
+
+	text-decoration: none;
+
 }
 
 header h1 {
@@ -38,13 +59,18 @@ header h1 {
 }
 header .loadWrapper {
 	display: flex;
-    flex-direction: column;
+	flex-direction: row;
+	align-items: center;
 }
+header .guide-info {
+	text-align:center;
+}
+
+
 
 #content {
 	flex: 1;
 	width: 100%;
-	padding: 2.5rem 2rem;
 }
 
 footer {
@@ -72,6 +98,8 @@ footer {
 	font-size: 1rem;
 	cursor: pointer;
 	transition: 0.2s ease;
+	width: fit-content;
+	height: fit-content;
 }
 
 .btn-primary {

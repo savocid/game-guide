@@ -1,45 +1,81 @@
-async function loadTest() {
+
+function loadTest() {
 	
-	try {
-		const response = await fetch('https://raw.githubusercontent.com/savocid/game-guide/refs/heads/main/guide1/data.json');
-		const data = await response.json();
-		console.log('Loaded:', data);
-		data
-		if (data) {
-			data.content.forEach(content => {
-				const base = content.parent && (document.getElementById(`${content.parent}`)) || document.getElementById("content")
-				base.innerHTML += buildData(content)
-			});
-		}
-	} catch (err) {
-		console.error('Error loading guide:', err);
+	if (test_data) {
+		const gameInfo = document.querySelector("header .guide-info");
+		gameInfo.innerHTML = ``;
+		test_data.title && (gameInfo.innerHTML += `<div class="title"><span>${test_data.title}</span></div>`);
+		//test_data.description && (gameInfo.innerHTML += `<div class="description"><span>${test_data.description}</span></div>`);
+		test_data.version && (gameInfo.innerHTML += `<div class="version"><span>Version ${test_data.version}</span></div>`);
+		test_data.created && (gameInfo.innerHTML += `<div class="created"><span>Created: </span><span>${test_data.created}</span></div>`);
+		test_data.modified && (gameInfo.innerHTML += `<div class="modified"><span>Modified: </span><span>${test_data.modified}</span></div>`);
+
+		document.getElementById("content").innerHTML = "";
+		test_data.content.forEach(content => {
+			const base = content.parent && (document.getElementById(`${content.parent}`)) || document.getElementById("content")
+			base.innerHTML += buildData(content)
+		});
 	}
 }
 
 function buildData(data) {
 
+	const styles = [
+		"width",
+		"height",
+		"min-width",
+		"min-height",
+		"max-width",
+		"max-height",
+		"background",
+		"aspect-ratio",
+		"text-align",
+		"float",
+		"object-fit",
+		"margin",
+		"padding",
+	];
+
+	const addStyles = (styleObj, exclude = []) => {
+		if (!styleObj) return '';
+		return styles
+			.filter(prop => !exclude.includes(prop))
+			.map(prop => {
+				const key = prop.replace(/-([a-z])/g, (_, char) => char.toUpperCase());
+				return styleObj[key] ? `${prop}:${styleObj[key]};` : '';
+			})
+			.join('');
+	};
+	const addStyle = (prop, styleObj) => {
+		if (!styleObj || !styleObj[prop]) return '';
+		return `${prop}:${styleObj[prop]};`;
+	};
+	
+
 	switch (data.type)
 	{
 		case "page":
-			return `<div class='${data.type}' id='${data.id}' data-title='${data.title}' style='${data.width ? `width:${data.width};` : ''}${data.height ? `height:${data.height};` : ''}'></div>`;
+			return `<div class='${data.type}' id='${data.id}' data-title='${data.title}' style='${addStyles(data.style)}'></div>`;
 		case "section":
-			return `<div class='${data.type}' id='${data.id}' data-title='${data.title}' style='${data.width ? `width:${data.width};` : ''}${data.height ? `height:${data.height};` : ''}'></div>`;
+			return `<div class='${data.type}' id='${data.id}' data-title='${data.title}' style='${addStyles(data.style)}'></div>`;
 		case "panel":
-			return `<div class='${data.type}' id='${data.id}' style='${data.width ? `width:${data.width};` : ''}${data.height ? `height:${data.height};` : ''}'></div>`;
+			return `<div class='${data.type}' id='${data.id}' style='${addStyles(data.style)}'></div>`;
 		case "tabs":
 			var output = `<div class='${data.type}' id='${data.id}'>`;
 			const tabs = Object.entries(data.tabs).sort((a, b) => a[1].order - b[1].order)
+			tabs.length > 0 && (output += `<div class='labelWrap'>`);
 			tabs.forEach(([id, tab], i) => {
 				output += `<label for="${id}-input"><input type="radio" id="${id}-input" name="${data.id}" onInput="tabInput(this)" ${i == 0 ? "checked" : ""} />${tab.title}</label>`
 			});
+			tabs.length > 0 && (output += `</div>`);
 			tabs.forEach(([id, tab], i) => {
-				output += `<div id="${id}" data-tab="${id}-input" ${i == 0 ? "data-tab-open" : ""}>${crypto.randomUUID()}</div>`
+				output += `<div id="${id}" data-tab="${id}-input" ${i == 0 ? "data-tab-open" : ""} style='${addStyles(tab)}'></div>`
 			});
 			output += `</div>`;
 			
 			return output;
 		case "table":
-			var output = `<table class='${data.type}' id='${data.id}' style='${data.width ? `width:${data.width};` : ''}${data.height ? `height:${data.height};` : ''}'>`;
+			var output = `<table class='${data.type}' id='${data.id}' style='${addStyles(data.style)}'>`;
 
 			output += "<thead><tr>";
 			data.table.headers.forEach(header => {
@@ -65,16 +101,16 @@ function buildData(data) {
 
 			return output;
 		case "image":
-			var output = `<div class='${data.type}' id='${data.id}'>`
-			output += `<img src='${data.src}' alt='${data.id}' ${data.width && (`width='${data.width}'`)} ${data.height && (`height='${data.height}'`)} ${data.fit && (`style='object-fit:${data.fit}'`)}/>`;
+			var output = `<div class='${data.type}' id='${data.id}' style='${addStyles(data.style,["object-fit"])}'>`
+			output += `<img src='${data.src}' alt='${data.id}' style='${addStyle('object-fit',data.style)}' />`;
 			data.caption && (output += `<p class='caption'>${data.caption}</p>`);
 			return output;
 		case "header":
-			return `<h2 class='${data.type}' id='${data.id}'>${processText(data.text)}</h2>`;
+			return `<h2 class='${data.type}' id='${data.id}' style='${addStyles(data.style)}'>${processText(data.text)}</h2>`;
 		case "sub-header":
-			return `<h4 class='${data.type}' id='${data.id}'>${processText(data.text)}</h4>`;
+			return `<h4 class='${data.type}' id='${data.id}' style='${addStyles(data.style)}'>${processText(data.text)}</h4>`;
 		case "text":
-			return `<p class='${data.type}' id='${data.id}' style='${data.width ? `width:${data.width};` : ''}${data.height ? `height:${data.height};` : ''}'>${processText(data.text)}</p>`;
+			return `<p class='${data.type}' id='${data.id}' style='${addStyles(data.style)}'>${processText(data.text)}</p>`;
 		default:
 			return "";
 	}
@@ -180,3 +216,6 @@ async function loadGuide() {
         console.error('Error:', err);
     }
 }
+
+
+loadTest();
