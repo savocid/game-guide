@@ -33,10 +33,19 @@ a[data-page-open] {
 table {
 	border-collapse: collapse;
 	background: white;
+	margin: 0.5rem 0;
 }
 table, th, td {
     border: 1px solid #000;
 }
+table:has(thead > tr:first-child > th:first-child:empty) td:first-child,
+th {
+	background: rgba(0,0,0,0.1);
+	filter:brightness(0.5);
+	font-weight: bold;
+}
+
+
 th, td {
 	padding: 0.25rem 0.5rem;
 }
@@ -68,6 +77,7 @@ div[data-tab]:not([data-tab-open]) {
 	cursor: pointer;
 	user-select: none;
 	background:hsl(0,0%,80%);
+	font-weight: bold;
 }
 .tabs .labelWrap label:has(input:checked):not(:active) {
 	background:hsl(0,0%,60%);
@@ -90,6 +100,7 @@ div[data-tab]:not([data-tab-open]) {
 .image .caption {
 	text-align: center;
 	padding: 0.5rem;
+	text-shadow: 1px 1px 0px rgba(255,255,255,0.3);
 }
 
 
@@ -117,7 +128,47 @@ div[data-tab]:not([data-tab-open]) {
 	padding: 0.5rem 0 0;
 }
 
+li:not(:has(> a[data-page-open])) > ul {
+	display: none;
+}
 
 
+.footer {
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	padding: 2rem 0 0;
+}
+.footer > span.previous {
+	margin-right: auto;
+	padding-left: 0.5rem;
+}
+.footer > span.next {
+	margin-left: auto;
+	padding-right: 0.5rem;
+}
+.footer > span {
+	background: aliceblue;
+	border-radius: 10px;
+	font-weight: bold;
+	border: 2px solid rgba(0, 0, 0, 0.2);
+}
+.footer > span a {
+	display: inline-block;
+	padding: 1rem;
+}
+
+.panel {
+	background: floralwhite;
+	padding: 1rem 1.5rem;
+	border-radius: 0.5rem;
+	margin: 1rem 0;
+	border: 2px solid rgba(0, 0, 0, 0.2);
+}
+
+.tabs {
+	width: fit-content;
+	padding: 1rem 0;
+}
 
 }

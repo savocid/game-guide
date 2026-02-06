@@ -1,4 +1,6 @@
 
+let guideData = {};
+
 function loadTest() {
 	
 	if (test_data) {
@@ -11,6 +13,8 @@ function loadTest() {
 		//test_data.created && (gameInfo.innerHTML += `<div class="created"><span>Created: </span><span>${test_data.created}</span></div>`);
 		//test_data.modified && (gameInfo.innerHTML += `<div class="modified"><span>Modified: </span><span>${test_data.modified}</span></div>`);
 
+		guideData = test_data;
+
 		document.getElementById("content").innerHTML = "";
 		test_data.content.forEach(content => {
 			const base = content.parent && (document.getElementById(`${content.parent}`)) || document.getElementById("content")
@@ -19,7 +23,7 @@ function loadTest() {
 	}
 }
 
-function buildData(content,data) {
+function buildData(content) {
 
 	const styles = [
 		"width",
@@ -35,22 +39,29 @@ function buildData(content,data) {
 		"object-fit",
 		"margin",
 		"padding",
+		"border",
+		"border-radius",
+		"color",
+		"font-size",
+		"box-shadow",
+		"text-shadow",
+		"font-weight",
+		"font-style",
+		"display",
+		"align-items",
+		"justify-content",
+		"flex-direction",
 	];
 
-	const addStyles = (styleObj, exclude = []) => {
+	const addStyles = (styleObj, exclude = [], include = []) => {
 		if (!styleObj) return '';
-		return styles
+		const list = include.length ? include : styles;
+		return list
 			.filter(prop => !exclude.includes(prop))
-			.map(prop => {
-				const key = prop;
-				return styleObj[key] ? `${prop}:${styleObj[key]};` : '';
-			})
+			.map(prop => (styleObj[prop] ? `${prop}:${styleObj[prop]};` : ''))
 			.join('');
 	};
-	const addStyle = (prop, styleObj) => {
-		if (!styleObj || !styleObj[prop]) return '';
-		return `${prop}:${styleObj[prop]};`;
-	};
+
 	
 
 	switch (content.type)
@@ -60,14 +71,14 @@ function buildData(content,data) {
 		case "navigator":
 			var output = `<div class='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>`;
 			output += `<ul>`;
-			const pages = data.content.filter(item => item.type === "page");
+			const pages = guideData.content.filter(item => item.type === "page");
 			let pageCount = 0;
 			for (const page of pages) {
 				pageCount++;
 				output += `<li>`;
 				output += `<a onClick='changePage("${page.id}");' data-page='${page.id}' ${pageCount == 1 ? "data-page-open" : ""}>${page.title}</a>`;
 				output += `<ul>`;
-				const sections = data.content.filter(item => item.type === "section" && item.parent === page.id);
+				const sections = guideData.content.filter(item => item.type === "section" && item.parent === page.id);
 				let sectionCount = 0;
 				for (const section of sections) {
 					sectionCount++;
@@ -108,7 +119,7 @@ function buildData(content,data) {
 				let attrs = "";
 				if (header.colspan && header.colspan > 1) attrs += ` colspan='${header.colspan}'`;
 				if (header.rowspan && header.rowspan > 1) attrs += ` rowspan='${header.rowspan}'`;
-				output += `<th${attrs}>${header.text}</th>`;
+				output += `<th${attrs} ${header.id ? `id='${header.id}'` : ""}>${processText(header.text)}</th>`;
 			});
 			output += "</tr></thead>";
 
@@ -119,7 +130,7 @@ function buildData(content,data) {
 					let attrs = "";
 					if (cell.colspan && cell.colspan > 1) attrs += ` colspan='${cell.colspan}'`;
 					if (cell.rowspan && cell.rowspan > 1) attrs += ` rowspan='${cell.rowspan}'`;
-					output += `<td${attrs}>${cell.text}</td>`;
+					output += `<td${attrs} ${cell.id ? `id='${cell.id}'` : ""}>${processText(cell.text)}</td>`;
 				});
 				output += "</tr>";
 			});
@@ -127,11 +138,11 @@ function buildData(content,data) {
 
 			return output;
 		case "image":
-			var output = `<div class='${content.type}' id='${content.id}' style='${addStyle('float',content.style)}'>`
-			output += `<div class='imageWrap' style='${addStyles(content.style,["object-fit","float"])}'>`;
-			output += `<img src='${content.src}' alt='${content.id}' style='${addStyle('object-fit',content.style)}' />`;
+			var output = `<div class='${content.type}' id='${content.id}' style='${addStyles(content.style,[],["float"])}'>`
+			output += `<div class='imageWrap' style=''>`;
+			output += `<img src='${content.src}' alt='${content.id}' style='${addStyles(content.style,["width","height","min-width","min-height","max-width","max-height", "border-radius"])}' />`;
 			output += `</div>`;
-			content.caption && (output += `<p class='caption'>${content.caption}</p>`);
+			content.caption && (output += `<strong class='caption' style='${addStyles(content.style,[],["color"])}'>${content.caption}</strong>`);
 			return output;
 		case "header":
 			return `<h2 class='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>${processText(content.text)}</h2>`;
@@ -139,6 +150,12 @@ function buildData(content,data) {
 			return `<h4 class='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>${processText(content.text)}</h4>`;
 		case "text":
 			return `<p class='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>${processText(content.text)}</p>`;
+		case "footer":
+			const pagesArr = guideData.content.filter(item => item.type === "page").sort((a, b) => a.order - b.order);
+			const pageId = content.parent;
+			const previousPage = pagesArr[pagesArr.findIndex(p => p.id === pageId) - 1] || null;
+			const nextPage = pagesArr[pagesArr.findIndex(p => p.id === pageId) + 1] || null;
+			return `<div class='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>${previousPage ? `<span class='previous'>← <a onClick='changePage("${previousPage.id}")'>${previousPage.title}</a></span>` : ""} ${nextPage ? `<span class='next'><a onClick='changePage("${nextPage.id}")'>${nextPage.title}</a> →</span>` : ""}</div>`;
 		default:
 			return "";
 	}
@@ -146,7 +163,7 @@ function buildData(content,data) {
 
 
 function processText(text) {
-	// Match custom markup: {[Text]|modifiers}
+
 	return text.replace(/\{\[(.*?)\]\|(.*?)\}/g, function(match, innerText, modifiers) {
 		let style = "";
 		let url = "";
@@ -163,13 +180,32 @@ function processText(text) {
 		});
 		let result = innerText;
 		tags.forEach(tag => { result = `<${tag}>${result}</${tag}>`; });
-		if (url) {
-			url = window.location.protocol === 'file:' && url.startsWith("#") ? `./index.html${url}` : url;
-			result = `<a href='${url}'>${result}</a>`
-		};
+	  	 if (url) {
+            let onClick = "";
+            if (url.startsWith("#")) {
+                let target = findById(url.slice(1));
+				console.log(target)
+				let i = 0;
+                while (target && target.type !== "page" && i < 10) {
+                    target = guideData.content.find(item => item.id === target.parent);
+					i++;
+                }
+                if (target) onClick = `onClick='changePage("${target.id}")'`;
+                url = window.location.protocol === 'file:' ? `./index.html${url}` : url;
+            }
+            result = `<a href='${url}' ${onClick}>${result}</a>`;
+        };
 		if (style) result = `<span style='${style}'>${result}</span>`;
 		return result;
 	});
+}
+
+function findById(id, obj = test_data, visited = new Set()) {
+    if (visited.has(obj)) return null;
+    visited.add(obj);
+    if (obj.id === id) return obj;
+    const items = obj.content || (Array.isArray(obj) ? obj : Object.values(obj).filter(v => typeof v === 'object'));
+    return items.flatMap(v => findById(id, v, visited)).find(x => x) || null;
 }
 
 function tabInput(target) {

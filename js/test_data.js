@@ -16,9 +16,6 @@ const test_data = {
 			"id": "page-intro",
 			"order": 0,
 			"title": "Introduction",
-			"style": {
-				"min-height": "900px"
-			}
 		},
 		{
 			"type": "header",
@@ -35,18 +32,28 @@ const test_data = {
 			"text": "This guide uses {[inline]|italic} styles, {[bold]|bold} emphasis, and {[links]|url:'#page-gear';} to move between sections."
 		},
 		{
-			"type": "image",
-			"id": "img-intro-1",
+			"type": "panel",
+			"id": "panel-intro-image-1",
 			"parent": "page-intro",
 			"order": 2,
-			"src": "./guide1/media/Dark_Chronicle_poster_3.png",
-			"caption": "A mysterious relic",
 			"style": {
 				"width": "100%",
 				"height": "360px",
 				"float": "right",
 				"max-width": "420px",
 				"object-fit": "cover"
+			}
+		},
+		{
+			"type": "image",
+			"id": "img-intro-1",
+			"parent": "panel-intro-image-1",
+			"order": 2,
+			"src": "./guide1/media/Dark_Chronicle_poster_3.png",
+			"caption": "A mysterious relic",
+			"style": {
+				"object-fit": "cover",
+				"border-radius":"0.5rem",
 			}
 		},
 		{
@@ -101,13 +108,16 @@ const test_data = {
 			"text": "Focus on {[Core]|bold} stats early: power, stamina, and a dash of luck for rare drops."
 		},
 		{
+			"type": "footer",
+			"id": "footer-intro",
+			"parent": "page-intro",
+			"order": 5
+		},
+		{
 			"type": "page",
 			"id": "page-gear",
 			"order": 1,
 			"title": "Gear and Builds",
-			"style": {
-				"min-height": "900px"
-			}
 		},
 		{
 			"type": "header",
@@ -135,7 +145,7 @@ const test_data = {
 			"id": "table-gear-1",
 			"parent": "section-gear-1",
 			"order": 0,
-			"style": {"margin": "0 auto", "max-width": "600px"},
+			"style": {"max-width": "600px"},
 			"table": {
 				"headers": [
 					{ "text": "Item", "colspan": 1 },
@@ -178,13 +188,16 @@ const test_data = {
 			"text": "Upgrade blade first, then armor. Save gold for the Tier-2 stabilizer."
 		},
 		{
+			"type": "footer",
+			"id": "footer-gear",
+			"parent": "page-gear",
+			"order": 3
+		},
+		{
 			"type": "page",
 			"id": "page-maps",
 			"order": 2,
 			"title": "Maps and Routes",
-			"style": {
-				"min-height": "900px"
-			}
 		},
 		{
 			"type": "header",
@@ -268,13 +281,16 @@ const test_data = {
 			"text": "Avoid the flooded tunnel unless you have a light source. It drains stamina quickly."
 		},
 		{
+			"type": "footer",
+			"id": "footer-maps",
+			"parent": "page-maps",
+			"order": 3
+		},
+		{
 			"type": "page",
 			"id": "page-bosses",
 			"order": 3,
 			"title": "Boss Notes",
-			"style": {
-				"min-height": "900px"
-			}
 		},
 		{
 			"type": "header",
@@ -302,7 +318,7 @@ const test_data = {
 			"id": "text-bosses-1",
 			"parent": "section-bosses-1",
 			"order": 0,
-			"text": "Dodge the third slam, then counter during the glow window. {[Tip]|bold} Save burst for phase two."
+			"text": "Dodge the third slam, then counter during the glow window. {[Tip]|url:'#Wrench'} Save burst for phase two."
 		},
 		{
 			"type": "image",
@@ -337,7 +353,7 @@ const test_data = {
 			"id": "table-bosses-1",
 			"parent": "section-bosses-2",
 			"order": 0,
-			"style": {"margin": "0 auto", "max-width": "520px"},
+			"style": {"max-width": "520px"},
 			"table": {
 				"headers": [
 					{ "text": "Drop", "colspan": 1 },
@@ -354,6 +370,103 @@ const test_data = {
 					]
 				]
 			}
+		},
+		{
+			"type": "footer",
+			"id": "footer-bosses",
+			"parent": "page-bosses",
+			"order": 3
+		},
+		{
+			"type": "page",
+			"id": "page-weapons",
+			"order": 4,
+			"title": "Weapons"
+		},
+		{
+			"type": "header",
+			"id": "header-weapons",
+			"parent": "page-weapons",
+			"order": 0,
+			"text": "Weapons"
+		},
+		{
+			"type": "section",
+			"id": "section-wrenches",
+			"parent": "page-weapons",
+			"order": 1,
+			"title": "Wrenches"
+		},
+		{
+			"type": "sub-header",
+			"id": "subheader-wrenches",
+			"parent": "section-wrenches",
+			"order": 0,
+			"text": "Wrenches"
+		},
+		{
+			"type": "table",
+			"id": "table-wrenches-1",
+			"parent": "section-wrenches",
+			"order": 1,
+			"style": {"max-width": "100%"},
+			"table": {
+				"headers": [
+					{ "text": "Weapon" },
+					{ "text": "Combos" },
+					{ "text": "SP" },
+					{ "text": "Base ABS" },
+					{ "text": "Build Up" },
+					{ "text": "Obtained" }
+				],
+				"rows": [
+					[
+						{ "text": "Wrench", "id": "Wrench", "parent":"section-wrenches",},
+						{ "text": "5" },
+						{ "text": "3" },
+						{ "text": "32" },
+						{ "text": "N/A" },
+						{ "text": "Intro sequence only" }
+					],
+					[
+						{ "text": "Battle Wrench" },
+						{ "text": "5" },
+						{ "text": "3" },
+						{ "text": "32" },
+						{ "text": "Drill Wrench, True Battle Wrench" },
+						{ "text": "Buy from Milane for 200 Gilda" }
+					],
+					[
+						{ "text": "True Battle Wrench" },
+						{ "text": "5" },
+						{ "text": "3" },
+						{ "text": "32" },
+						{ "text": "Drill Wrench" },
+						{ "text": "Find or build up" }
+					],
+					[
+						{ "text": "Drill Wrench" },
+						{ "text": "5" },
+						{ "text": "3" },
+						{ "text": "64" },
+						{ "text": "Smash Wrench" },
+						{ "text": "Buy from Milane for 350 Gilda (Chapter 2+)" }
+					]
+				]
+			}
+		},
+		{
+			"type": "text",
+			"id": "text-wrenches-stats",
+			"parent": "section-wrenches",
+			"order": 2,
+			"text": "{[Min/Max Stats]|bold}: All wrenches share similar stat ranges. Wrench & Battle Wrench have Min (8/10/2/0/0/0/5/0/0/0) and Max (20/19/19/19/19/19/19/19/19/19). True Battle Wrench has Min (13/11/2/0/0/0/5/0/0/0). Drill Wrench upgrades to Min (15/11/2/0/0/0/9/0/5/0) and Max (35/34/34/34/34/34/34/34/34/34)."
+		},
+		{
+			"type": "footer",
+			"id": "footer-weapons",
+			"parent": "page-weapons",
+			"order": 2
 		}
 	]
 }

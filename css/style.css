@@ -16,37 +16,36 @@ body {
 	font-family: 'Roboto', Arial, sans-serif;
 	background: #f7f7fa;
 	color: #222;
-	min-height: 100vh;
-	overflow-x: hidden;
-	display: flex;
-	flex-direction: column;
 }
 
 header {
+	position:fixed;
+	width: 100%;
+	top:0;
+	height: 50px;
 	color: black;
 	background: floralwhite;
 	padding: 1.5rem 2rem;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 	display: flex;
     align-items: center;
+	align-content: center;
     justify-content: space-between;
-	min-height: 100px;
+	flex-wrap: wrap;
 	box-shadow: 0px 3px 1px rgba(0,0,0,0.9);
 	z-index: 100;
+	overflow: hidden;
 }
-header .header > span:first-child {
+header .header span:first-child {
 	color: cornflowerblue;
 }
-header .header > span:last-child {
+header .header span:last-child {
 	color: gold
 }
 header .header {
-    font-weight: bold;
+	width: calc(80% - 8rem);
 	font-size: 3rem;
-
-	text-transform:uppercase;
-	text-decoration: none;
-
+	text-align: center;
 	letter-spacing: 2px;
 	font-family: 'Roboto';
     font-weight: bold;
@@ -62,6 +61,11 @@ header .header {
         calc(var(--stroke) * -1) var(--stroke) 0 var(--stroke-color),
         var(--stroke) calc(var(--stroke) * -1) 0 var(--stroke-color),
         calc(var(--stroke) * -1) calc(var(--stroke) * -1) 0 var(--stroke-color);
+
+}
+header .header a {
+    text-transform: uppercase;
+    text-decoration: none;
 }
 
 header h1 {
@@ -70,18 +74,22 @@ header h1 {
 	letter-spacing: 1px;
 }
 header > div {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 0.5rem;
+	width: 10%;
+}
+header .editWrapper {
+	text-align: right;
+	margin-right: 4rem;
 }
 header > .loadWrapper {
-	flex-direction: row;
+	text-align:left;
+	margin-left: 4rem;
 }
+
 
 header .guide-info {
 	text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.5);
 	cursor: default;
+	text-align: center;
 }
 header .guide-info:not(:empty) ~ .btn {
 	display: none;
@@ -103,6 +111,9 @@ header .guide-info .title {
 	text-align: center;
 	font-size: 1.2rem;
 }
+header .guide-info > div:not(.title) {
+	font-size: 0.8rem;
+}
 header .guide-info div > *:first-child {
 	font-weight: bold;
 }
@@ -110,6 +121,7 @@ header .guide-info div > *:first-child {
 
 
 #content {
+	margin-top: calc(50px + 3rem);
 	flex: 1;
 	width: 100%;
 	height: 100%;
