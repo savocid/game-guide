@@ -76,15 +76,65 @@ const test_data = {
 			"parent": "section-intro-1",
 			"order": 0,
 			"style": {
-				"max-width": "520px"
+				"max-width": "520px",
+				"text-align": "center",
+				"display": "flex",
+				"flex-direction": "row",
+				"align-items": "center",
+				"flex-wrap": "wrap",
+			}
+		},
+		{
+			"type": "panel",
+			"id": "panels-panel-1",
+			"parent": "panel-intro-1",
+			"order": 1,
+			"style": {
+				"width": "50%"
+			}
+		},
+		{
+			"type": "panel",
+			"id": "panels-panel-2",
+			"parent": "panel-intro-1",
+			"order": 2,
+			"style": {
+				"width": "50%",
+				"border": "solid rgba(0,0,0,0.2)",
+				"border-width": "0 0 0 1px"
+			}
+		},
+		{
+			"type": "panel",
+			"id": "panels-panel-3",
+			"parent": "panel-intro-1",
+			"order": 3,
+			"style": {
+				"width": "100%",
+				"border": "solid rgba(0,0,0,0.2)",
+				"border-width": "1px 0 0 0"
 			}
 		},
 		{
 			"type": "text",
 			"id": "text-intro-2",
-			"parent": "panel-intro-1",
+			"parent": "panels-panel-1",
 			"order": 0,
 			"text": "Start with the Town route, then detour to the Workshop for early upgrades."
+		},
+		{
+			"type": "text",
+			"id": "text-intro-2",
+			"parent": "panels-panel-2",
+			"order": 0,
+			"text": "Then do this and that."
+		},
+		{
+			"type": "text",
+			"id": "text-intro-2",
+			"parent": "panels-panel-3",
+			"order": 0,
+			"text": "Welcome to the sentence of doom, eredar lord of the burning legion."
 		},
 		{
 			"type": "section",
@@ -106,12 +156,6 @@ const test_data = {
 			"parent": "section-intro-2",
 			"order": 0,
 			"text": "Focus on {[Core]|bold} stats early: power, stamina, and a dash of luck for rare drops."
-		},
-		{
-			"type": "footer",
-			"id": "footer-intro",
-			"parent": "page-intro",
-			"order": 5
 		},
 		{
 			"type": "page",
@@ -186,12 +230,6 @@ const test_data = {
 			"parent": "section-gear-2",
 			"order": 0,
 			"text": "Upgrade blade first, then armor. Save gold for the Tier-2 stabilizer."
-		},
-		{
-			"type": "footer",
-			"id": "footer-gear",
-			"parent": "page-gear",
-			"order": 3
 		},
 		{
 			"type": "page",
@@ -281,12 +319,6 @@ const test_data = {
 			"text": "Avoid the flooded tunnel unless you have a light source. It drains stamina quickly."
 		},
 		{
-			"type": "footer",
-			"id": "footer-maps",
-			"parent": "page-maps",
-			"order": 3
-		},
-		{
 			"type": "page",
 			"id": "page-bosses",
 			"order": 3,
@@ -370,12 +402,6 @@ const test_data = {
 					]
 				]
 			}
-		},
-		{
-			"type": "footer",
-			"id": "footer-bosses",
-			"parent": "page-bosses",
-			"order": 3
 		},
 		{
 			"type": "page",
@@ -463,10 +489,115 @@ const test_data = {
 			"text": "{[Min/Max Stats]|bold}: All wrenches share similar stat ranges. Wrench & Battle Wrench have Min (8/10/2/0/0/0/5/0/0/0) and Max (20/19/19/19/19/19/19/19/19/19). True Battle Wrench has Min (13/11/2/0/0/0/5/0/0/0). Drill Wrench upgrades to Min (15/11/2/0/0/0/9/0/5/0) and Max (35/34/34/34/34/34/34/34/34/34)."
 		},
 		{
+			"type": "section",
+			"id": "max-weapons",
+			"parent": "page-intro",
+			"order": 2,
+			"title": "Max Weapons",
+			"style": {
+				"width": "auto",
+				"text-align": "center"
+			},
+		},
+		{
+			"type": "sub-header",
+			"id": "max-weapons-header",
+			"parent": "max-weapons",
+			"order": 2,
+			"text": "Max Weapons",
+			"style": {
+				"justify-self": "center",
+			},
+		},
+		{
+			"type": "diagram",
+			"id": "weapon-diagram",
+			"parent": "max-weapons",
+			"order": 4,
+			"direction": "LR",
+			"nodes": [
+				{ "id": "battle_wrench", "text": "Battle Wrench" },
+				{ "id": "drill_wrench", "text": "Drill Wrench" },
+				{ "id": "smash_wrench", "text": "Smash Wrench" },
+				{ "id": "stinger_wrench", "text": "Stinger Wrench" },
+				{ "id": "poison_wrench", "text": "Poison Wrench" },
+				{ "id": "sigma_breaker", "text": "Sigma Breaker" },
+				{ "id": "grade_zero", "text": "Grade Zero" },
+
+				{ "id": "true_battle_wrench", "text": "True Battle Wrench" },
+				{ "id": "frozen_tuna", "text": "Frozen Tuna" },
+				{ "id": "cubic_hammer", "text": "Cubic Hammer" },
+				{ "id": "digi_hammer", "text": "Digi Hammer" },
+				{ "id": "heavy_hammer", "text": "Heavy Hammer" },
+				{ "id": "legend", "text": "Legend" },
+
+				{ "id": "turtle_shell_hammer", "text": "Turtle Shell Hammer" },
+				{ "id": "kuberas_hand", "text": "Kubera's Hand" },
+				{ "id": "big_bucks_hammer", "text": "Big Bucks Hammer" },
+
+				{ "id": "handy_stick", "text": "Handy Stick" },
+
+				{ "id": "turkey", "text": "Turkey" },
+				{ "id": "swan", "text": "Swan\n{[At]|color:red}: 24 • Ch: 10 • Cy: 10" },
+				{ "id": "flamingo", "text": "Flamingo" },
+				{ "id": "falcon", "text": "Falcon" },
+				{ "id": "albatross", "text": "Albatross" }
+			],
+			"links": [
+				{ "source": "battle_wrench", "target": "drill_wrench" },
+				{ "source": "drill_wrench", "target": "smash_wrench" },
+				{ "source": "smash_wrench", "target": "stinger_wrench" },
+				{ "source": "stinger_wrench", "target": "poison_wrench" },
+				{ "source": "poison_wrench", "target": "sigma_breaker" },
+				{ "source": "sigma_breaker", "target": "grade_zero" },
+
+				{ "source": "true_battle_wrench", "target": "drill_wrench" },
+				{ "source": "true_battle_wrench", "target": "frozen_tuna" },
+
+				{ "source": "frozen_tuna", "target": "cubic_hammer" },
+				{ "source": "cubic_hammer", "target": "digi_hammer" },
+				{ "source": "digi_hammer", "target": "heavy_hammer" },
+				{ "source": "heavy_hammer", "target": "legend" },
+
+				{ "source": "turtle_shell_hammer", "target": "kuberas_hand" },
+				{ "source": "kuberas_hand", "target": "big_bucks_hammer" },
+				{ "source": "frozen_tuna", "target": "big_bucks_hammer" },
+
+				{ "source": "turkey", "target": "flamingo" },
+				{ "source": "swan", "target": "flamingo" },
+				{ "source": "flamingo", "target": "falcon" },
+				{ "source": "falcon", "target": "albatross" }
+			]
+		},
+		{
+			"type": "footer",
+			"id": "footer-intro",
+			"parent": "page-intro",
+			"order": 5
+		},
+		{
+			"type": "footer",
+			"id": "footer-gear",
+			"parent": "page-gear",
+			"order": 3
+		},
+		{
+			"type": "footer",
+			"id": "footer-maps",
+			"parent": "page-maps",
+			"order": 3
+		},
+		{
+			"type": "footer",
+			"id": "footer-bosses",
+			"parent": "page-bosses",
+			"order": 3
+		},
+		{
 			"type": "footer",
 			"id": "footer-weapons",
 			"parent": "page-weapons",
 			"order": 2
-		}
+		},
 	]
 }

@@ -51,6 +51,11 @@ function buildData(content) {
 		"align-items",
 		"justify-content",
 		"flex-direction",
+		"flex-wrap",
+		"border-width",
+		"clear",
+		"justify-self",
+		"align-self"
 	];
 
 	const addStyles = (styleObj, exclude = [], include = []) => {
@@ -137,6 +142,16 @@ function buildData(content) {
 			output += "</tbody></table>";
 
 			return output;
+		case "diagram":
+			const lines = [`graph ${content.direction || "LR"}`]
+				.concat(content.nodes.map(n => `${n.id}[${processText(n.text)}]`))
+				.concat(content.links.map(l => `${l.source} --- ${l.target}`));
+
+			output = `<div class='${content.type} mermaid' id='${content.id}' style='${addStyles(content.style)}'>`
+			output += lines.join("\n");
+			output += `</div>`
+
+			return output;
 		case "image":
 			var output = `<div class='${content.type}' id='${content.id}' style='${addStyles(content.style,[],["float"])}'>`
 			output += `<div class='imageWrap' style=''>`;
@@ -184,7 +199,6 @@ function processText(text) {
             let onClick = "";
             if (url.startsWith("#")) {
                 let target = findById(url.slice(1));
-				console.log(target)
 				let i = 0;
                 while (target && target.type !== "page" && i < 10) {
                     target = guideData.content.find(item => item.id === target.parent);
@@ -284,6 +298,17 @@ async function loadGuide() {
     }
 }
 
+function redirectHighlight() {
+	setTimeout(() => {
+		const id = decodeURIComponent(location.hash || "").replace(/^#/, "");
+		if (!id) return;
+		const el = document.getElementById(id);
+		if (!el || el.classList.contains("hash-highlight")) return;
+		el.classList.add("hash-highlight");
+		setTimeout(() => el.classList.remove("hash-highlight"), 2000);
+	}, 100);
+}
+
 
 function changePage(id) {
 
@@ -301,18 +326,63 @@ function changePage(id) {
 	
 	const page = document.querySelector(`#content > .page#${id}`)
 	page && (page.setAttribute("data-page-open",""));
+
+	renderDiagrams();
+	history.replaceState(null, "", location.pathname + location.search);
+}
+
+function renderDiagrams() {
+	const isVisible = el => !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+	document.querySelectorAll("#content .mermaid").forEach(m => {
+		if (isVisible(m)) mermaid.init(undefined, m)
+	});
 }
 
 function saveGuide() {
 	document.body.dataset.edited = false;
 }
 function editGuide() {
-	document.body.dataset.editor = document.body.dataset.editor == false;
+	let editorMode = document.body.dataset.editor == "false" || !document.body.dataset.editor;
+	document.body.dataset.editor = editorMode;
+
+	console.log(editorMode)
+
+	const editBtn = document.querySelector("header .editWrapper button")
+	editBtn.className = editorMode ? "btn btn-secondary" : "btn btn-primary";
 }
 
 
+
 (function() {
+	
+	const notEditable = [
+		"navigator",
+		"footer"
+	];
+
+	mermaid.initialize({
+		startOnLoad:false,
+		flowchart: {
+			curve: "linear",
+		},
+	});
+
 	loadTest();
+	renderDiagrams();
+
+	document.querySelectorAll("#content a").forEach(a => {
+		a.addEventListener("click", redirectHighlight);
+	})
+
+	document.addEventListener("dblclick", (e) => {
+		const el = e.target.closest("body[data-editor='true'] #content *");
+		if (!el || !el.id) return;
+		const blockedSelector = notEditable.map((cls) => `.${cls}`).join(",");
+		if (el.closest(blockedSelector)) return;
+		el.contentEditable = "true";
+		el.focus();
+		document.body.dataset.edited = true;
+	});
 	
 	if (location.protocol === 'file:') {
 		document.querySelectorAll('a[href$="/"]').forEach(a => {
