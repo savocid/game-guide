@@ -1,29 +1,10 @@
 
 let guideData = {};
 
-function loadTest() {
-	
-	if (test_data) {
-		const gameInfo = document.querySelector("header .guide-info");
-		gameInfo.innerHTML = ``;
-		test_data.title && (gameInfo.innerHTML += `<div class="title"><span>${test_data.title}</span></div>`);
-		//test_data.description && (gameInfo.innerHTML += `<div class="description"><span>${test_data.description}</span></div>`);
-		test_data.version && (gameInfo.innerHTML += `<div class="version"><span>Version: </span><span>${test_data.version}</span></div>`);
-		test_data.author && (gameInfo.innerHTML += `<div class="author"><span>Author: </span><span>${test_data.author}</span></div>`);
-		//test_data.created && (gameInfo.innerHTML += `<div class="created"><span>Created: </span><span>${test_data.created}</span></div>`);
-		//test_data.modified && (gameInfo.innerHTML += `<div class="modified"><span>Modified: </span><span>${test_data.modified}</span></div>`);
 
-		guideData = test_data;
 
-		document.getElementById("content").innerHTML = "";
-		test_data.content.forEach(content => {
-			const base = content.parent && (document.getElementById(`${content.parent}`)) || document.getElementById("content")
-			base.innerHTML += buildData(content,test_data)
-		});
-	}
-}
 
-function buildData(content) {
+function buildContent(content) {
 
 	const styles = [
 		"width",
@@ -72,7 +53,7 @@ function buildData(content) {
 	switch (content.type)
 	{
 		case "page":
-			return `<div class='${content.type}' id='${content.id}' data-title='${content.title}' style='${addStyles(content.style)}' ${content.order == 0 ? "data-page-open" : ""}></div>`;
+			return `<div class='${content.type}' id='${content.id}' data-title='${content.title}' style='${addStyles(content.style)}'></div>`;
 		case "navigator":
 			var output = `<div class='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>`;
 			output += `<ul>`;
@@ -232,9 +213,6 @@ function tabInput(target) {
 	tab && (tab.setAttribute("data-tab-open",""));
 }
 
-
-
-
 async function getDirectoryHandle() {
     const db = await openDB();
     return new Promise((resolve, reject) => {
@@ -312,19 +290,18 @@ function redirectHighlight() {
 
 function changePage(id) {
 
-	if (document.querySelector(`#content > .page#${id}[data-page-open]`)) return;
+	if (document.querySelector(`#content > .page[id='${id}'][data-page-open]`)) return;
 
 	document.querySelectorAll('#content .navigator a[data-page-open]').forEach(el => el.removeAttribute('data-page-open'));
     const link = document.querySelector(`#content .navigator a[data-page='${id}']`)
 	link && (link.setAttribute("data-page-open",""));
-
 
 	const pages = document.querySelectorAll("#content > .page");
 	pages.forEach(page => {
 		page.removeAttribute('data-page-open');
 	});
 	
-	const page = document.querySelector(`#content > .page#${id}`)
+	const page = document.querySelector(`#content > .page[id='${id}']`)
 	page && (page.setAttribute("data-page-open",""));
 
 	renderDiagrams();
@@ -345,44 +322,16 @@ function editGuide() {
 	let editorMode = document.body.dataset.editor == "false" || !document.body.dataset.editor;
 	document.body.dataset.editor = editorMode;
 
-	console.log(editorMode)
-
-	const editBtn = document.querySelector("header .editWrapper button")
-	editBtn.className = editorMode ? "btn btn-secondary" : "btn btn-primary";
+	const editBtn = document.querySelector("header .editWrapper button.editor")
+	editBtn.className = editorMode ? "btn btn-secondary editor" : "btn btn-primary editor";
 }
 
 
 
 (function() {
-	
-	const notEditable = [
-		"navigator",
-		"footer"
-	];
-
-	mermaid.initialize({
-		startOnLoad:false,
-		flowchart: {
-			curve: "linear",
-		},
-	});
-
-	loadTest();
-	renderDiagrams();
-
 	document.querySelectorAll("#content a").forEach(a => {
 		a.addEventListener("click", redirectHighlight);
 	})
-
-	document.addEventListener("dblclick", (e) => {
-		const el = e.target.closest("body[data-editor='true'] #content *");
-		if (!el || !el.id) return;
-		const blockedSelector = notEditable.map((cls) => `.${cls}`).join(",");
-		if (el.closest(blockedSelector)) return;
-		el.contentEditable = "true";
-		el.focus();
-		document.body.dataset.edited = true;
-	});
 	
 	if (location.protocol === 'file:') {
 		document.querySelectorAll('a[href$="/"]').forEach(a => {
@@ -390,7 +339,6 @@ function editGuide() {
 			if (!href.endsWith('index.html')) a.setAttribute('href', href + 'index.html');
 		});
 	}
-
 })();
 
 

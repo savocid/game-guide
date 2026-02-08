@@ -34,6 +34,7 @@ table {
 	border-collapse: collapse;
 	background: white;
 	margin: 0.5rem 0;
+	color:black;
 }
 table, th, td {
     border: 1px solid #000;
@@ -63,6 +64,9 @@ div[data-tab]:not([data-tab-open]) {
 .image img {
 	width: 100%;
 	height: 100%;
+	object-fit: scale-down;
+	max-width: 500px;
+	max-height: 500px;
 }
 
 .tabs > .labelWrap {
@@ -78,6 +82,7 @@ div[data-tab]:not([data-tab-open]) {
 	user-select: none;
 	background:hsl(0,0%,80%);
 	font-weight: bold;
+	color: black;
 }
 .tabs .labelWrap label:has(input:checked):not(:active) {
 	background:hsl(0,0%,60%);
@@ -115,6 +120,7 @@ div[data-tab]:not([data-tab-open]) {
 
 .navigator > ul {
 	list-style-position: inside;
+	color: black;
 }
 .navigator li > ul {
 	padding-left: 2rem;
@@ -139,6 +145,7 @@ li:not(:has(> a[data-page-open])) > ul {
 	justify-content: space-between;
 	width: 100%;
 	padding: 2rem 0 0;
+	color: black;
 }
 .footer > span.previous {
 	margin-right: auto;
@@ -166,6 +173,7 @@ li:not(:has(> a[data-page-open])) > ul {
 	margin: 1rem 0;
 	border: 2px solid rgba(0, 0, 0, 0.2);
 	width: fit-content;
+	color: black;
 }
 
 .panel:has(*.panel) .panel {
