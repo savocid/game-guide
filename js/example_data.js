@@ -1,9 +1,9 @@
-const test_data = {
+const example_data = {
 	"title": "Test Guide",
 	"version": "1.0",
 	"author": "GameGuide",
-	"created": "2026-02-05",
-	"modified": "2026-02-05",
+	"created": null,
+	"modified": null,
 
 	"content": [
 		{
@@ -50,7 +50,7 @@ const test_data = {
 			"id": "img-intro-1",
 			"parent": "panel-intro-image-1",
 			"order": 3,
-			"src": "./guide1/media/Dark_Chronicle_poster_3.png",
+			"src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTA1IiBoZWlnaHQ9IjMzNSIgdmlld0JveD0iMCAwIDUwNSAzMzUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjUwNSIgaGVpZ2h0PSIzMzUiIGZpbGw9IiNjZmQ2ZGEiPjwvcmVjdD48cGF0aCBkPSJNIDAgMjMwQyA2MCAxNzAsIDEyMCAxNzAsIDE4MCAyNDBDIDI1MCAzMzAsIDM2MCAxMjAsIDUwNSAyMzBMIDUwNSAzMzVMIDAgMzM1WiIgZmlsbD0iI2Y2ZjdmNyI+PC9wYXRoPjxjaXJjbGUgY3g9IjE2MCIgY3k9IjE1MCIgcj0iMTgiIGZpbGw9IiNmNmY3ZjciPjwvY2lyY2xlPjwvc3ZnPg==",
 			"caption": "A mysterious relic",
 			"style": {
 				"object-fit": "cover",
@@ -189,28 +189,68 @@ const test_data = {
 		{
 			"type": "table",
 			"id": "table-gear-1",
-			"parent": "section-gear-1",
+			"parent": "page-intro",
 			"order": 1,
 			"style": {"max-width": "600px"},
-			"table": {
-				"headers": [
-					{ "text": "Item", "colspan": 1 },
-					{ "text": "Effect", "colspan": 1 },
-					{ "text": "Notes", "colspan": 1 }
-				],
-				"rows": [
-					[
-						{ "text": "Steel Coil" },
-						{ "text": "+12% crit" },
-						{ "text": "Stacks with Arc buff" }
-					],
-					[
-						{ "text": "Prism Lens" },
-						{ "text": "+1 range" },
-						{ "text": "Unlocks beam variant" }
-					]
-				]
-			}
+		},
+		{
+			"type": "table-cell",
+			"id": "table-cell2",
+			"parent": "table-gear-1",
+			"order": 2,
+			"row": 1,
+			"text": "hi2",
+		},
+		{
+			"type": "table-cell",
+			"id": "table-cell1",
+			"parent": "table-gear-1",
+			"order": 1,
+			"row": 1,
+			"text": "hi1",
+		},
+		{
+			"type": "table-cell",
+			"id": "table-cell3",
+			"parent": "table-gear-1",
+			"order": 3,
+			"row": 1,
+			"text": "hi3",
+		},
+		{
+			"type": "table-cell",
+			"id": "table-cell4",
+			"parent": "table-gear-1",
+			"order": 1,
+			"row": 2,
+			"text": "hi4",
+			"colspan": 2,
+		},
+		{
+			"type": "table-cell",
+			"id": "table-cell5",
+			"parent": "table-gear-1",
+			"order": 2,
+			"row": 2,
+			"text": "hi5",
+		},
+		{
+			"type": "table-cell",
+			"id": "table-cell6",
+			"parent": "table-gear-1",
+			"order": 1,
+			"row": 3,
+			"text": "hi6",
+		},
+		{
+			"type": "table-cell",
+			"id": "table-cell7",
+			"parent": "table-gear-1",
+			"order": 2,
+			"row": 3,
+			"text": "hi7",
+			"colspan": 2,
+			"rowspan": 2,
 		},
 		{
 			"type": "section",
@@ -375,7 +415,7 @@ const test_data = {
 			"id": "img-bosses-1",
 			"parent": "section-bosses-1",
 			"order": 2,
-			"src": "./guide1/media/Dark_Chronicle_poster_3.png",
+			"src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTA1IiBoZWlnaHQ9IjMzNSIgdmlld0JveD0iMCAwIDUwNSAzMzUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjUwNSIgaGVpZ2h0PSIzMzUiIGZpbGw9IiNjZmQ2ZGEiPjwvcmVjdD48cGF0aCBkPSJNIDAgMjMwQyA2MCAxNzAsIDEyMCAxNzAsIDE4MCAyNDBDIDI1MCAzMzAsIDM2MCAxMjAsIDUwNSAyMzBMIDUwNSAzMzVMIDAgMzM1WiIgZmlsbD0iI2Y2ZjdmNyI+PC9wYXRoPjxjaXJjbGUgY3g9IjE2MCIgY3k9IjE1MCIgcj0iMTgiIGZpbGw9IiNmNmY3ZjciPjwvY2lyY2xlPjwvc3ZnPg==",
 			"caption": "Warden silhouette",
 			"style": {
 				"width": "100%",

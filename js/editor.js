@@ -7,6 +7,7 @@ const state = {
 };
 const ignoredElements = {
 	//"page": "element",
+	//"navigator": "closest",
 };
 const allOptions = {
 	"order": "key",
@@ -46,6 +47,9 @@ const allOptions = {
 	"clear": "style",
 	"justify-self": "style",
 	"align-self": "style",
+	"row": "key",
+	"colspan": "key",
+	"rowspan": "key",
 };
 
 
@@ -161,6 +165,14 @@ const typeOptions = {
 		"max-height",
 		"border",
 		"border-radius",
+	],
+	"table-cell": [
+		"order",
+		"id",
+		"row",
+		"text",
+		"colspan",
+		"rowspan",
 	],
 	"diagram": [
 		"order",
@@ -298,6 +310,7 @@ const selectableTypes = [
 	"tabs",
 	"tab",
 	"table",
+	"table-cell",
 	"diagram",
 	"image",
 	"header",
@@ -337,6 +350,11 @@ const entryTemplates = {
 	"page": {
 		"type": "page",
 	},
+	"navigator": {
+		"type": "navigator",
+		"title": "Navigator",
+		"order": -1,
+	},
 	"footer": {
 		"type": "footer",
 	},
@@ -348,20 +366,20 @@ const entryTemplates = {
 	},
 	"text": {
 		"type": "text",
-		"text": "Sample normal text.",
+		"text": "Example normal text.",
 	},
 	"header": {
 		"type": "header",
-		"text": "Sample header text."
+		"text": "Example header text."
 	},
 	"sub-header": {
 		"type": "sub-header",
-		"text": "Sample sub-header text."
+		"text": "Example sub-header text."
 	},
 	"image": {
 		"type": "image",
-		"src": "./media/placeholder.png",
-		"caption": "Sample Image Caption Text",
+		"src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTA1IiBoZWlnaHQ9IjMzNSIgdmlld0JveD0iMCAwIDUwNSAzMzUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjUwNSIgaGVpZ2h0PSIzMzUiIGZpbGw9IiNjZmQ2ZGEiPjwvcmVjdD48cGF0aCBkPSJNIDAgMjMwQyA2MCAxNzAsIDEyMCAxNzAsIDE4MCAyNDBDIDI1MCAzMzAsIDM2MCAxMjAsIDUwNSAyMzBMIDUwNSAzMzVMIDAgMzM1WiIgZmlsbD0iI2Y2ZjdmNyI+PC9wYXRoPjxjaXJjbGUgY3g9IjE2MCIgY3k9IjE1MCIgcj0iMTgiIGZpbGw9IiNmNmY3ZjciPjwvY2lyY2xlPjwvc3ZnPg==",
+		"caption": "Example Image Caption Text",
 	},
 	"tabs": {
 		"type": "tabs",
@@ -460,7 +478,7 @@ function renderAddTools(section) {
 		{"label": "text", "svg": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="#000"><path d="M0 7h64v2H0zM0 17h64v2H0zM0 27h64v2H0zM0 37h64v2H0zM0 47h64v2H0zM0 57h44v2H0z"/></svg>`, },
 	];
 	addItems.forEach(item => {
-		if (item.label == "navigator" && (guideData.content.find(e => e.type === "navigator") || guideData.content.find(e => e.type === "footer"))) return;
+		//if (item.label == "navigator" && (guideData.content.find(e => e.type === "navigator") || guideData.content.find(e => e.type === "footer"))) return;
 		const button = document.createElement("button");
 		button.classList.add(item.label);
 		const txt = document.createElement("span");
@@ -481,8 +499,8 @@ function addEntry(type) {
 	let newId = null
 	switch(type) {
 		case "page":
-			const pageCount = guideData.content.filter(e => e.type === "page").length;
-			const totalCount = guideData.content.filter(e => (e.type === "page") || (e.type === "navigator"));
+			var pageCount = guideData.content.filter(e => e.type === "page").length;
+			var totalCount = guideData.content.filter(e => (e.type === "page") || (e.type === "navigator"));
 			var entry = {...entryTemplates[type]};
 			entry.id = crypto.randomUUID();
 			newId = entry.id;
@@ -491,24 +509,24 @@ function addEntry(type) {
 			guideData.content.push(entry);
 			break;
 		case "navigator":
-			const find = guideData.content.find(e => e.type === "navigator") || guideData.content.find(e => e.type === "footer")
-			if (!find) {
-				const pages = guideData.content.filter(e => e.type === "page")
-				const totalCount = guideData.content.filter(e => (e.type === "page") || (e.type === "navigator"))+1;
-				var nav = {...entryTemplates["navigator"]};
-				nav.id = crypto.randomUUID();
-				newId = nav.id;
-				nav.order = totalCount;
-				guideData.content.push(nav);
-				
-				pages.forEach(page => {
-					var footer = {...entryTemplates["footer"]};
-					footer.id = crypto.randomUUID();
-					footer.order = 9999;
-					footer.parent = page.id;
-					guideData.content.push(footer)
-				});
-			}
+			if (guideData.content.find(e => e.type === "navigator")) { alert("Navigator already exists."); return; }
+			
+			guideData.content = guideData.content.filter(e => e.type !== "footer");
+
+			var pages = guideData.content.filter(e => e.type === "page")
+			var nav = {...entryTemplates["navigator"]};
+			nav.id = crypto.randomUUID();
+			newId = nav.id;
+			guideData.content.push(nav);
+			
+			pages.forEach(page => {
+				var footer = {...entryTemplates["footer"]};
+				footer.id = crypto.randomUUID();
+				footer.order = 9999;
+				footer.parent = page.id;
+				guideData.content.push(footer)
+			});
+			
 			break;
 		case "tabs":
 			var siblingCount = guideData.content.filter(e => e.parent === getCurrentPage().id).length;
@@ -519,7 +537,7 @@ function addEntry(type) {
 			entry.order = siblingCount+1;
 			guideData.content.push(entry);
 
-			const tabs = ["Sample Tab 1", "Sample Tab 2", "Sample Tab 3"]
+			const tabs = ["Example Tab 1", "Example Tab 2", "Example Tab 3"]
 			tabs.forEach((tab, i) => {
 				var tabEntry = {...entryTemplates["tab"]};
 				tabEntry.id = crypto.randomUUID();
@@ -585,7 +603,7 @@ function renderSelectors(section, selected) {
 	pages.forEach(page => {
 		const option = document.createElement("option");
 		option.value = page.id;
-		option.textContent = page.title || (`${capitalizeString(page.type)} (${page.id})`);
+		option.textContent = page.title;
 		pageSelect.appendChild(option);
 	});
 
@@ -670,7 +688,7 @@ function renderEditControls(section) {
 					handleFieldChange(borderColor.value,borderColor.dataset.field);
 				})
 				borderColor.addEventListener("change", function() {
-					this.value = normalizeColor(this.value)
+					this.value != "" && (this.value = normalizeColor(this.value));
 					colorPicker.value = this.value;
 				})
 			}
@@ -801,7 +819,7 @@ function renderEditControls(section) {
 								dropdown.dataset.field = btn.label;
 								
 								dropdown.querySelectorAll("input[type='text'], select").forEach(el => el.value = "");
-								dropdown.querySelector(":scope > strong").textContent = `Add ${capitalizeString(btn.label)}`;
+								dropdown.querySelector(":scope > strong").textContent = `Set ${capitalizeString(btn.label)}`;
 								
 								if (btn.label == "link") {
 									dropSelectRadio.checked = true;
@@ -997,7 +1015,7 @@ function renderEditControls(section) {
 					handleFieldChange(input.value,input.dataset.field);
 				})
 				input.addEventListener("change", function() {
-					this.value = normalizeColor(this.value)
+					this.value != "" && (this.value = normalizeColor(this.value));
 					colorPicker.value = this.value;
 				})
 			}
@@ -1299,7 +1317,7 @@ function updateSidebarSide() {
 
 	const newSide = computeSidebarSide();
 
-	if (newSide != document.body.dataset.sidebarSide) {
+	if (document.body.dataset.sidebarSide && newSide != document.body.dataset.sidebarSide) {
 		document.getElementById("sidebar").classList.add('disable-anim');
 		setTimeout(() => {
 			document.getElementById("sidebar").classList.remove('disable-anim');
@@ -1467,38 +1485,240 @@ function updateOrder(input, entry) {
     
 }
 
-function loadTest() {
+async function readDataFile(_this) {
+	const file = _this.files[0];
+	if (!file) return;
 	
-	if (test_data) {
-		const gameInfo = document.querySelector("header .guide-info");
-		gameInfo.innerHTML = ``;
-		test_data.title && (gameInfo.innerHTML += `<div class="title"><input type='text' id='guide-title-input' data-field='title' value='${test_data.title}' onChange='handleGuideBaseChange(this)'><span class='val'>${test_data.title}</span></div>`);
-		test_data.version && (gameInfo.innerHTML += `<div class="version"><span>Version: </span><input type='number' id='guide-version-input' data-field='version' min='0.1' max='10.0' step='0.1' value='${test_data.version}' onChange='handleGuideBaseChange(this)'><span class='val'>${test_data.version}</span></div>`);
-		test_data.author && (gameInfo.innerHTML += `<div class="author"><span>Author: </span><input type='text' id='guide-author-input' data-field='author' value='${test_data.author}' onChange='handleGuideBaseChange(this)'><span class='val'>${test_data.author}</span></div>`);
-		//test_data.created && (gameInfo.innerHTML += `<div class="created"><span>Created: </span><input type='text' id='guide-created-input' data-field='created' value='${test_data.created}' onChange='handleGuideBaseChange(this)'><span class='val'>${test_data.created}</span></div>`);
-		//test_data.modified && (gameInfo.innerHTML += `<div class="modified"><span>Modified: </span><input type='text' id='guide-modified-input' data-field='modified' value='${test_data.modified}' onChange='handleGuideBaseChange(this)'><span class='val'>${test_data.modified}</span></div>`);
-
-		guideData = new ManualSaveWrapper(test_data, 'guideData');
-		buildData();
+	try {
+		const text = await file.text();
+		let requestedData = JSON.parse(text);
 		
+		if (!requestedData || typeof requestedData !== 'object') {
+			throw new Error('Invalid JSON file');
+		}
+
+		["id","title","version","author","created","modified","content"].forEach(k => {
+			if (requestedData[k] == undefined) throw new Error('Invalid JSON file');
+		})
+
+		const localData = localStorage.getItem(`GameGuideData_${requestedData.id}`);
+		
+		if (localData) {
+			const jsonData = JSON.parse(localData);
+
+			if (jsonData?.modified > requestedData?.modified) {
+				let newerDataConfirm = confirm("Found unsaved data, load that instead?");
+
+				if (newerDataConfirm) {
+					requestedData = jsonData;
+				}
+			};
+		}
+
+		guideData = new ManualSaveWrapper(requestedData);
+
+		initLoad();
+		buildData();
+		refreshSidebar();
+
+		saveGuide();
+		
+	} catch (error) {
+		console.error('Error loading file:', error);
+		alert(`Error loading file: ${error.message}`);
+	}
+}
+
+
+function downloadGuide(data) {
+	if (data?.title == undefined || data?.author == undefined) return;
+	const jsonString = JSON.stringify(data, null, 2);	
+	const blob = new Blob([jsonString], { type: "application/json" });
+
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement("a");
+	a.href = url;
+	a.download = `GameGuideData_${data.id}.json`;
+	document.body.appendChild(a);
+	a.click();
+	document.body.removeChild(a);
+	URL.revokeObjectURL(url);
+}
+
+function createLocalPanels() {
+
+	const panels = document.querySelector("#browse .panels")
+	panels.innerHTML = "";
+
+	const foundLocalData = [...Array(localStorage.length).keys()]
+        .map(i => localStorage.key(i))
+        .filter(key => key.startsWith("GameGuideData_"))
+        .map(key => ({
+            key: key,
+            data: JSON.parse(localStorage.getItem(key))
+        }));
+
+	foundLocalData.forEach(item => {
+		const settings = {
+			data: item.data,
+			parent: panels,
+			key: item.key,
+		};
+
+		createBrowsePanel(settings);
+	})
+}
+
+function createBrowsePanel(settings) {
+
+	const formatDate = (date) => `${new Date(date).toISOString().split('T')[0]} ${new Date(date).toLocaleTimeString()}`;
+
+	const panel = document.createElement("div");
+	panel.id = settings.data.id;
+	panel.classList.add("panel");
+
+	const metadata = document.createElement("div");
+	metadata.classList.add("metadata")
+	panel.appendChild(metadata);
+
+	const title = document.createElement("h3");
+	title.textContent = settings.data.title;
+	metadata.appendChild(title)
+
+	const version = document.createElement("span");
+	version.innerHTML = `<strong>Version: </strong><span>${settings.data.version}</span>`;
+	metadata.appendChild(version)
+
+	const author = document.createElement("span");
+	author.innerHTML = `<strong>Author: </strong><span>${settings.data.author}</span>`;
+	metadata.appendChild(author)
+
+	const created = document.createElement("span");
+	created.innerHTML = `<strong>Created: </strong><span>${formatDate(settings.data.created)}</span>`;
+	metadata.appendChild(created)
+
+	const modified = document.createElement("span");
+	modified.innerHTML = `<strong>Modified: </strong><span>${formatDate(settings.data.modified)}</span>`;
+	metadata.appendChild(modified);
+
+	const buttons = document.createElement("div");
+	buttons.classList.add("buttons")
+	panel.appendChild(buttons);
+
+	const deleteBtn = document.createElement("button");
+	deleteBtn.className = "btn btn-cancel delete";
+	deleteBtn.textContent = "x";
+	buttons.appendChild(deleteBtn);
+
+	const loadBtn = document.createElement("button");
+	loadBtn.className = "btn btn-confirm load";
+	loadBtn.textContent = "⇒";
+	buttons.appendChild(loadBtn);
+
+	const downloadBtn = document.createElement("button");
+	downloadBtn.className = "btn btn-primary download";
+	downloadBtn.textContent = "⤓";
+	downloadBtn.title = "Download as JSON";
+	buttons.appendChild(downloadBtn);
+
+	loadBtn.addEventListener("click", function() {
+		const data = settings.data;
+		loadGuide(data)
+	});
+
+	deleteBtn.addEventListener("click", function() {
+		const deletionConfirm = confirm(`You are deleting: ${settings.data.title}\nProceed?`);
+
+		if (deletionConfirm) {
+			
+			localStorage.removeItem(settings.key);
+			createLocalPanels();
+		}
+	});
+	
+	downloadBtn.addEventListener("click",function() { downloadGuide(settings.data); })
+
+
+	settings.parent.appendChild(panel)
+}
+function loadGuide(data) {
+	if (!data)
+	["title","version","author","created","modified","content"].forEach(k => { if (data[k] == undefined) return; });
+
+	guideData = new ManualSaveWrapper(data);
+	initLoad();
+	buildData();
+	refreshSidebar();
+}
+
+
+function unloadGuide() {
+	document.querySelector("header .guide-info").innerHTML = "";
+	document.querySelector("#content").innerHTML = "";
+	document.body.dataset.editor = false;
+	document.body.dataset.sidebar = false;
+	document.body.dataset.loaded = false;
+
+	guideData = {};
+	updateUrl();
+
+	createLocalPanels();
+}
+
+
+function newGuide() {
+
+	const guideName = prompt("Select guide title:","");
+
+	if (guideName != undefined) {
+		guideData = new ManualSaveWrapper(example_data);
+		guideData.id = crypto.randomUUID();
+		guideData.created = Date.now();
+		guideData.modified = guideData.created;
+		guideName && (guideData.title = guideName);
+
+		initLoad();
+		buildData();
 		refreshSidebar();
 	}
 }
 
+function initLoad() {
+	document.body.dataset.loaded = true;
+	const gameInfo = document.querySelector("header .guide-info");
+	gameInfo.innerHTML = ``;
+	guideData.title != undefined && (gameInfo.innerHTML += `<div class="title"><input type='text' id='guide-title-input' data-field='title' value='${guideData.title}' onChange='handleGuideBaseChange(this)'><span class='val'>${guideData.title}</span></div>`);
+	guideData.version != undefined && (gameInfo.innerHTML += `<div class="version"><span>Version: </span><input type='number' id='guide-version-input' data-field='version' min='0.1' max='10.0' step='0.1' value='${guideData.version}' onChange='handleGuideBaseChange(this)'><span class='val'>${guideData.version}</span></div>`);
+	guideData.author != undefined && (gameInfo.innerHTML += `<div class="author"><span>Author: </span><input type='text' id='guide-author-input' data-field='author' value='${guideData.author}' onChange='handleGuideBaseChange(this)'><span class='val'>${guideData.author}</span></div>`);
+	//guideData.created != undefined && (gameInfo.innerHTML += `<div class="created"><span>Created: </span><input type='text' id='guide-created-input' data-field='created' value='${guideData.created}' onChange='handleGuideBaseChange(this)'><span class='val'>${guideData.created}</span></div>`);
+	//guideData.modified != undefined && (gameInfo.innerHTML += `<div class="modified"><span>Modified: </span><input type='text' id='guide-modified-input' data-field='modified' value='${guideData.modified}' onChange='handleGuideBaseChange(this)'><span class='val'>${guideData.modified}</span></div>`);
+
+	updateUrl();
+}
+
+function updateUrl() {
+ 	const url = new URL(window.location.href);
+	if (guideData?.id != undefined) {
+		url.searchParams.set("id", guideData.id);
+	}
+	else {
+		url.searchParams.delete("id");
+	}
+    window.history.pushState({}, '', url);
+}
+
+
 function handleGuideBaseChange(_this) {
 	_this.nextElementSibling.textContent = _this.value;
-
 	const field = _this.dataset.field;
-
 	guideData[field] && (guideData[field] = _this.value);
 	saveGuide();
 }
 
 function buildData() {
-	document.body.dataset.edited = true;
 	document.getElementById("content").innerHTML = "";
 
-	const data = guideData.content.filter(e => e.type === "page" || e.type === "navigator").flatMap(page => [page, ...getPageChildren(page.id)]);
+	const data = guideData.content.filter(e => e.type === "page" || e.type === "navigator").sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).flatMap(page => [page, ...getPageChildren(page.id)]);
 	data.forEach(content => {
 		const base = content.parent && (document.getElementById(`${content.parent}`)) || document.getElementById("content")
 		base.innerHTML += buildContent(content)

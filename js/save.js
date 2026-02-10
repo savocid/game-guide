@@ -1,18 +1,12 @@
 class ManualSaveWrapper {
-	constructor(data, storageKey) {
-		this.storageKey = storageKey;
+	constructor(data) {
 		this.data = data;
-		
-		const saved = localStorage.getItem(storageKey);
-		if (saved) {
-			Object.assign(this.data, JSON.parse(saved));
-		}
-		
+	
 		const proxy = this.createProxy();
 		
+		proxy.load = () => this.load();
 		proxy.save = () => this.save();
 		proxy.clear = () => this.clear();
-		proxy.clearAll = () => this.clearAll();
 		
 		return proxy;
 	}
@@ -49,12 +43,30 @@ class ManualSaveWrapper {
 	}
 	
 	save() {
-		localStorage.setItem(this.storageKey, JSON.stringify(this.data));
+		const storageKey = `GameGuideData_${this.data.id}`;
+		localStorage.setItem(storageKey, JSON.stringify(this.data));
 		return true;
 	}
 
+	load() {
+		const storageKey = `GameGuideData_${this.data.id}`;
+		
+		const saved = localStorage.getItem(storageKey);
+
+		if (saved) {
+			Object.assign(this.data, JSON.parse(saved));
+			return true;
+		}
+		else {
+			return false;
+		}
+		
+	}
+
 	clear() {
-		localStorage.removeItem(this.storageKey);
+		const storageKey = `GameGuideData_${this.data.id}`;
+
+		localStorage.removeItem(storageKey);
 		return true;
 	}
 }

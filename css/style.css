@@ -1,6 +1,7 @@
 * {
 	margin: 0;
 	padding: 0;
+	box-sizing: border-box;
 }
 
 :root {
@@ -37,6 +38,9 @@ input[type='radio'] {
 	cursor: pointer;
 }
 
+label {
+	cursor: inherit;
+}
 
 body {
 	height: 100vh;
@@ -52,22 +56,20 @@ body {
 }
 
 header {
-	position:fixed;
-	width: 100%;
-	top:0;
-	height: 50px;
-	color: black;
-	background: var(--header);
-	padding: 1.5rem 2rem;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-	display: flex;
+	position: relative;
+    width: 100%;
+    top: 0;
+    height: 10%;
+    color: black;
+    background: var(--header);
+    padding: 1.5rem 2rem;
+    display: flex;
     align-items: center;
-	align-content: center;
+    align-content: center;
     justify-content: space-between;
-	flex-wrap: wrap;
-	box-shadow: 0px 3px 1px rgba(0,0,0,0.9);
-	z-index: 10000;
-	overflow: hidden;
+    flex-wrap: wrap;
+    box-shadow: 0px 3px 1px rgba(0, 0, 0, 0.9);
+    z-index: 10000;
 }
 header .header span:first-child {
 	color: cornflowerblue;
@@ -120,17 +122,34 @@ header > div:first-child {
 
 header .editWrapper {
 	text-align: right;
-	margin-right: 4rem;
+
+}
+header > .metadataWrapper {
+	text-align: left;
+}
+header .editWrapper,
+header > .metadataWrapper {
 	display:flex;
 	flex-direction: row;
-	align-items: center;
+    flex-wrap: nowrap;
+    align-items: center;
 	gap: 1rem;
 }
-header > .loadWrapper {
-	text-align:left;
-	margin-left: 4rem;
+
+
+
+#browse .loadWrapper button input {
+	display: none;
 }
 
+#browse .loadWrapper button label {
+	padding: 0.5rem 1rem;
+	border: 2px solid rgba(0,0,0,0.1);
+}
+#browse .loadWrapper button:has(label) {
+	padding: 0;
+	border: 0;
+}
 
 
 header .guide-info {
@@ -138,9 +157,7 @@ header .guide-info {
 	cursor: default;
 	text-align: center;
 }
-header .guide-info:not(:empty) ~ .btn {
-	display: none;
-}
+
 header .guide-info .title {
 	text-align: center;
 	font-size: 1.2rem;
@@ -188,19 +205,57 @@ header .guide-info .title * {
 	font-weight: bold;
 }
 
+#browse,
 #content {
-	margin-top: calc(50px + 3rem);
-    width: 100%;
-    height: calc(100% - 8rem);
+	width: 100%;
+    height: 90%;
     padding: 1rem 0;
+    overflow: auto;
 }
 
+#browse {
+	gap: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#browse .loadWrapper {
+	display: flex;
+    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+	gap: 1rem;
+}
+
+body:not([data-loaded]) #content,
+body[data-loaded='false'] #content,
+body[data-loaded='true'] #browse {
+	display: none;
+}
+
+body:not([data-loaded]),
+body[data-loaded='false'] {
+	header .btn.download,
+	header .btn.editor,
+	header .btn.exit {
+		display: none;
+	}
+}
+
+header .btn img {
+	max-height: 25px;
+	pointer-events: none;
+}
 
 .btn {
-	display: inline-block;
-	padding: 0.75rem 1.25rem;
+	display: flex;
+	justify-content: center;
+    align-items: center;
+	padding: 0.5rem 1rem;
 	border: 2px solid rgba(0,0,0,0.1);
-	border-radius: 0.4rem;
+	border-radius: 4px;
 	color: #fff;
 	font-weight: 700;
 	font-size: 1rem;
@@ -237,3 +292,55 @@ header .guide-info .title * {
     100% { background: transparent; }
 }
 
+#browse {
+
+	.panels {
+		display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        gap: 0.5rem;
+	}
+
+
+	.panel {
+		background: azure;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		border-radius: 0.5rem;
+		padding: 1rem;
+		border: 2px solid rgba(0,0,0,0.2);
+		position: relative;
+	}
+
+	.panel > div {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		padding: 1rem;
+	}
+	.panel .buttons {
+		gap: 1rem;
+		align-items: flex-end;
+	}
+	.panel .buttons .btn {
+		padding: 0;
+		aspect-ratio: 1/1;
+		height: auto;
+        width: 40px;
+	}
+	.panel .buttons .btn.download,
+	.panel .buttons .btn.delete {
+		height: auto;
+        width: 25px;
+
+	}
+
+	.panel > div > *:first-child {
+		text-align: center;
+	}
+	.panel .metadata > span {
+		font-size: 0.8rem;
+	}
+}

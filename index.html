@@ -16,24 +16,34 @@
 </head>
 <body>
     <header>
-		<div class="loadWrapper">
+		<div class="metadataWrapper">
+			<button class="btn btn-cancel exit" onclick='unloadGuide();'>⇐</button>
 			<div class="guide-info"></div>
-			<button class="btn btn-primary" onclick='loadTest()'>Load</button>
 		</div>
         <div class="header"><a href="./"><span>Game</span><span>Guide</span></a></div>
 		<div class="editWrapper">
-			<button class="btn btn-primary sidebar" onclick='openSidebar()'>☰</button>
-			<button class="btn btn-primary editor" onclick='editGuide()'>Editor Mode</button>
+			<button class="btn btn-confirm download" title="Download as JSON" onclick='downloadGuide(guideData)'>⤓</button>
+			<button class="btn btn-primary sidebar" onclick='openSidebar();'>☰</button>
+			<button class="btn btn-primary editor" onclick='enterEditor();'>Editor Mode</button>
 		</div>
     </header>
 
-	<div id="sidebar"></div>
+	<div id="sidebar" style="display:none;"></div>
 
 	<main id="content"></main>
 
 	<div id="dropdown"></div>
 
-	<script src="./js/test_data.js"></script>
+	<div id="browse">
+		<div class="panels"></div>
+		<div class="loadWrapper">
+			<button class="btn btn-confirm new" onclick='newGuide()'>New</button>
+			<button class="btn btn-primary load"><label for="load-data-input">Load<input type="file" accept=".json,application/json" id='load-data-input' onChange="readDataFile(this)"></span></button>
+		</div>
+	</div>
+	
+
+	<script src="./js/example_data.js"></script>
 	<script src="./js/helper.js"></script>
     <script src="./js/app.js"></script>
 	<script src="./js/editor.js"></script>
@@ -44,10 +54,18 @@
 				startOnLoad:false,
 				
 			});
-			editGuide();
-			loadTest();
 
-			document.body.dataset.edited = false;
+			document.body.dataset.sidebar = false;
+			document.body.dataset.editor = false;
+			document.getElementById("sidebar").style.removeProperty("display");
+
+			createLocalPanels();
+
+			if (loadDataFromUrl()) {
+				// Temp 
+				enterEditor();
+				openSidebar();
+			}
 		})();
 	</script>
 </body>

@@ -100,28 +100,33 @@ function buildContent(content) {
 		case "table":
 			var output = `<table class='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>`;
 
-			output += "<thead><tr>";
-			content.table.headers.forEach(header => {
-				let attrs = "";
-				if (header.colspan && header.colspan > 1) attrs += ` colspan='${header.colspan}'`;
-				if (header.rowspan && header.rowspan > 1) attrs += ` rowspan='${header.rowspan}'`;
-				output += `<th${attrs} ${header.id ? `id='${header.id}'` : ""}>${processText(header.text)}</th>`;
-			});
-			output += "</tr></thead>";
+			const tableData = Object.values(
+			guideData.content.filter(e => e.type === "table-cell" && e.parent == content.id).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).sort((a, b) => (a.row ?? 0) - (b.row ?? 0)).reduce((acc, cell) => {
+				if (!acc[cell.row]) {
+				acc[cell.row] = [];
+				}
+				acc[cell.row].push(cell);
+				return acc;
+			}, {})
+			);
 
-			output += "<tbody>";
-			content.table.rows.forEach(row => {
-				output += "<tr>";
-				row.forEach(cell => {
-					let attrs = "";
-					if (cell.colspan && cell.colspan > 1) attrs += ` colspan='${cell.colspan}'`;
-					if (cell.rowspan && cell.rowspan > 1) attrs += ` rowspan='${cell.rowspan}'`;
-					output += `<td${attrs} ${cell.id ? `id='${cell.id}'` : ""}>${processText(cell.text)}</td>`;
+			tableData.forEach((row, r) => {
+				r == 0 && (output += "<thead><tr>");
+				r == 1 && (output += "<tbody>");
+				r != 0 && (output += "<tr>");
+	
+				row.forEach((cell, c) => {
+					const tagName = r == 0 ? "th" : "td";
+					const colspan = cell.colspan || 1;
+					const rowspan = cell.rowspan || 1;
+					output += `<${tagName} id='${cell.id}' class='${cell.type}' colspan='${colspan}' rowspan='${rowspan}' style='${addStyles(content.style)}'}>${processText(cell.text)}</${tagName}>`
+					
 				});
-				output += "</tr>";
-			});
-			output += "</tbody></table>";
 
+				r == 0 && (output += "</tr></thead>");
+				r != 0 && (output += "</tr>");
+				r == tableData.length-1 && (output += "</tbody></table>");
+			})
 			return output;
 		case "diagram":
 			const lines = [`graph ${content.direction || "LR"}`]
@@ -227,7 +232,7 @@ function processText(text) {
 }
 
 
-function findById(id, obj = test_data, visited = new Set()) {
+function findById(id, obj = guideData, visited = new Set()) {
     if (visited.has(obj)) return null;
     visited.add(obj);
     if (obj.id === id) return obj;
@@ -245,68 +250,7 @@ function tabInput(target) {
 	tab && (tab.setAttribute("data-tab-open",""));
 }
 
-async function getDirectoryHandle() {
-    const db = await openDB();
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction('handles', 'readonly');
-        const request = tx.objectStore('handles').get('lastDirectory');
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-    });
-}
 
-async function saveDirectoryHandle(handle) {
-    const db = await openDB();
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction('handles', 'readwrite');
-        const request = tx.objectStore('handles').put(handle, 'lastDirectory');
-        request.onsuccess = () => resolve();
-        request.onerror = () => reject(request.error);
-    });
-}
-
-function openDB() {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open('FileHandles', 1);
-        request.onupgradeneeded = () => {
-            const db = request.result;
-            if (!db.objectStoreNames.contains('handles')) {
-                db.createObjectStore('handles');
-            }
-        };
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-    });
-}
-
-async function loadGuide() {
-    try {
-        const lastHandle = await getDirectoryHandle();
-        const options = lastHandle ? { startIn: lastHandle } : {};
-        const directoryHandle = await window.showDirectoryPicker(options);
-        
-        // Store for next time
-        await saveDirectoryHandle(directoryHandle);
-        
-        let dataFile = false;
-        
-        for await (const entry of directoryHandle.values()) {
-            if (entry.kind === 'file' && entry.name.endsWith('.json')) {
-                const file = await entry.getFile();
-                const content = await file.text();
-                const data = JSON.parse(content);
-                console.log('Loaded:', entry.name, data);
-                dataFile = true;
-            }
-        }
-
-        if (!dataFile) {
-            console.warn('No data.json found.')
-        }
-    } catch (err) {
-        console.error('Error:', err);
-    }
-}
 
 function redirectHighlight() {
 	setTimeout(() => {
@@ -348,10 +292,10 @@ function renderDiagrams() {
 }
 
 function saveGuide() {
-	document.body.dataset.edited = false;
+	guideData.modified = Date.now();
 	guideData.save();
 }
-function editGuide() {
+function enterEditor() {
 	let editorMode = document.body.dataset.editor == "false" || !document.body.dataset.editor;
 	document.body.dataset.editor = editorMode;
 
@@ -375,3 +319,15 @@ function editGuide() {
 })();
 
 
+function loadDataFromUrl() {
+	const params_id = new URL(window.location.href).searchParams.get("id");
+
+	if (params_id) {
+		const loadPreviousData = localStorage.getItem(`GameGuideData_${params_id}`)
+		if (loadPreviousData) {
+			loadGuide(JSON.parse(loadPreviousData));
+			return true;
+		}
+	}
+	return false;
+}
