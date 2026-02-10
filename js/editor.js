@@ -1619,7 +1619,6 @@ function createBrowsePanel(settings) {
 	downloadBtn.className = "btn btn-primary download";
 	downloadBtn.textContent = "⤓";
 	downloadBtn.title = "Download as JSON";
-	
 	buttons.appendChild(downloadBtn);
 
 	loadBtn.addEventListener("click", function() {
