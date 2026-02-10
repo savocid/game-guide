@@ -41,7 +41,8 @@ const test_data = {
 				"height": "360px",
 				"float": "right",
 				"max-width": "420px",
-				"object-fit": "cover"
+				"object-fit": "cover",
+				"display": "block"
 			}
 		},
 		{
@@ -82,6 +83,7 @@ const test_data = {
 				"flex-direction": "row",
 				"align-items": "center",
 				"flex-wrap": "wrap",
+				"border-color": "#900e0e"
 			}
 		},
 		{
@@ -124,14 +126,14 @@ const test_data = {
 		},
 		{
 			"type": "text",
-			"id": "text-intro-2",
+			"id": "text-intro-3",
 			"parent": "panels-panel-2",
 			"order": 1,
 			"text": "Then do this and that."
 		},
 		{
 			"type": "text",
-			"id": "text-intro-2",
+			"id": "text-intro-4",
 			"parent": "panels-panel-3",
 			"order": 1,
 			"text": "Welcome to the sentence of doom, eredar lord of the burning legion."
@@ -152,7 +154,7 @@ const test_data = {
 		},
 		{
 			"type": "text",
-			"id": "text-intro-3",
+			"id": "text-intro-5",
 			"parent": "section-intro-2",
 			"order": 1,
 			"text": "Focus on {[Core]|bold} stats early: power, stamina, and a dash of luck for rare drops."
@@ -270,11 +272,27 @@ const test_data = {
 			"id": "tabs-maps-1",
 			"parent": "section-maps-1",
 			"order": 2,
-			"tabs": {
-				"tab-maps-early": {"title": "Early", "order": 1,},
-				"tab-maps-mid": {"title": "Mid", "order": 2,},
-				"tab-maps-late": {"title": "Late", "order": 3,}
-			}
+		},
+		{
+			"type": "tab",
+			"id": "tab-maps-early",
+			"parent": "tabs-maps-1",
+			"order": 1,
+			"title": "Early",
+		},
+		{
+			"type": "tab",
+			"id": "tab-maps-mid",
+			"parent": "tabs-maps-1",
+			"order": 2,
+			"title": "Mid",
+		},
+		{
+			"type": "tab",
+			"id": "tab-maps-late",
+			"parent": "tabs-maps-1",
+			"order": 3,
+			"title": "Late",
 		},
 		{
 			"type": "text",

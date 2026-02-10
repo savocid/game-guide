@@ -6,12 +6,12 @@ const state = {
 	startH: 0,
 };
 const ignoredElements = {
-	"page": "element",
-	"footer": "closest",
+	//"page": "element",
 };
 const allOptions = {
 	"order": "key",
 	"id": "key",
+	"text": "key",
 	"parent": "key",
 	"width": "style",
 	"height": "style",
@@ -26,7 +26,9 @@ const allOptions = {
 	"object-fit": "style",
 	"margin": "style",
 	"padding": "style",
-	"border": "style",
+	"border-width": "style",
+	"border-style": "style",
+	"border-color": "style",
 	"border-radius": "style",
 	"color": "style",
 	"font-size": "style",
@@ -35,10 +37,12 @@ const allOptions = {
 	"font-weight": "style",
 	"font-style": "style",
 	"display": "style",
-	"align-items": "style",
-	"justify-content": "style",
+	"src": "key",
 	"flex-direction": "style",
 	"flex-wrap": "style",
+	"align-content": "style",
+	"justify-content": "style",
+	"align-items": "style",
 	"clear": "style",
 	"justify-self": "style",
 	"align-self": "style",
@@ -46,26 +50,175 @@ const allOptions = {
 
 
 const groupDefinitions = [
-	["id","parent","order"],
 	["width", "height", "min-width", "min-height", "max-width", "max-height", "aspect-ratio"],
 	["margin", "padding"],
 	["background"],
 	["text", "color", "font-size", "font-weight", "font-style", "text-align", "text-shadow"],
-	["display", "align-items", "justify-content", "flex-direction", "flex-wrap", "justify-self", "align-self", "float", "clear",],
+	["src"],
+	["display", "flex-direction", "flex-wrap", "align-content", "justify-content", "align-items", "justify-self", "align-self", "float", "clear",],
 	["object-fit"],
 	["border", "border-radius", "box-shadow"],
+	["parent","id","order"],
 ];
 
 const typeOptions = {
-	"page": ["order","id","background", "padding"],
-	"navigator": ["order","id"],
-	"panel": ["order","id","parent","text-align", "display", "flex-direction", "flex-wrap", "align-items", "justify-content", "padding", "margin", "background", "border", "border-radius", "box-shadow"],
-	"section": ["order","id","parent","width", "height", "padding", "margin", "background", "border", "border-radius"],
-	"image": ["order","id","parent","width", "height", "object-fit", "border", "border-radius"],
-	"table": ["order","id","parent","width", "border", "border-radius"],
-	"sub-header": ["order","id","parent","text", "color", "font-size", "font-weight", "font-style", "text-align", "text-shadow"],
-	"header": ["order","id","parent","text", "color", "font-size", "font-weight", "font-style", "text-align", "text-shadow"],
-	"text": ["order","id","parent","text", "color", "font-size", "font-weight", "font-style", "text-align", "text-shadow"],
+	"page": [
+		"order",
+		"id",
+		"background",
+		"color",
+		"padding",
+	],
+	"navigator": [
+		"order",
+		"id",
+	],
+	"section": [
+		"order",
+		"id",
+		"parent",
+		"width",
+		"max-width",
+		"height",
+		"max-height",
+		"padding",
+		"margin",
+		"background",
+		"border",
+		"border-radius",
+	],
+	"panel": [
+		"order",
+		"id",
+		"parent",
+		"text-align",
+		"display",
+		"flex-direction",
+		"flex-wrap",
+		"align-content",
+		"justify-content",
+		"align-items",
+		"justify-self",
+		"align-self",
+		"float",
+		"clear",
+		"padding",
+		"margin",
+		"background",
+		"border",
+		"border-radius",
+		"box-shadow",
+		"width",
+		"max-width",
+		"height",
+		"max-height",
+	],
+	"tabs": [
+		"order",
+		"id",
+		"parent",
+		"width",
+		"max-width",
+		"height",
+		"max-height",
+	],
+	"tab": [
+		"order",
+		"id",
+		"width",
+		"height",
+	],
+	"image": [
+		"order",
+		"id",
+		"parent",
+		"src",
+		"width",
+		"max-width",
+		"height",
+		"max-height",
+		"display",
+		"flex-direction",
+		"flex-wrap",
+		"align-content",
+		"justify-content",
+		"align-items",
+		"justify-self",
+		"align-self",
+		"float",
+		"clear",
+		"object-fit",
+		"border",
+		"border-radius",
+	],
+	"table": [
+		"order",
+		"id",
+		"parent",
+		"width",
+		"max-width",
+		"height",
+		"max-height",
+		"border",
+		"border-radius",
+	],
+	"diagram": [
+		"order",
+		"id",
+		"parent",
+		"width",
+		"max-width",
+		"height",
+		"max-height",
+	],
+	"sub-header": [
+		"order",
+		"id",
+		"parent",
+		"text",
+		"color",
+		"font-size",
+		"font-weight",
+		"font-style",
+		"text-align",
+		"text-shadow",
+	],
+	"header": [
+		"order",
+		"id",
+		"parent",
+		"text",
+		"color",
+		"font-size",
+		"font-weight",
+		"font-style",
+		"text-align",
+		"text-shadow",
+	],
+	"text": [
+		"order",
+		"id",
+		"parent",
+		"text",
+		"color",
+		"font-size",
+		"font-weight",
+		"font-style",
+		"text-align",
+		"text-shadow",
+	],
+	"footer": [
+		"id",
+		"width",
+		"max-width",
+		"height",
+		"max-height",
+		"padding",
+		"margin",
+		"background",
+		"border",
+		"border-radius",
+	]
 };
 
 const selectOptions = {
@@ -74,6 +227,7 @@ const selectOptions = {
 	"float": ["none", "left", "right", "inline-start", "inline-end"],
 	"clear": ["none", "left", "right", "both", "inline-start", "inline-end"],
 	"align-items": ["stretch", "flex-start", "flex-end", "center", "baseline"],
+	"align-content": ["baseline", "center", "end", "flex-end", "flex-start","normal","space-around","space-between","space-evenly","start","stretch"],
 	"justify-content": ["flex-start", "flex-end", "center", "space-between", "space-around", "space-evenly"],
 	"flex-direction": ["row", "row-reverse", "column", "column-reverse"],
 	"flex-wrap": ["nowrap", "wrap", "wrap-reverse"],
@@ -142,12 +296,14 @@ const selectableTypes = [
 	"section",
 	"panel",
 	"tabs",
+	"tab",
 	"table",
 	"diagram",
 	"image",
 	"header",
 	"sub-header",
 	"text",
+	"footer",
 ];
 
 
@@ -209,11 +365,9 @@ const entryTemplates = {
 	},
 	"tabs": {
 		"type": "tabs",
-		"tabs": {
-			"example-tab1": {"title": "Example Tab 1", "order": 1,},
-			"example-tab2": {"title": "Example Tab 2", "order": 2,},
-			"example-tab3": {"title": "Example Tab 3", "order": 3,}
-		},
+	},
+	"tab": {
+		"type": "tab",
 	},
 	"table": {
 		"type": "table",
@@ -285,6 +439,10 @@ const entryTemplates = {
 
 function renderAddTools(section) {
 	if (getCurrentPage()?.type == "navigator") return;
+
+	const header = document.createElement("h4");
+	header.textContent = "Add";
+	section.appendChild(header)
 
 	const addWrap = document.createElement("div");
 	addWrap.className = "sidebar-grid";
@@ -359,13 +517,24 @@ function addEntry(type) {
 			newId = entry.id;
 			entry.parent = getCurrentPage().id;
 			entry.order = siblingCount+1;
-			entry.title = `New ${capitalizeString(type)} ${siblingCount}`;
-			
-			Object.keys(entry.tabs).forEach(t => {
-				entry.tabs[crypto.randomUUID()] = {...entry.tabs[t]};
-				delete entry.tabs[t]
-			});
 			guideData.content.push(entry);
+
+			const tabs = ["Sample Tab 1", "Sample Tab 2", "Sample Tab 3"]
+			tabs.forEach((tab, i) => {
+				var tabEntry = {...entryTemplates["tab"]};
+				tabEntry.id = crypto.randomUUID();
+				tabEntry.parent = entry.id;
+				tabEntry.order = i+1;
+				tabEntry.title = tab;
+				guideData.content.push(tabEntry);
+
+				var textEntry = {...entryTemplates["text"]};
+				textEntry.id = crypto.randomUUID();
+				textEntry.parent = tabEntry.id;
+				textEntry.order = 1;
+				textEntry.text = tab;
+				guideData.content.push(textEntry);
+			})
 			break;
 		default:
 			var siblingCount = guideData.content.filter(e => e.parent === getCurrentPage().id).length;
@@ -380,9 +549,11 @@ function addEntry(type) {
 	}
 	refreshSidebar();
 	refreshBuild();
+	saveGuide();
+	
 	if (newId !== null) {
-		console.log("hi")
 		document.getElementById("sidebar-element-select").value = newId
+		handleElementSelect(document.getElementById("sidebar-element-select"))
 	}
 	
 
@@ -458,7 +629,8 @@ function renderEditControls(section) {
 		group.forEach(field => {
 			if (!field || !typeOptions[selectedType]?.includes(field)) return;
 			const fieldLabel = document.createElement("label");
-			fieldLabel.className = "sidebar-field";
+			fieldLabel.classList.add("sidebar-field");
+			fieldLabel.classList.add(field);
 			const name = document.createElement("span");
 			name.textContent = field;
 			fieldLabel.appendChild(name);
@@ -467,22 +639,40 @@ function renderEditControls(section) {
 			if (field == "border") {
 				const borderRow = document.createElement("div");
 				borderRow.className = "sidebar-inline";
+				fieldLabel.appendChild(borderRow);
+
 				const borderWidth = document.createElement("input");
 				borderWidth.type = "text";
+				borderWidth.id = crypto.randomUUID();
 				borderWidth.placeholder = "Width";
 				borderWidth.dataset.field = "border-width";
 				borderWidth.value = state.selected?.entry?.style?.["border-width"] || "";
+				borderRow.appendChild(borderWidth);
 				
 				const borderStyle = createSelect("border-style", selectOptions["border-style"], (state.selected?.entry?.style?.["border-style"] || ""));
+				borderRow.appendChild(borderStyle);
+
 				const borderColor = document.createElement("input");
 				borderColor.type = "text";
-				borderColor.placeholder = "Color";
+				borderColor.id = crypto.randomUUID();
 				borderColor.dataset.field = "border-color";
 				borderColor.value = state.selected?.entry?.style?.["border-color"] || "";
-				borderRow.appendChild(borderWidth);
-				borderRow.appendChild(borderStyle);
 				borderRow.appendChild(borderColor);
-				fieldLabel.appendChild(borderRow);
+
+				const colorPicker = document.createElement("input");
+				colorPicker.type = "color";
+				colorPicker.id = crypto.randomUUID();
+				colorPicker.value = borderColor.value;
+				borderRow.appendChild(colorPicker);
+
+				colorPicker.addEventListener("change", function() {
+					borderColor.value = this.value;
+					handleFieldChange(borderColor.value,borderColor.dataset.field);
+				})
+				borderColor.addEventListener("change", function() {
+					this.value = normalizeColor(this.value)
+					colorPicker.value = this.value;
+				})
 			}
 			else if (field == "text") {
 				const input = document.createElement("textarea");
@@ -498,58 +688,206 @@ function renderEditControls(section) {
 					{"label": "italic", "html": "<i>I</i>"},
 					{"label": "underline", "html": "<u>U</u>"},
 					{"label": "strike", "html": "<s>S</s>"},
-					{"label": "super", "html": "A<sup>2</sup>"},
-					{"label": "quote", "html": '"'},
-					{"label": "code", "html": "<>"},
-					{"label": "link", "html": "🔗"},
+					{"label": "super", "html": "<span>A</span><sup>2</sup>"},
+					//{"label": "quote", "html": '"'},
+					//{"label": "code", "html": "<>"},
+					{"label": "link", "html": ("<img src='data:image/svg+xml;base64,"+btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 836.7 836.7"><path d="M648.4 228.1h-66.6c-4.5 0-8.9 1.8-12.1 5-3.2 3.2-5 7.5-5 12.1v54.1c0 4.5 1.8 8.9 5 12.1 3.2 3.2 7.6 5 12.1 5l66.6-.2c55.4 0 100.2 44.9 100.2 100.2v2.9c0 55.4-44.9 100.2-100.2 100.2H397.1v-146c0-4.5-1.8-8.9-5-12.1-3.2-3.2-7.5-5-12.1-5h-54c-4.5 0-8.9 1.8-12.1 5-3.2 3.2-5 7.5-5 12.1v214.2c0 11 9 20 20 20h319.4c50.3 0 97.6-19.6 133.2-55.2s55.2-82.9 55.2-133.2v-2.9c0-50.3-19.6-97.6-55.2-133.2S698.7 228.1 648.4 228.1zM255 520.4l-66.6.2c-55.4 0-100.2-44.9-100.2-100.2v-2.9c0-55.4 44.9-100.2 100.2-100.2h251.2v146.1c0 4.5 1.8 8.9 5 12.1 3.2 3.2 7.5 5 12.1 5h54c4.5 0 8.9-1.8 12.1-5 3.2-3.2 5-7.5 5-12.1V249.1c0-11-9-20-20-20H188.4c-50.3 0-97.6 19.6-133.2 55.2C19.6 319.8 0 367 0 417.4v2.9c0 50.3 19.6 97.6 55.2 133.2s82.9 55.2 133.2 55.2H255c4.5 0 8.9-1.8 12.1-5 3.2-3.2 5-7.5 5-12.1v-54.1c0-4.5-1.8-8.9-5-12.1-3.2-3.2-7.6-5-12.1-5z"/></svg>')+"' />")},
+					{"label": "size", "html": "<span class='small'>A</span><span class='large'>A</span>"},
+					{"label": "color", "html": "<span class='color1'>A</span><span class='color2'>A</span>"},
 				]
 
+				const dropdownId = crypto.randomUUID();
+
+				const dropdown = document.createElement("div");
+				dropdown.classList.add("dropdown");
+				dropdown.id = dropdownId;
+				wrap.appendChild(dropdown);
+
+				const dropHeader = document.createElement("strong");
+				dropHeader.textContent = "";
+				dropdown.appendChild(dropHeader);
+
+				const dropWrap = document.createElement("span");
+				dropdown.appendChild(dropWrap);
+
+				const dropInputRadio = document.createElement("input");
+				dropInputRadio.type = `radio`
+				dropInputRadio.id = `dropdown-radio-input`
+				dropInputRadio.name = `dropdown-radio-${dropdownId}`
+				dropInputRadio.checked = true;
+				dropWrap.appendChild(dropInputRadio);
+
+				const dropInput = document.createElement("input");
+				dropInput.type = "text";
+				dropInput.id = `dropdown-input`
+				dropWrap.appendChild(dropInput);
+
+				const dropSelectRadio = document.createElement("input");
+				dropSelectRadio.type = `radio`
+				dropSelectRadio.id = `dropdown-radio-select`
+				dropSelectRadio.name = `dropdown-radio-${dropdownId}`
+				dropWrap.appendChild(dropSelectRadio);
+
+				const dropSelect = document.createElement("select");
+				dropSelect.id = `dropdown-select`
+				dropWrap.appendChild(dropSelect);
+
+				const emptyOption = document.createElement("option");
+				emptyOption.value = "";
+				emptyOption.textContent = "";
+				dropSelect.appendChild(emptyOption);
+
+				dropInputRadio.addEventListener("change", handleDropdownRadio)
+				dropSelectRadio.addEventListener("change", handleDropdownRadio)
+
+				function handleDropdownRadio() {
+					dropInput.disabled = !dropInputRadio.checked;
+					dropSelect.disabled = !dropSelectRadio.checked;
+				}
+				handleDropdownRadio();
+
+				const entries = guideData.content.filter(e => e.type === "page").flatMap(page => {
+					const pageContent = guideData.content.find(e => e.id === page.id);
+					const pageChildren = getPageChildren(page.id);
+					return [pageContent, ...pageChildren]
+				});
+
+				entries.forEach(entry => {
+					const dropOption = document.createElement("option");
+					dropOption.value = `#${entry.id}`;
+					dropOption.textContent = `${(capitalizeString(entry.type))} (${entry.id})`;
+					dropSelect.appendChild(dropOption);
+				})
+
+				const dropApply = document.createElement("button");
+				dropApply.textContent = "Apply";
+				dropApply.classList.add("btn");
+				dropApply.classList.add("btn-primary");
+				dropdown.appendChild(dropApply);
+
+				dropApply.addEventListener("click", function() {
+					const field = this.parentElement?.dataset?.field
+					input.focus();
+					addTextStyle(field);
+					input.focus();
+					dropdown.dataset.open = "false";
+					dropdown.querySelectorAll("input[type='text'], select").forEach(el => el.value = "");
+				});
+
+				document.addEventListener('click', function(event) {
+					// Check if click is outside the dropdown AND outside the buttons that open it
+					const isClickInsideDropdown = dropdown.contains(event.target);
+					const isClickOnDropdownButton = event.target.closest('#sidebar button.link') || event.target.closest('#sidebar button.size') || event.target.closest('#sidebar button.color') || event.target.closest('#sidebar .sidebar-field:has(.dropdown) > textarea');
+					
+					if (!isClickInsideDropdown && !isClickOnDropdownButton) {
+						dropdown.dataset.open = "false";
+						dropdown.querySelectorAll("input[type='text'], select").forEach(el => el.value = "");
+					}
+				});
+
 				btns.forEach(btn => {
-					const boldBtn = document.createElement("button");
-					boldBtn.innerHTML = btn.html;
-					boldBtn.classList.add(btn.label)
-					wrap.appendChild(boldBtn);
-					boldBtn.addEventListener("click",function() {addTextStyle(btn.label)})
+					const element = document.createElement("button");
+					element.innerHTML = btn.html;
+					element.classList.add(btn.label)
+					wrap.appendChild(element);
+
+					switch (btn.label) {
+						case "link":
+						case "size":
+						case "color":
+							element.addEventListener("click",function() {
+								const dropdown = this.parentElement?.querySelector(".dropdown");
+								dropdown.dataset.open = dropdown.dataset.open != "true" || (dropdown.dataset.field != btn.label);
+								dropdown.dataset.field = btn.label;
+								
+								dropdown.querySelectorAll("input[type='text'], select").forEach(el => el.value = "");
+								dropdown.querySelector(":scope > strong").textContent = `Add ${capitalizeString(btn.label)}`;
+								
+								if (btn.label == "link") {
+									dropSelectRadio.checked = true;
+								}
+								else {
+									dropInputRadio.checked = true;
+								}
+								
+								handleDropdownRadio();
+							});
+							break;
+						default:
+							element.addEventListener("click",function() {
+								input.focus();
+								addTextStyle(btn.label)
+								input.focus();
+							})
+							break;
+					}
 				});
 
 				function addTextStyle(type) {
-					const input = 0;
-					const fullText = 0;
-					const selectPos = {"start": 0, "end": 0};
-					const selectedText = 0;
+					const input = document.activeElement;
+					const fullText = input?.value;
+					const selectPos = {"start": input?.selectionStart, "end": input?.selectionEnd};
+					const selectedText = fullText.substring(selectPos?.start, selectPos?.end);
+					if (!input || !fullText || typeof selectPos.start !== 'number' || typeof selectPos.end !== 'number' || !selectedText) return;
 
-					const invalidText = ["{","}","|"]
-					if (invalidText.some(c => selectedText.includes(c))) return;
+					if (selectedText.includes("{") && !selectedText.includes("}")) return;
+					if (selectedText.includes("}") && !selectedText.includes("{")) return;
+					if (selectedText.includes("[") && !selectedText.includes("]")) return;
+					if (selectedText.includes("]") && !selectedText.includes("[")) return;
+					
+					let attr = type;
 
-					switch(type) {
-						case "bold":
-						case "italic":
-						case "underline":
-						case "strike":
-						case "super":
-						case "quote":
-						case "code":
-							underline
-							input.value = fullText.replace(selectedText,`{[${selectedText}]|${type}:true}`);
-							break;
+					const requestData = dropdown.querySelector("input[type='radio']:checked ~ *")?.value;
+
+					if (!requestData && ['link','size','color'].includes(type)) return;
+
+					switch (type) {
 						case "link":
-							let requestUrl = handleLinkRequest();
-							input.value = fullText.replace(selectedText,`{[${selectedText}]|url:${requestUrl}`);
+						case "size":
+						case "color":
+							attr = `${type}:'${requestData}'`;
+							break;
 						default:
 							break;
 					}
+				
+					let attributes = attr;
+					let text = selectedText;
 
-					function handleLinkRequest() {
-						return "#test"
+					if (selectedText.startsWith("{") && selectedText.endsWith("}")) {
+						let matched_attr = selectedText.match(/\|([^|}]*)}?$/)?.[1].split(/[,;]/);
+
+						if (matched_attr) {
+							const removeAttr = matched_attr.some(a => a == attr);
+							const matched_text = selectedText.match(/^\{\[([\S\s]*)\]\|/)?.[1];
+							let combined_attr = [
+								...(!removeAttr ? [attr] : []),
+								...(!removeAttr ? [matched_attr] : [matched_attr.filter(a => a !== attr)]),
+							];
+							combined_attr = [...new Set(combined_attr)]?.join(";");
+
+							text = matched_text;
+							attributes = combined_attr;
+						}
 					}
+
+					input.value = 
+					fullText.substring(0, selectPos.start) +
+					(attributes ? (`{[${text}]|${attributes}}`) : text) +
+					fullText.substring(selectPos.end);
+			
+
+					handleFieldChange(input.value,input.dataset.field);
 				}
 			}
 			else if (field == "order") {
 				const input = document.createElement("input");
 				input.type = "number";
+				input.id = crypto.randomUUID();
 				input.dataset.field = field;
 				input.min = 1;
-				input.max = getEntryFamily(state.selected.entry).filter(e => e.order !== 9999 && e.order !== -1).length - 1;
+				input.max = getEntryFamily(state.selected.entry).filter(e => e.order !== 9999 && e.order !== -1).length;
+
 				input.value = state.selected.entry.order || "";
 				input.disabled = (input.value == 9999 || input.value == -1)
 				fieldLabel.appendChild(input);
@@ -558,26 +896,29 @@ function renderEditControls(section) {
 				wrap.className = "order-wrapper"
 				fieldLabel.appendChild(wrap);
 
-				const firstText = document.createElement("span");
-				firstText.textContent = "First: ";
-				wrap.appendChild(firstText)
+				const firstLabel = document.createElement("label");
+				firstLabel.innerHTML = "<span>First</span>";
+				firstLabel.for = "order-radio-first";
+				wrap.appendChild(firstLabel)
+
 				const firstCheck = document.createElement("input");
 				firstCheck.type = "checkbox";
 				firstCheck.name = "order-radio";
 				firstCheck.id = "order-radio-first";
 				firstCheck.checked = state.selected.entry.order == -1 ? true : false;
-				wrap.appendChild(firstCheck);
+				firstLabel.appendChild(firstCheck);
 
+				const lastLabel = document.createElement("label");
+				lastLabel.innerHTML = "<span>Last</span>";
+				lastLabel.for = "order-radio-last";
+				wrap.appendChild(lastLabel)
 
-				const lastText = document.createElement("span");
-				lastText.textContent = "Last: ";
-				wrap.appendChild(lastText)
 				const lastCheck = document.createElement("input");
 				lastCheck.type = "checkbox";
 				lastCheck.name = "order-radio";
 				lastCheck.id = "order-radio-last";
 				lastCheck.checked = state.selected.entry.order == 9999 ? true : false;
-				wrap.appendChild(lastCheck);
+				lastLabel.appendChild(lastCheck);
 
 				firstCheck.addEventListener("change", function() {
 					handleFirstLastOrderInput(this, lastCheck, input);
@@ -585,27 +926,43 @@ function renderEditControls(section) {
 				lastCheck.addEventListener("change", function() {
 					handleFirstLastOrderInput(this, firstCheck, input);
 				});
-				input.addEventListener("change",() => {updateOrder(input,state.selected.entry)})
+				input.addEventListener("change",() => {
+					updateOrder(input,state.selected.entry);
+				})
 				
 				function handleFirstLastOrderInput(currentCheck, siblingCheck, orderInput) {
-					siblingCheck.checked = !currentCheck.checked;
+					currentCheck.checked && (siblingCheck.checked = false);
 					state.selected.entry.order = currentCheck.checked ? (currentCheck.id === "order-radio-first" ? -1 : 9999) : getEntryFamily(state.selected.entry).filter(e => e.order !== 9999 && e.order !== -1).length+1;
 					orderInput.disabled = currentCheck.checked;
 	
 					updateOrder(orderInput, state.selected.entry);
+					
+		
+
+					
+					if (!currentCheck.checked) {
+						handleFieldChange(orderInput.value,orderInput.dataset.field);
+						return;
+					};
+
+					if (currentCheck.id == "order-radio-first") {
+						handleFieldChange(-1,orderInput.dataset.field);
+					}
+					else if (currentCheck.id == "order-radio-last") {
+						handleFieldChange(9999,orderInput.dataset.field);
+					}
+
+					
 				}
 				
 			}
 			else if (field == "parent") {
 				const currentPage = getCurrentPage();
-				const selectContent = [guideData.content.find(e => e.id === currentPage?.id), ...getPageChildren(currentPage?.id)].map(entry => `${(capitalizeString(entry.type))} (${entry.id})` );
+				const selectContent = [guideData.content.find(e => e.id === currentPage?.id), ...getPageChildren(currentPage?.id,state.selected?.entry.id)].filter(e => ["page","panel","section","tab"].includes(e.type)).map(entry => `${(capitalizeString(entry.type))} (${entry.id})` );
 		
 				const select = document.createElement("select");
 				select.dataset.field = field;
-				const emptyOption = document.createElement("option");
-				emptyOption.value = "";
-				emptyOption.textContent = "";
-				select.appendChild(emptyOption);
+
 				selectContent.forEach(sel => {
 					const option = document.createElement("option");
 					option.value = sel?.match(/(?<=\()[^)]+(?=\))/) || sel;
@@ -615,6 +972,35 @@ function renderEditControls(section) {
 				select.value = (state.selected?.entry?.[field] || "");
 				fieldLabel.appendChild(select);
 			}
+			else if (field == "background") {
+
+				const wrap = document.createElement("div");
+				wrap.classList.add("sidebar-inline")
+				fieldLabel.appendChild(wrap)
+
+				const input = document.createElement("input");
+				input.type = "text";
+				input.id = crypto.randomUUID();
+				input.dataset.field = field;
+				input.value = allOptions[field] == "style" ? (state.selected?.entry?.style?.[field] || "") : allOptions[field] == "key" ? (state.selected?.entry?.[field] || "") : ""
+				input.dataset.oldValue = input.value;
+				wrap.appendChild(input);
+
+				const colorPicker = document.createElement("input");
+				colorPicker.type = "color";
+				colorPicker.id = crypto.randomUUID();
+				colorPicker.value = input.value;
+				wrap.appendChild(colorPicker);
+
+				colorPicker.addEventListener("change", function() {
+					input.value = this.value;
+					handleFieldChange(input.value,input.dataset.field);
+				})
+				input.addEventListener("change", function() {
+					this.value = normalizeColor(this.value)
+					colorPicker.value = this.value;
+				})
+			}
 			else if (selectOptions[field]) {
 				const select = createSelect(field, selectOptions[field], (allOptions[field] == "style" ? (state.selected?.entry?.style?.[field] || "") : allOptions[field] == "key" ? (state.selected?.entry?.[field] || "") : ""));
 				fieldLabel.appendChild(select);
@@ -622,6 +1008,7 @@ function renderEditControls(section) {
 			else {
 				const input = document.createElement("input");
 				input.type = "text";
+				input.id = crypto.randomUUID();
 				input.dataset.field = field;
 				input.value = allOptions[field] == "style" ? (state.selected?.entry?.style?.[field] || "") : allOptions[field] == "key" ? (state.selected?.entry?.[field] || "") : ""
 				input.dataset.oldValue = input.value;
@@ -683,83 +1070,168 @@ function refreshSidebar() {
 
 	addFieldEventListeners();
 	addMiscEventListeners();
+
+	updateSidebarSide();
 }
 
 function addFieldEventListeners() {
-	const fields = document.querySelector("#sidebar").querySelectorAll(".sidebar-field > input[type=number][data-field], .sidebar-field > input[type=text][data-field], .sidebar-field > select[data-field], .sidebar-field > textarea[data-field]");
+	const fields = document.querySelector("#sidebar").querySelectorAll(".sidebar-field *[data-field]");
 
 	fields.forEach(element => {
-		switch (element?.dataset?.field || element.id) {
+		if (element?.type == "text" && element.tagName == "INPUT") {
+			element.addEventListener("keydown", handleFieldInput);
+		}
+		if (["display","align-items","align-content","justify-content","flex-direction","flex-wrap"].includes(element?.dataset?.field)) {
+			element.addEventListener("change",function() { handleDisplaySelects(element); });
+		}
+
+		switch (element?.dataset?.field) {
 			case "id":
-				element.addEventListener("change", function() { handleIdChange(this) });
-			case undefined:
+				element.addEventListener("change", function() { handleIdChange(element.value,element.dataset.oldValue) });
 				break;
 			default:
-				element.addEventListener("change", refreshBuild);
-				element.addEventListener("change", function() { handleFieldChange(element) });
+				element.addEventListener("change", function() { handleFieldChange(element.value,element.dataset.field) });
 				break;
 		}
+
+		
+		if (["parent"].includes(element?.dataset?.field)) {
+			element.addEventListener("change", refreshSidebar);
+		}
 	});
+}
 
-	function handleFieldChange(element) {
+function handleFieldInput(e) {
+	const direction = e.key == "ArrowUp" ? 1 : e.key == "ArrowDown" ? -1 : null
+	if (direction === null) return;
+
+	const _this = e.target;
+    const suffixes = ["px", "rem", "em", "%", "vh", "vw", "vmin", "vmax","%"];
+
+	let currentVal = _this.value.trim();
+	const suffix = suffixes.find(s => currentVal.endsWith(s)) || "";
+    if (!currentVal) return;
+
+	const incrementStep = currentVal.includes(".") ? 0.1 : 1;
+	let numericVal =  parseFloat(currentVal.replaceAll(suffix,"")?.trim());
+	
+	if (isNaN(numericVal)) return;
+
+	let newVal = +parseFloat(numericVal+(incrementStep*direction)).toFixed(1)
+	_this.value = `${newVal}${suffix}`;
+
+	handleFieldChange(_this.value,_this.dataset.field);
+}
+
+
+function handleDisplaySelects(_this) {
+	const displaySelect = _this.parentElement.parentElement.querySelector(".display select");
+	const elements = _this.parentElement.parentElement.querySelectorAll(".align-items select, .align-content select, .justify-content select, .flex-direction select, .flex-wrap select");
+
+	elements.forEach(element => {
+		element.disabled = !["flex","inline-flex"].includes(displaySelect.value);
+	});
+}
+
+function handleFieldChange(val,field) {
+    const now = Date.now();
+    const last = self.lastCall || 0;
+    const delay = 150;
+
+
+    if (now - last < delay) {
+        if (!self.pending) {
+            self.pending = setTimeout(() => {
+                inputChange(val,field);
+                self.lastCall = Date.now();
+                delete self.pending;
+            }, delay - (now - last));
+        }
+        return;
+    }
+
+    inputChange(val,field);
+    self.lastCall = now;
+
+	function inputChange(val,field) {
 		if (!state.selected) return;
-		if (!element?.dataset?.field) return;
-
-		switch (allOptions[element.dataset.field]) {
+		if (!field) return;
+		
+		switch (allOptions[field]) {
 			case "style":
-				state.selected.entry.style = state.selected.entry.style || {}
-				state.selected.entry.style[element.dataset.field] = element.value;
-				element.value === "" && (delete state.selected?.entry?.style?.[element.dataset.field]);
+				state.selected.entry.style = state.selected.entry.style || {};
+				state.selected.entry.style[field] = val;
+				val === "" && (delete state.selected?.entry?.style?.[field]);
+				break;
 			case "key":
-				state.selected.entry[element.dataset.field] = !isNaN(Number(element.value)) ? Number(element.value) : element.value;
-				element.value === "" && (delete state.selected?.entry?.[element.dataset.field]);
+				state.selected.entry[field] = !isNaN(Number(val)) ? Number(val) : val;
+				val === "" && (delete state.selected?.entry?.[field]);
+				break;
 			default:
 				break;
 		}
 		
+		refreshBuild();
+		saveGuide();
 	}
+}
 
-	function handleIdChange(element) {
-		const oldValue = element.dataset.oldValue;
-		const newValue = element.value;
 
-		guideData.content.filter(e => e.parent === oldValue).forEach(e => { e.parent = newValue; });
+
+function handleIdChange(val,oldVal) {
+    const now = Date.now();
+    const last = self.lastCall || 0;
+    const delay = 150;
+    
+    if (now - last < delay) {
+        if (!self.pending) {
+            self.pending = setTimeout(() => {
+                inputChange(val,oldVal);
+                self.lastCall = Date.now();
+                delete self.pending;
+            }, delay - (now - last));
+        }
+        return;
+    }
+
+    inputChange(val,oldVal);
+    self.lastCall = now;
+
+	function inputChange(val,oldVal) {
+		guideData.content.filter(e => e.parent === oldVal).forEach(e => { e.parent = val; });
+
+		refreshBuild();
+		saveGuide();
 	}
-			
-
 }
 
 function addMiscEventListeners() {
-	
-	document.getElementById("sidebar-page-select").addEventListener("change", function() {handlePageSelect(this)});
-	document.getElementById("sidebar-element-select").addEventListener("change", function() {handleElementSelect(this)});
+	document.getElementById("sidebar-page-select").addEventListener("change", function() {handlePageSelect(this); document.getElementById("sidebar-page-select")?.focus();});
+	document.getElementById("sidebar-element-select").addEventListener("change", function() {handleElementSelect(this);document.getElementById("sidebar-element-select")?.focus(); });
+}
 
-	function handlePageSelect(_this) {
-		if (_this.value) {
-			changePage(_this.value);
-			refreshSidebar();
-		}
+function handlePageSelect(_this) {
+	if (_this.value) {
+		clearSelection();
+		changePage(_this.value);
+		refreshSidebar();
 	}
-	function handleElementSelect(_this) {
-		const val = _this.value;
-		const element = val ? document.getElementById(val) : null;
-		if (element) {
-			selectTarget(element, { allowIgnored: true });
-		} else {
-			clearSelection();
-		}
+}
+function handleElementSelect(_this) {
+	const val = _this.value;
+	const element = val ? document.getElementById(val) : null;
+
+	if (element) {
+		selectTarget(element, { allowIgnored: true });
+		refreshSidebar();
+	} else {
+		clearSelection();
 	}
 }
 
 function refreshBuild() {
 	buildData(guideData);
-
-	const newSelected = state.selected?.element.id ? document.getElementById(state.selected?.element.id) : null;
-	if (newSelected) {
-		selectTarget(newSelected);
-	} else {
-		clearSelection();
-	}
+	updateSidebarSide();
 }
 
 function openMenu(x, y) {
@@ -788,7 +1260,6 @@ function clearSelection() {
 		state.selected?.element.classList.remove("editor-selected");
 	}
 	state.selected = null;
-	updateSidebarSide();
 	refreshSidebar();
 }
 
@@ -814,13 +1285,12 @@ function selectTarget(el, options = {}) {
 	state.selected.entry = entry;
 	
 	el.classList.add("editor-selected");
-	updateSidebarSide();
-	refreshSidebar();
 }
 
 function computeSidebarSide() {
 	if (!state.selected) return "right";
-	const rect = state.selected?.element.getBoundingClientRect();
+	
+	const rect = document.getElementById(state.selected?.entry.id)?.getBoundingClientRect();
 	const midpoint = rect.left + rect.width / 2;
 	return midpoint > window.innerWidth / 2 ? "left" : "right";
 }
@@ -836,7 +1306,7 @@ function updateSidebarSide() {
 		}, 100);
 	}
 
-	document.body.dataset.sidebarSide = computeSidebarSide();
+	document.body.dataset.sidebarSide = newSide;
 
 }
 
@@ -866,6 +1336,7 @@ function removeEntry() {
 	if (state.selected && confirm("Remove this element?")) {
 		guideData.content = guideData.content.filter(e => e.id != state.selected.entry.id);
 		buildData(guideData);
+		saveGuide();
 
 		clearSelection();
 	}
@@ -902,19 +1373,20 @@ document.addEventListener("click", (e) => {
 	const inContent = e.target.closest("#content");
 	if (!inContent) {
 		if (!inSidebar && !inHeader) {
-			clearSelection();
+			//clearSelection();
 			closeMenu();
 		}
 		return;
 	}
 
 	if (state.selected?.element && !state.selected?.element.contains(e.target)) {
-		clearSelection();
+		//clearSelection();
 	}
 
 	const el = getSelectableTarget(e.target.closest("#content *"));
 	if (!el || !el.id) return;
 	selectTarget(el);
+	refreshSidebar();
 	closeMenu();
 });
 
@@ -940,24 +1412,17 @@ function isIgnoredElement(el) {
 
 
 
-if (sidebar) {
 
-	// Make Enter key trigger blur (update) for sidebar fields
-	sidebar.addEventListener("keydown", (e) => {
-		const target = e.target;
-		if (!target.closest("#sidebar")) return;
-		// For textarea, only blur on Enter if not Shift+Enter
-		if (target.tagName === "TEXTAREA") {
-			if (e.key === "Enter" && !e.shiftKey) {
-				e.preventDefault();
-				target.blur();
-			}
-		} else if ((target.tagName === "INPUT" || target.tagName === "SELECT") && e.key === "Enter") {
-			e.preventDefault();
-			target.blur();
-		}
-	});
-}
+
+document.addEventListener("keydown", (e) => {
+	const target = e.target;
+	if (!target.closest("#sidebar")) return;
+	
+	if ((target.tagName === "INPUT" || target.tagName === "SELECT") && e.key === "Enter") {
+		e.preventDefault();
+		target.blur();
+	}
+});
 
 
 function updateOrder(input, entry) {
@@ -965,7 +1430,7 @@ function updateOrder(input, entry) {
 	
     const family = getEntryFamily(entry).filter(e => e.order !== 9999 && e.order !== -1);
     const newOrder = entry.order;
-    input.max = family.length - 1;
+    input.max = family.length;
 
     // Get all entries except the one we're moving
     const otherEntries = family.filter(e => e.id !== entry.id);
@@ -1007,19 +1472,26 @@ function loadTest() {
 	if (test_data) {
 		const gameInfo = document.querySelector("header .guide-info");
 		gameInfo.innerHTML = ``;
-		test_data.title && (gameInfo.innerHTML += `<div class="title"><span>${test_data.title}</span></div>`);
-		//test_data.description && (gameInfo.innerHTML += `<div class="description"><span>${test_data.description}</span></div>`);
-		test_data.version && (gameInfo.innerHTML += `<div class="version"><span>Version: </span><span>${test_data.version}</span></div>`);
-		test_data.author && (gameInfo.innerHTML += `<div class="author"><span>Author: </span><span>${test_data.author}</span></div>`);
-		//test_data.created && (gameInfo.innerHTML += `<div class="created"><span>Created: </span><span>${test_data.created}</span></div>`);
-		//test_data.modified && (gameInfo.innerHTML += `<div class="modified"><span>Modified: </span><span>${test_data.modified}</span></div>`);
+		test_data.title && (gameInfo.innerHTML += `<div class="title"><input type='text' id='guide-title-input' data-field='title' value='${test_data.title}' onChange='handleGuideBaseChange(this)'><span class='val'>${test_data.title}</span></div>`);
+		test_data.version && (gameInfo.innerHTML += `<div class="version"><span>Version: </span><input type='number' id='guide-version-input' data-field='version' min='0.1' max='10.0' step='0.1' value='${test_data.version}' onChange='handleGuideBaseChange(this)'><span class='val'>${test_data.version}</span></div>`);
+		test_data.author && (gameInfo.innerHTML += `<div class="author"><span>Author: </span><input type='text' id='guide-author-input' data-field='author' value='${test_data.author}' onChange='handleGuideBaseChange(this)'><span class='val'>${test_data.author}</span></div>`);
+		//test_data.created && (gameInfo.innerHTML += `<div class="created"><span>Created: </span><input type='text' id='guide-created-input' data-field='created' value='${test_data.created}' onChange='handleGuideBaseChange(this)'><span class='val'>${test_data.created}</span></div>`);
+		//test_data.modified && (gameInfo.innerHTML += `<div class="modified"><span>Modified: </span><input type='text' id='guide-modified-input' data-field='modified' value='${test_data.modified}' onChange='handleGuideBaseChange(this)'><span class='val'>${test_data.modified}</span></div>`);
 
-		guideData = test_data;
+		guideData = new ManualSaveWrapper(test_data, 'guideData');
 		buildData();
 		
 		refreshSidebar();
-		selectTarget(document.getElementById(document.getElementById("sidebar-element-select")?.value), { allowIgnored: true });
 	}
+}
+
+function handleGuideBaseChange(_this) {
+	_this.nextElementSibling.textContent = _this.value;
+
+	const field = _this.dataset.field;
+
+	guideData[field] && (guideData[field] = _this.value);
+	saveGuide();
 }
 
 function buildData() {
@@ -1033,6 +1505,8 @@ function buildData() {
 	});
 
 	changePage(document.querySelector("#content > .page")?.id)
+	selectTarget(document.getElementById(document.getElementById("sidebar-element-select")?.value), { allowIgnored: true });
 	renderDiagrams();
 }
+
 

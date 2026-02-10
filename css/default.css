@@ -133,6 +133,7 @@ div[data-tab]:not([data-tab-open]) {
 .sub-header {
 	padding: 0.5rem 0 0;
 	width: fit-content;
+	box-sizing: border-box;
 }
 
 li:not(:has(> a[data-page-open])) > ul {
@@ -176,7 +177,9 @@ li:not(:has(> a[data-page-open])) > ul {
 	color: black;
 }
 
+
 .panel:has(*.panel) .panel {
+	background: initial;
 	border: none;
 	margin:0;
 	border-radius:0;

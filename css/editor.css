@@ -124,6 +124,10 @@ body[data-editor="true"] .editor-selected {
 		width: var(--percent);
 		height: var(--percent);
 	}
+	.sidebar-section > h4 {
+		padding: 0.5rem 0.2rem;
+        color: rgba(230, 237, 243, 0.7);
+	}
 
 	.sidebar-field {
 		display: flex;
@@ -131,30 +135,166 @@ body[data-editor="true"] .editor-selected {
 		gap: 0.35rem;
 		margin-bottom: 0.75rem;
 	}
+	
+
+	.sidebar-field.text > div {
+		padding: 0.2rem;
+        display: flex;
+        gap: 0.2rem;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+		position: relative;
+	}
+	.sidebar-field.text > div > button {
+		padding: 0.2rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: lightslategray;
+        border: 2px solid rgba(0, 0, 0, 0.5);
+        box-sizing: content-box;
+		font-family: serif;
+		width: 1.25rem;
+		height: 1.25rem;
+		cursor: pointer;
+	}
+	.sidebar-field.text > div > button:active {
+		background-color: slategrey;
+	}
+
+	.sidebar-field.text > div > button.size span {
+		align-self: baseline;
+		margin-top: -2px;
+	}
+	.sidebar-field.text > div > button.size span.small {
+		font-size: 0.75rem;
+	}
+	.sidebar-field.text > div > button.size span.large {
+		font-size: 1.25rem;
+	}
+	.sidebar-field.text > div > button.super > * {
+	    place-self: start;
+    	margin-top: 2px;
+	}
+	.sidebar-field.text > div > button.super > sup {
+		font-size: 0.6rem;
+	}
+
+	.sidebar-field.text > div > button.color span {
+		text-shadow: 1px 1px 0px rgba(0,0,0,1);
+	}
+	.sidebar-field.text > div > button.color span.color1 {
+		color: fuchsia;
+	}
+	.sidebar-field.text > div > button.color span.color2 {
+		color: lawngreen;
+	}
+	.sidebar-field.text > div > button.link img {
+		width: 80%;
+	}
+
+	.sidebar-field.text .dropdown:not([data-open='true']) {
+		display: none;
+	}
+
+	.sidebar-field.text .dropdown {
+		position: absolute;
+        top: 100%;
+        left: 0;
+        background: slategray;
+        box-sizing: border-box;
+        border-radius: 0.2rem;
+        border: 2px solid rgba(0, 0, 0, 0.5);
+        border-top-right-radius: 0px;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        width: calc(100% - 6px);
+        margin-left: 2px;
+	}
+	.sidebar-field.text .dropdown > * {
+		margin: 0.5rem 2%;
+	}
+	.sidebar-field.text .dropdown > span {
+		width: 60%;
+		display: inline-grid;
+        grid-template-columns: 10% 90%;
+        grid-auto-rows: auto;
+        gap: 0.2rem;
+	}
+	.sidebar-field.text .dropdown > button {
+		width: 30%;
+        padding: 0.25rem;
+        font-size: 0.7rem;
+	}
+	.sidebar-field.text .dropdown > strong {
+		width: 100%;
+		text-align: center;
+		margin: 0.2rem;
+		font-size: 0.9rem;
+	}
+	.sidebar-field.text .dropdown select,
+	.sidebar-field.text .dropdown input {
+		width: 100%;
+		box-sizing: border-box;
+	}
+
+	.sidebar-field.text .dropdown[data-field='color'],
+	.sidebar-field.text .dropdown[data-field='size'] {
+
+		select,
+		input[type='radio']:nth-child(3) {
+			display: none;
+		}
+		input[type='radio'] {
+			visibility:hidden;
+		}
+	}
 
 	.sidebar-field .order-wrapper {
 		display: flex;
-        justify-content: center;
-        align-items: center;
+        justify-content: space-between;
         gap: 0.5rem;
+		font-size: 0.8rem;
+		padding: 0.2rem 0.5rem 0;
 	}
 
-	.sidebar-field span {
+	.sidebar-field .order-wrapper > * {
+		display: flex;
+        gap: 0.2rem;
+        flex-direction: column;
+		cursor: pointer;
+	}
+
+	.sidebar-field > span {
 		font-size: 0.8rem;
 		letter-spacing: 0.03em;
 		text-transform: uppercase;
 		color: rgba(230, 237, 243, 0.7);
 	}
 
-	.sidebar-field input,
-	.sidebar-field select,
-	.sidebar-inline input,
-	.sidebar-inline select {
+
+	.sidebar-field > input[type='text'],
+	.sidebar-field > input[type='number'],
+	.sidebar-field > select,
+	.sidebar-inline > input[type='text'],
+	.sidebar-inline > input[type='color'],
+	.sidebar-inline > input[type='number'],
+	.sidebar-inline > select {
 		background: #0e1218;
 		border: 1px solid rgba(255, 255, 255, 0.12);
 		border-radius: 0.4rem;
 		color: #e6edf3;
 		padding: 0.45rem 0.55rem;
+	}
+
+	.sidebar-inline > input[type='color'] {
+		padding: 0;
+        border: 0;
+        height: -webkit-fill-available;
+		width: revert;
 	}
 
 
@@ -177,7 +317,7 @@ body[data-editor="true"] .editor-selected {
 		opacity: 0.45;
 		background: linear-gradient(180deg, rgba(14,18,24,0.6), rgba(14,18,24,0.6));
 		border-color: rgba(255,255,255,0.04);
-		color: rgba(230,237,243,0.5);
+		color: transparent;
 		filter: grayscale(40%);
 		cursor: not-allowed;
 	}
@@ -194,13 +334,14 @@ body[data-editor="true"] .editor-selected {
 		opacity: 0.45;
 		background: linear-gradient(180deg, rgba(14,18,24,0.6), rgba(14,18,24,0.6));
 		border-color: rgba(255,255,255,0.04);
-		color: rgba(230,237,243,0.5);
+		color: transparent;
 		filter: grayscale(40%);
 		cursor: not-allowed;
 	}
 
 	/* Dim the label text for disabled fields */
-	.sidebar-field.sidebar-field-disabled > span {
+	.sidebar-field:has(> select:disabled) > span,
+	.sidebar-field:has(> input:disabled) > span {
 		opacity: 0.35;
 		filter: grayscale(60%);
 		color: rgba(230,237,243,0.35) !important;
@@ -225,10 +366,19 @@ body[data-editor="true"] .editor-selected {
 	}
 
 	.sidebar-inline {
-		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-		gap: 0.5rem;
-		margin-bottom: 0.75rem;
+		display: flex;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        flex-direction: row;
+        flex-wrap: wrap;
+	}
+
+	.sidebar-inline > * {
+	    width: auto;
+    	box-sizing: border-box;
+	}
+	.sidebar-inline:has(*:nth-child(3)) > * {
+		width: calc(50% - 1rem);
 	}
 
 	.sidebar-actions {

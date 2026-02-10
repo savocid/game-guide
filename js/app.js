@@ -1,9 +1,6 @@
 
 let guideData = {};
 
-
-
-
 function buildContent(content) {
 
 	const styles = [
@@ -20,7 +17,9 @@ function buildContent(content) {
 		"object-fit",
 		"margin",
 		"padding",
-		"border",
+		"border-width",
+		"border-style",
+		"border-color",
 		"border-radius",
 		"color",
 		"font-size",
@@ -33,13 +32,12 @@ function buildContent(content) {
 		"justify-content",
 		"flex-direction",
 		"flex-wrap",
-		"border-width",
 		"clear",
 		"justify-self",
 		"align-self"
 	];
 
-	const addStyles = (styleObj, exclude = [], include = []) => {
+	const addStyles = (styleObj, include = [], exclude = []) => {
 		if (!styleObj) return '';
 		const list = include.length ? include : styles;
 		return list
@@ -85,14 +83,16 @@ function buildContent(content) {
 			return `<div class='${content.type}' id='${content.id}' style='${addStyles(content.style)}'></div>`;
 		case "tabs":
 			var output = `<div class='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>`;
-			const tabs = Object.entries(content.tabs).sort((a, b) => a[1].order - b[1].order)
+
+			const tabs = guideData.content.filter(e => e.parent === content.id && e.type == "tab").sort((a, b) => a.order - b.order);
+
 			tabs.length > 0 && (output += `<div class='labelWrap'>`);
-			tabs.forEach(([id, tab], i) => {
-				output += `<label for="${id}-input"><input type="radio" id="${id}-input" name="${content.id}" onInput="tabInput(this)" ${i == 0 ? "checked" : ""} />${tab.title}</label>`
+			tabs.forEach((tab, i) => {
+				output += `<label for="${tab.id}-input"><input type="radio" id="${tab.id}-input" name="${content.id}" onInput="tabInput(this)" ${i == 0 ? "checked" : ""} />${tab.title}</label>`
 			});
 			tabs.length > 0 && (output += `</div>`);
-			tabs.forEach(([id, tab], i) => {
-				output += `<div id="${id}" data-tab="${id}-input" ${i == 0 ? "data-tab-open" : ""} style='${addStyles(tab.style)}'></div>`
+			tabs.forEach((tab, i) => {
+				output += `<div id="${tab.id}" class='tab' data-tab="${tab.id}-input" ${i == 0 ? "data-tab-open" : ""} style='${addStyles(tab.style)}'></div>`
 			});
 			output += `</div>`;
 			
@@ -134,11 +134,18 @@ function buildContent(content) {
 
 			return output;
 		case "image":
-			var output = `<div class='${content.type}' id='${content.id}' style='${addStyles(content.style,[],["float"])}'>`
+			const imageStyles = {
+				"wrap": [],
+				"image": ["border-radius"],
+				"text": ["color","font-size","text-shadow","font-weight","font-style"],
+			}
+			imageStyles.wrap = Object.keys(allOptions).filter(s => allOptions[s] == "style" && !s.includes(imageStyles.image));
+
+			var output = `<div class='${content.type}' id='${content.id}' style='${addStyles(content.style,imageStyles.wrap)}'>`
 			output += `<div class='imageWrap' style=''>`;
-			output += `<img src='${content.src}' alt='${content.id}' style='${addStyles(content.style,["width","height","min-width","min-height","max-width","max-height", "border-radius"])}' />`;
+			output += `<img src='${content.src}' alt='${content.id}' style='${addStyles(content.style,imageStyles.image)}' />`;
 			output += `</div>`;
-			content.caption && (output += `<strong class='caption' style='${addStyles(content.style,[],["color"])}'>${content.caption}</strong>`);
+			content.caption && (output += `<strong class='caption' style='${addStyles(content.style,imageStyles.image,[])}'>${content.caption}</strong>`);
 			return output;
 		case "header":
 			return `<h2 class='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>${processText(content.text)}</h2>`;
@@ -159,41 +166,66 @@ function buildContent(content) {
 
 
 function processText(text) {
+	const pattern = /\{\[([^\{\}]*?)\]\|([^\{\}]*?)\}/g;
 
-	return text.replace(/\{\[(.*?)\]\|(.*?)\}/g, function(match, innerText, modifiers) {
-		let style = "";
-		let url = "";
-		let tags = [];
-		modifiers.split(';').forEach(mod => {
-			mod = mod.trim();
-			if (mod === "bold") tags.push("b");
-			else if (mod === "italic") tags.push("i");
-			else if (mod === "strike") tags.push("s");
-			else if (mod === "underline") tags.push("u");
-			else if (mod.startsWith("size:")) style += `font-size:${mod.slice(5)};`;
-			else if (mod.startsWith("color:")) style += `color:${mod.slice(6).trim()};`;
-			else if (mod.startsWith("url:")) url = mod.slice(4).replace(/^'|'$/g, "");
+	if (!text) return "";
+	
+	let prev;
+	do {
+		prev = text;
+		text = text.replace(pattern, function(match, innerText, modifiers) {
+
+			// 🔁 Process inner styles first
+			innerText = processText(innerText);
+
+			let style = "";
+			let url = "";
+			let tags = [];
+
+			modifiers.split(';').forEach(mod => {
+				mod = mod.trim();
+				if (mod === "bold") tags.push("b");
+				else if (mod === "italic") tags.push("i");
+				else if (mod === "strike") tags.push("s");
+				else if (mod === "underline") tags.push("u");
+				else if (mod === "super") tags.push("sup");
+				else if (mod === "quote") tags.push("blockquote");
+				else if (mod === "code") tags.push("code");
+				else if (mod.startsWith("size:")) style += `font-size:${mod.slice(5).replace(/^'|'$/g, "")};`;
+				else if (mod.startsWith("color:")) style += `color:${mod.slice(6).replace(/^'|'$/g, "")};`;
+				else if (mod.startsWith("link:")) url = mod.slice(5).replace(/^'|'$/g, "");
+			});
+
+			let result = innerText;
+			tags.forEach(tag => {
+				result = `<${tag}>${result}</${tag}>`;
+			});
+
+			if (url) {
+				let onClick = "";
+				if (url.startsWith("#")) {
+					let target = findById(url.slice(1));
+					let i = 0;
+					while (target && target.type !== "page" && i < 10) {
+						target = guideData.content.find(item => item.id === target.parent);
+						i++;
+					}
+					if (target) onClick = `onClick='changePage("${target.id}")'`;
+					url = window.location.protocol === 'file:' ? `./index.html${url}` : url;
+				}
+				result = `<a href='${url}' ${onClick}>${result}</a>`;
+			}
+
+			if (style) result = `<span style='${style}'>${result}</span>`;
+			return result;
 		});
-		let result = innerText;
-		tags.forEach(tag => { result = `<${tag}>${result}</${tag}>`; });
-	  	 if (url) {
-            let onClick = "";
-            if (url.startsWith("#")) {
-                let target = findById(url.slice(1));
-				let i = 0;
-                while (target && target.type !== "page" && i < 10) {
-                    target = guideData.content.find(item => item.id === target.parent);
-					i++;
-                }
-                if (target) onClick = `onClick='changePage("${target.id}")'`;
-                url = window.location.protocol === 'file:' ? `./index.html${url}` : url;
-            }
-            result = `<a href='${url}' ${onClick}>${result}</a>`;
-        };
-		if (style) result = `<span style='${style}'>${result}</span>`;
-		return result;
-	});
+	} while (text !== prev); // keep going until no more replacements
+
+	text = text.replaceAll("\n","<br>")
+
+	return text;
 }
+
 
 function findById(id, obj = test_data, visited = new Set()) {
     if (visited.has(obj)) return null;
@@ -317,6 +349,7 @@ function renderDiagrams() {
 
 function saveGuide() {
 	document.body.dataset.edited = false;
+	guideData.save();
 }
 function editGuide() {
 	let editorMode = document.body.dataset.editor == "false" || !document.body.dataset.editor;
