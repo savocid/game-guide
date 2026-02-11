@@ -66,7 +66,7 @@ function buildContent(content) {
 				let sectionCount = 0;
 				for (const section of sections) {
 					sectionCount++;
-					let url = window.location.protocol === 'file:' ? `./index.html#${section.id}` : `#${section.id}`;
+					let url = window.location.protocol === 'file:' ? `./index.html${window.location.search}#${section.id}` : `${window.location.search}#${section.id}`;
 					output += `<li>`;
 					output += `<a href='${url}' onClick='changePage("${page.id}")'>${pageCount}.${sectionCount} - ${section.title}</a>`;
 					output += `</li>`;
@@ -216,7 +216,7 @@ function processText(text) {
 						i++;
 					}
 					if (target) onClick = `onClick='changePage("${target.id}")'`;
-					url = window.location.protocol === 'file:' ? `./index.html${url}` : url;
+					url = window.location.protocol === 'file:' ? `./index.html${window.location.search}${url}` : `${window.location.search}${url}`;
 				}
 				result = `<a href='${url}' ${onClick}>${result}</a>`;
 			}
@@ -304,19 +304,6 @@ function enterEditor() {
 }
 
 
-
-(function() {
-	document.querySelectorAll("#content a").forEach(a => {
-		a.addEventListener("click", redirectHighlight);
-	})
-	
-	if (location.protocol === 'file:') {
-		document.querySelectorAll('a[href$="/"]').forEach(a => {
-			const href = a.getAttribute('href');
-			if (!href.endsWith('index.html')) a.setAttribute('href', href + 'index.html');
-		});
-	}
-})();
 
 
 function loadDataFromUrl() {

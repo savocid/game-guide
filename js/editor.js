@@ -1727,6 +1727,11 @@ function buildData() {
 	changePage(document.querySelector("#content > .page")?.id)
 	selectTarget(document.getElementById(document.getElementById("sidebar-element-select")?.value), { allowIgnored: true });
 	renderDiagrams();
+
+
+	document.querySelectorAll("#content a").forEach(a => {
+		a.addEventListener("click", redirectHighlight);
+	})
 }
 
 
