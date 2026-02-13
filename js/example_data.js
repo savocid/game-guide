@@ -568,64 +568,35 @@ const example_data = {
 			},
 		},
 		{
+			"type": "diagram-node",
+			"id": "diagram-node1",
+			"parent": "weapon-diagram",
+			"order": 1,
+			"text": "Battle Wrench",
+			"target": ["diagram-node2","diagram-node3"],
+		},
+		{
+			"type": "diagram-node",
+			"id": "diagram-node2",
+			"parent": "weapon-diagram",
+			"order": 2,
+			"text": "Battle Wrench",
+			"target": [],
+		},
+		{
+			"type": "diagram-node",
+			"id": "diagram-node3",
+			"parent": "weapon-diagram",
+			"order": 3,
+			"text": "Battle Wrench",
+			"target": ["diagram-node1"],
+		},
+		{
 			"type": "diagram",
 			"id": "weapon-diagram",
 			"parent": "max-weapons",
 			"order": 5,
 			"direction": "LR",
-			"nodes": [
-				{ "id": "battle_wrench", "text": "Battle Wrench" },
-				{ "id": "drill_wrench", "text": "Drill Wrench" },
-				{ "id": "smash_wrench", "text": "Smash Wrench" },
-				{ "id": "stinger_wrench", "text": "Stinger Wrench" },
-				{ "id": "poison_wrench", "text": "Poison Wrench" },
-				{ "id": "sigma_breaker", "text": "Sigma Breaker" },
-				{ "id": "grade_zero", "text": "Grade Zero" },
-
-				{ "id": "true_battle_wrench", "text": "True Battle Wrench" },
-				{ "id": "frozen_tuna", "text": "Frozen Tuna" },
-				{ "id": "cubic_hammer", "text": "Cubic Hammer" },
-				{ "id": "digi_hammer", "text": "Digi Hammer" },
-				{ "id": "heavy_hammer", "text": "Heavy Hammer" },
-				{ "id": "legend", "text": "Legend" },
-
-				{ "id": "turtle_shell_hammer", "text": "Turtle Shell Hammer" },
-				{ "id": "kuberas_hand", "text": "Kubera's Hand" },
-				{ "id": "big_bucks_hammer", "text": "Big Bucks Hammer" },
-
-				{ "id": "handy_stick", "text": "Handy Stick" },
-
-				{ "id": "turkey", "text": "Turkey" },
-				{ "id": "swan", "text": "Swan\n{[At]|color:red}: 24 • Ch: 10 • Cy: 10" },
-				{ "id": "flamingo", "text": "Flamingo" },
-				{ "id": "falcon", "text": "Falcon" },
-				{ "id": "albatross", "text": "Albatross" }
-			],
-			"links": [
-				{ "source": "battle_wrench", "target": "drill_wrench" },
-				{ "source": "drill_wrench", "target": "smash_wrench" },
-				{ "source": "smash_wrench", "target": "stinger_wrench" },
-				{ "source": "stinger_wrench", "target": "poison_wrench" },
-				{ "source": "poison_wrench", "target": "sigma_breaker" },
-				{ "source": "sigma_breaker", "target": "grade_zero" },
-
-				{ "source": "true_battle_wrench", "target": "drill_wrench" },
-				{ "source": "true_battle_wrench", "target": "frozen_tuna" },
-
-				{ "source": "frozen_tuna", "target": "cubic_hammer" },
-				{ "source": "cubic_hammer", "target": "digi_hammer" },
-				{ "source": "digi_hammer", "target": "heavy_hammer" },
-				{ "source": "heavy_hammer", "target": "legend" },
-
-				{ "source": "turtle_shell_hammer", "target": "kuberas_hand" },
-				{ "source": "kuberas_hand", "target": "big_bucks_hammer" },
-				{ "source": "frozen_tuna", "target": "big_bucks_hammer" },
-
-				{ "source": "turkey", "target": "flamingo" },
-				{ "source": "swan", "target": "flamingo" },
-				{ "source": "flamingo", "target": "falcon" },
-				{ "source": "falcon", "target": "albatross" }
-			]
 		},
 		{
 			"type": "footer",

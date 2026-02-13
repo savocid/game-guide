@@ -3,57 +3,12 @@ let guideData = {};
 
 function buildContent(content) {
 
-	const styles = [
-		"width",
-		"height",
-		"min-width",
-		"min-height",
-		"max-width",
-		"max-height",
-		"background",
-		"aspect-ratio",
-		"text-align",
-		"float",
-		"object-fit",
-		"margin",
-		"padding",
-		"border-width",
-		"border-style",
-		"border-color",
-		"border-radius",
-		"color",
-		"font-size",
-		"box-shadow",
-		"text-shadow",
-		"font-weight",
-		"font-style",
-		"display",
-		"align-items",
-		"justify-content",
-		"flex-direction",
-		"flex-wrap",
-		"clear",
-		"justify-self",
-		"align-self"
-	];
-
-	const addStyles = (styleObj, include = [], exclude = []) => {
-		if (!styleObj) return '';
-		const list = include.length ? include : styles;
-		return list
-			.filter(prop => !exclude.includes(prop))
-			.map(prop => (styleObj[prop] ? `${prop}:${styleObj[prop]};` : ''))
-			.join('');
-	};
-
-	
-
 	switch (content.type)
 	{
 		case "page":
-			return `<div class='${content.type}' id='${content.id}' data-title='${content.title}' style='${addStyles(content.style)}'></div>`;
+			return `<div data-type='${content.type}' id='${content.id}' data-title='${content.title}' style='${addStyles(content.style)}'></div>`;
 		case "navigator":
-			var output = `<div class='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>`;
+			var output = `<div data-type='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>`;
 			output += `<ul>`;
 			const pages = guideData.content.filter(item => item.type === "page");
 			let pageCount = 0;
@@ -78,11 +33,11 @@ function buildContent(content) {
 
 			return output;
 		case "section":
-			return `<div class='${content.type}' id='${content.id}' data-title='${content.title}' style='${addStyles(content.style)}'></div>`;
+			return `<div data-type='${content.type}' id='${content.id}' data-title='${content.title}' style='${addStyles(content.style)}'></div>`;
 		case "panel":
-			return `<div class='${content.type}' id='${content.id}' style='${addStyles(content.style)}'></div>`;
+			return `<div data-type='${content.type}' id='${content.id}' style='${addStyles(content.style)}'></div>`;
 		case "tabs":
-			var output = `<div class='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>`;
+			var output = `<div data-type='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>`;
 
 			const tabs = guideData.content.filter(e => e.parent === content.id && e.type == "tab").sort((a, b) => a.order - b.order);
 
@@ -98,7 +53,7 @@ function buildContent(content) {
 			
 			return output;
 		case "table":
-			var output = `<table class='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>`;
+			var output = `<table data-type='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>`;
 
 			const tableData = Object.values(
 			guideData.content.filter(e => e.type === "table-cell" && e.parent == content.id).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).sort((a, b) => (a.row ?? 0) - (b.row ?? 0)).reduce((acc, cell) => {
@@ -119,7 +74,7 @@ function buildContent(content) {
 					const tagName = r == 0 ? "th" : "td";
 					const colspan = cell.colspan || 1;
 					const rowspan = cell.rowspan || 1;
-					output += `<${tagName} id='${cell.id}' class='${cell.type}' colspan='${colspan}' rowspan='${rowspan}' style='${addStyles(content.style)}'}>${processText(cell.text)}</${tagName}>`
+					output += `<${tagName} id='${cell.id}' data-type='${cell.type}' colspan='${colspan}' rowspan='${rowspan}' style='${addStyles(content.style)}'}>${processText(cell.text)}</${tagName}>`
 					
 				});
 
@@ -129,15 +84,7 @@ function buildContent(content) {
 			})
 			return output;
 		case "diagram":
-			const lines = [`graph ${content.direction || "LR"}`]
-				.concat(content.nodes.map(n => `${n.id}[${processText(n.text)}]`))
-				.concat(content.links.map(l => `${l.source} --- ${l.target}`));
-
-			output = `<div class='${content.type} mermaid' id='${content.id}' style='${addStyles(content.style)}'>`
-			output += lines.join("\n");
-			output += `</div>`
-
-			return output;
+			return `<div data-type='${content.type}' class='mermaid' id='${content.id}' style='${addStyles(content.style)}'></div>`;
 		case "image":
 			const imageStyles = {
 				"wrap": [],
@@ -146,34 +93,52 @@ function buildContent(content) {
 			}
 			imageStyles.wrap = Object.keys(allOptions).filter(s => allOptions[s] == "style" && !s.includes(imageStyles.image));
 
-			var output = `<div class='${content.type}' id='${content.id}' style='${addStyles(content.style,imageStyles.wrap)}'>`
+			var output = `<div data-type='${content.type}' id='${content.id}' style='${addStyles(content.style,imageStyles.wrap)}'>`
 			output += `<div class='imageWrap' style=''>`;
 			output += `<img src='${content.src}' alt='${content.id}' style='${addStyles(content.style,imageStyles.image)}' />`;
 			output += `</div>`;
 			content.caption && (output += `<strong class='caption' style='${addStyles(content.style,imageStyles.image,[])}'>${content.caption}</strong>`);
 			return output;
 		case "header":
-			return `<h2 class='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>${processText(content.text)}</h2>`;
+			return `<h2 data-type='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>${processText(content.text)}</h2>`;
 		case "sub-header":
-			return `<h4 class='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>${processText(content.text)}</h4>`;
+			return `<h4 data-type='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>${processText(content.text)}</h4>`;
 		case "text":
-			return `<p class='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>${processText(content.text)}</p>`;
+			return `<p data-type='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>${processText(content.text)}</p>`;
 		case "footer":
 			const pagesArr = guideData.content.filter(item => item.type === "page").sort((a, b) => a.order - b.order);
 			const pageId = content.parent;
 			const previousPage = pagesArr[pagesArr.findIndex(p => p.id === pageId) - 1] || null;
 			const nextPage = pagesArr[pagesArr.findIndex(p => p.id === pageId) + 1] || null;
-			return `<div class='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>${previousPage ? `<span class='previous'>← <a onClick='changePage("${previousPage.id}")'>${previousPage.title}</a></span>` : ""} ${nextPage ? `<span class='next'><a onClick='changePage("${nextPage.id}")'>${nextPage.title}</a> →</span>` : ""}</div>`;
+			return `<div data-type='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>${previousPage ? `<span class='previous'>← <a onClick='changePage("${previousPage.id}")'>${previousPage.title}</a></span>` : ""} ${nextPage ? `<span class='next'><a onClick='changePage("${nextPage.id}")'>${nextPage.title}</a> →</span>` : ""}</div>`;
 		default:
 			return "";
 	}
 }
 
 
+function generateDiagram(entry) {
+	const diagramNodes = guideData.content.filter(item => item.type === "diagram-node" && item.parent === entry.id).sort((a, b) => a.order - b.order);
+	const nodes = diagramNodes.map(node => ({ id: node.id, text: node.text || "" }));
+
+	const links = [];
+	diagramNodes.forEach(node => {
+		if (node.target && Array.isArray(node.target)) {
+			node.target.forEach(targetId => {
+				links.push({ source: node.id, target: targetId });
+			});
+		}
+	});
+	const lines = [`graph ${entry.direction || "LR"}`].concat(nodes.map(n => `${n.id}[${processText(n.text)}]`)).concat(links.map(l => `${l.source} --- ${l.target}`));
+	return lines.join("\n");
+}
+
 function processText(text) {
 	const pattern = /\{\[([^\{\}]*?)\]\|([^\{\}]*?)\}/g;
 
 	if (!text) return "";
+
+	text = text.toString();
 	
 	let prev;
 	do {
@@ -196,6 +161,7 @@ function processText(text) {
 				else if (mod === "super") tags.push("sup");
 				else if (mod === "quote") tags.push("blockquote");
 				else if (mod === "code") tags.push("code");
+				else if (mod === "spoiler") tags.push("spoiler");
 				else if (mod.startsWith("size:")) style += `font-size:${mod.slice(5).replace(/^'|'$/g, "")};`;
 				else if (mod.startsWith("color:")) style += `color:${mod.slice(6).replace(/^'|'$/g, "")};`;
 				else if (mod.startsWith("link:")) url = mod.slice(5).replace(/^'|'$/g, "");
@@ -203,22 +169,20 @@ function processText(text) {
 
 			let result = innerText;
 			tags.forEach(tag => {
-				result = `<${tag}>${result}</${tag}>`;
+				if (tag == "spoiler") {
+					result = `<span class='spoiler' data-spoiler='true' data-text='${result.replace(/<[^>]*>/g, '')}'><span class='spoiler-content'>${result}</span></span>`
+				}
+				else {
+					result = `<${tag}>${result}</${tag}>`;
+				}
 			});
 
 			if (url) {
 				let onClick = "";
 				if (url.startsWith("#")) {
-					let target = findById(url.slice(1));
-					let i = 0;
-					while (target && target.type !== "page" && i < 10) {
-						target = guideData.content.find(item => item.id === target.parent);
-						i++;
-					}
-					if (target) onClick = `onClick='changePage("${target.id}")'`;
 					url = window.location.protocol === 'file:' ? `./index.html${window.location.search}${url}` : `${window.location.search}${url}`;
 				}
-				result = `<a href='${url}' ${onClick}>${result}</a>`;
+				result = `<a class='link' href='${url}' ${onClick}>${result}</a>`;
 			}
 
 			if (style) result = `<span style='${style}'>${result}</span>`;
@@ -266,29 +230,57 @@ function redirectHighlight() {
 
 function changePage(id) {
 
-	if (document.querySelector(`#content > .page[id='${id}'][data-page-open]`)) return;
+	if (document.querySelector(`#content > *[data-type='page'][id='${id}'][data-page-open]`)) return;
 
-	document.querySelectorAll('#content .navigator a[data-page-open]').forEach(el => el.removeAttribute('data-page-open'));
-    const link = document.querySelector(`#content .navigator a[data-page='${id}']`)
+	document.querySelectorAll('#content *[data-type="navigator"] a[data-page-open]').forEach(el => el.removeAttribute('data-page-open'));
+    const link = document.querySelector(`#content *[data-type="navigator"] a[data-page='${id}']`)
 	link && (link.setAttribute("data-page-open",""));
 
-	const pages = document.querySelectorAll("#content > .page");
+	const pages = document.querySelectorAll("#content > *[data-type='page']");
 	pages.forEach(page => {
 		page.removeAttribute('data-page-open');
 	});
 	
-	const page = document.querySelector(`#content > .page[id='${id}']`)
+	const page = document.querySelector(`#content > *[data-type='page'][id='${id}']`)
 	page && (page.setAttribute("data-page-open",""));
 
 	renderDiagrams();
 	history.replaceState(null, "", location.pathname + location.search);
 }
 
-function renderDiagrams() {
+let diagramRenderCounter = 0;
+async function renderDiagrams() {
 	const isVisible = el => !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
-	document.querySelectorAll("#content .mermaid").forEach(m => {
-		if (isVisible(m)) mermaid.init(undefined, m)
-	});
+
+	if (!mermaid) {
+		mermaid.initialize({
+			startOnLoad:false,
+		});
+	}
+
+	const diagrams = document.querySelectorAll("#content *[data-type='diagram']");
+	for (const diagram of diagrams) {
+		if (isVisible(diagram)) {
+			diagram.dataset.processed = false;
+
+			const mermaidString = generateDiagram(guideData.content.find(e => e.id == diagram.id))
+			const renderId = `mermaid-${diagramRenderCounter++}`;
+
+			try {
+				const { svg } = await mermaid.render(renderId, mermaidString);
+				diagram.innerHTML = svg;
+				
+			} catch (error) {
+				console.error("Mermaid rendering failed:", error);
+				diagram.innerHTML = `${mermaidString}`;
+			}
+
+			const nodes = diagram.querySelectorAll(":scope *[data-id][data-node='true']");
+			nodes.forEach(n => { 
+				n.dataset.type = "diagram-node";
+			});
+		}
+	}
 }
 
 function saveGuide() {
@@ -304,6 +296,16 @@ function enterEditor() {
 }
 
 
+
+(function() {
+	
+	if (location.protocol === 'file:') {
+		document.querySelectorAll('a[href$="/"]').forEach(a => {
+			const href = a.getAttribute('href');
+			if (!href.endsWith('index.html')) a.setAttribute('href', href + 'index.html');
+		});
+	}
+})();
 
 
 function loadDataFromUrl() {

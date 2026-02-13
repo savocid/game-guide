@@ -344,3 +344,35 @@ header .btn img {
 		font-size: 0.8rem;
 	}
 }
+
+
+.spoiler[data-spoiler='true'] {
+	position: relative;
+	cursor: pointer;
+	display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: underline;
+}
+
+.spoiler[data-spoiler='true']::before {
+	filter: blur(0.25em);
+	content: attr(data-text);
+	position:absolute;
+	font-size: initial;
+}
+
+.spoiler[data-spoiler='true']::after {
+	content: "SPOILER";
+    filter: none !important;
+    z-index: 1000;
+    position: absolute;
+	font-weight:bold;
+	color: inherit;
+	font-size: 0.9rem;
+	text-shadow: 1px 1px 0px #000;
+}
+
+.spoiler[data-spoiler='true'] > .spoiler-content {
+	visibility: hidden;
+}

@@ -4,7 +4,7 @@ function getPages() {
 }
 
 function getCurrentPage() {
-	return document.querySelector("#content > .page[data-page-open]") || getPages()[0] || null;
+	return document.querySelector("#content > *[data-type='page'][data-page-open]") || getPages()[0] || null;
 }
 
 function getPageChildren(id, excludeBranchId = null) {
@@ -32,12 +32,12 @@ function getPageChildren(id, excludeBranchId = null) {
 }
 function getElementType(el) {
 	if (!el) return "";
-	return selectableTypes.find(type => el.classList.contains(type)) || "";
+	return selectableTypes.find(type => el.dataset.type == type) || "";
 }
 
 function getSelectableTarget(el) {
 	if (!el) return null;
-	return el.closest(selectableTypes.map(type => `.${type}`).join(","));
+	return el.closest(selectableTypes.map(type => `[data-type="${type}"]`).join(","));
 }
 
 function getEntryFamily(entry) {
@@ -77,4 +77,49 @@ function throttle(func, limit) {
             setTimeout(() => inThrottle = false, limit);
         }
     };
+}
+
+
+
+function addStyles(styleObj, include = [], exclude = []) {
+	const styles = [
+		"width",
+		"height",
+		"min-width",
+		"min-height",
+		"max-width",
+		"max-height",
+		"background",
+		"aspect-ratio",
+		"text-align",
+		"float",
+		"object-fit",
+		"margin",
+		"padding",
+		"border-width",
+		"border-style",
+		"border-color",
+		"border-radius",
+		"color",
+		"font-size",
+		"box-shadow",
+		"text-shadow",
+		"font-weight",
+		"font-style",
+		"display",
+		"align-items",
+		"justify-content",
+		"flex-direction",
+		"flex-wrap",
+		"clear",
+		"justify-self",
+		"align-self"
+	];
+
+	if (!styleObj) return '';
+	const list = include.length ? include : styles;
+	return list
+		.filter(prop => !exclude.includes(prop))
+		.map(prop => (styleObj[prop] ? `${prop}:${styleObj[prop]};` : ''))
+		.join('');
 }

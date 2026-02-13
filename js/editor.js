@@ -50,6 +50,7 @@ const allOptions = {
 	"row": "key",
 	"colspan": "key",
 	"rowspan": "key",
+	"target": "key",
 };
 
 
@@ -62,7 +63,7 @@ const groupDefinitions = [
 	["display", "flex-direction", "flex-wrap", "align-content", "justify-content", "align-items", "justify-self", "align-self", "float", "clear",],
 	["object-fit"],
 	["border", "border-radius", "box-shadow"],
-	["parent","id","order"],
+	["id","parent","order", "row", "target"],
 ];
 
 const typeOptions = {
@@ -183,6 +184,11 @@ const typeOptions = {
 		"height",
 		"max-height",
 	],
+	"diagram-node": [
+		"id",
+		"target",
+		"text",
+	],
 	"sub-header": [
 		"order",
 		"id",
@@ -252,9 +258,8 @@ const selectOptions = {
 
 const isEditor = () => document.body.dataset.editor === "true";
 
-function openSidebar() {
-	const isOpen = document.body.dataset.sidebar === "true";
-	if (!isOpen) {
+function openSidebar(open = document.body.dataset.sidebar !== "true") {
+	if (open) {
 		const desiredSide = computeSidebarSide();
 		const currentSide = document.body.dataset.sidebarSide || "right";
 		if (desiredSide !== currentSide) {
@@ -262,7 +267,7 @@ function openSidebar() {
 			document.body.dataset.sidebarSide = desiredSide;
 		}
 	}
-	document.body.dataset.sidebar = isOpen ? "false" : "true";
+	document.body.dataset.sidebar = open ? "true" : "false";
 	updateSidebarSide();
 	if (document.body.dataset.sidebarNoAnim === "true") {
 		requestAnimationFrame(() => {
@@ -312,6 +317,7 @@ const selectableTypes = [
 	"table",
 	"table-cell",
 	"diagram",
+	"diagram-node",
 	"image",
 	"header",
 	"sub-header",
@@ -389,46 +395,6 @@ const entryTemplates = {
 	},
 	"table": {
 		"type": "table",
-		
-		"table": {
-			"headers": [
-				{ "text": "Fruit" },
-				{ "text": "Taste" },
-				{ "text": "Color" },
-				{ "text": "Size" },
-				{ "text": "Seeds" }
-			],
-			"rows": [
-				[
-					{ "text": "Apple", "id": "apple" },
-					{ "text": "Sweet/Tart" },
-					{ "text": "Red/Green" },
-					{ "text": "Medium" },
-					{ "text": "Yes" }
-				],
-				[
-					{ "text": "Banana" },
-					{ "text": "Sweet" },
-					{ "text": "Yellow" },
-					{ "text": "Medium" },
-					{ "text": "No" }
-				],
-				[
-					{ "text": "Orange" },
-					{ "text": "Citrusy" },
-					{ "text": "Orange" },
-					{ "text": "Medium" },
-					{ "text": "Sometimes" }
-				],
-				[
-					{ "text": "Grape" },
-					{ "text": "Sweet" },
-					{ "text": "Purple/Green" },
-					{ "text": "Small" },
-					{ "text": "Yes" }
-				]
-			]
-		}
 	},
 	"diagram": {
 		"type": "diagram",
@@ -478,7 +444,7 @@ function renderAddTools(section) {
 		{"label": "text", "svg": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="#000"><path d="M0 7h64v2H0zM0 17h64v2H0zM0 27h64v2H0zM0 37h64v2H0zM0 47h64v2H0zM0 57h44v2H0z"/></svg>`, },
 	];
 	addItems.forEach(item => {
-		//if (item.label == "navigator" && (guideData.content.find(e => e.type === "navigator") || guideData.content.find(e => e.type === "footer"))) return;
+		//if (item.label == "navigator" && guideData.content.find(e => e.type === "navigator")) return;
 		const button = document.createElement("button");
 		button.classList.add(item.label);
 		const txt = document.createElement("span");
@@ -554,6 +520,38 @@ function addEntry(type) {
 				guideData.content.push(textEntry);
 			})
 			break;
+
+		case "table":
+			var siblingCount = guideData.content.filter(e => e.parent === getCurrentPage().id).length;
+			var tableEntry = {...entryTemplates[type]};
+			tableEntry.id = crypto.randomUUID();
+			newId = tableEntry.id;
+			tableEntry.parent = getCurrentPage().id;
+			tableEntry.order = siblingCount+1;
+			guideData.content.push(tableEntry);
+
+			const newTableData = [
+				[{"text": "Cell 1",}, {"text": "Cell 2",}, {"text": "Cell 3",}],
+				[{"text": "Cell 4",}, {"text": "Cell 5",}, {"text": "Cell 6",}],
+				[{"text": "Cell 7",}, {"text": "Cell 8",}, {"text": "Cell 9",}],
+			]
+
+			newTableData.forEach((row, r) => {
+				row.forEach((cell, c) => {
+					var cellEntry = {}
+					cellEntry.type = "table-cell";
+					cellEntry.id = crypto.randomUUID();
+					cellEntry.order = c+1;
+					cellEntry.row = r+1;
+					cellEntry.parent = tableEntry.id;
+					cellEntry.colspan = cell.colspan || 1;
+					cellEntry.rowspan = cell.rowspan || 1;
+					cellEntry.text = cell.text;
+					guideData.content.push(cellEntry);
+				})
+			})
+
+			break;
 		default:
 			var siblingCount = guideData.content.filter(e => e.parent === getCurrentPage().id).length;
 			var entry = {...entryTemplates[type]};
@@ -627,9 +625,11 @@ function renderSelectors(section, selected) {
 		elementSelect.appendChild(option);
 	});
 
+	
 	if (selected) {
-		elementSelect.value = selected.id;
-		sidebarState.currentElementId = selected.id;
+		const id = guideData.content.find(e => e.id == selected?.dataset.id || e.id == selected?.id)?.id
+		elementSelect.value = id;
+		sidebarState.currentElementId = id;
 	}
 }
 
@@ -646,18 +646,18 @@ function renderEditControls(section) {
 
 		group.forEach(field => {
 			if (!field || !typeOptions[selectedType]?.includes(field)) return;
-			const fieldLabel = document.createElement("label");
-			fieldLabel.classList.add("sidebar-field");
-			fieldLabel.classList.add(field);
+			const fieldDiv = document.createElement("div");
+			fieldDiv.classList.add("sidebar-field");
+			fieldDiv.classList.add(field);
 			const name = document.createElement("span");
 			name.textContent = field;
-			fieldLabel.appendChild(name);
-			groupEl.appendChild(fieldLabel);
+			fieldDiv.appendChild(name);
+			groupEl.appendChild(fieldDiv);
 		
 			if (field == "border") {
 				const borderRow = document.createElement("div");
 				borderRow.className = "sidebar-inline";
-				fieldLabel.appendChild(borderRow);
+				fieldDiv.appendChild(borderRow);
 
 				const borderWidth = document.createElement("input");
 				borderWidth.type = "text";
@@ -696,10 +696,10 @@ function renderEditControls(section) {
 				const input = document.createElement("textarea");
 				input.dataset.field = "text";
 				input.value = state.selected?.entry?.text || "";
-				fieldLabel.appendChild(input);
+				fieldDiv.appendChild(input);
 
 				const wrap = document.createElement("div");
-				fieldLabel.appendChild(wrap);
+				fieldDiv.appendChild(wrap);
 
 				const btns = [
 					{"label": "bold", "html": "<b>B</b>"},
@@ -707,6 +707,7 @@ function renderEditControls(section) {
 					{"label": "underline", "html": "<u>U</u>"},
 					{"label": "strike", "html": "<s>S</s>"},
 					{"label": "super", "html": "<span>A</span><sup>2</sup>"},
+					{"label": "spoiler", "html": "<span>👁‍🗨</span>"},
 					//{"label": "quote", "html": '"'},
 					//{"label": "code", "html": "<>"},
 					{"label": "link", "html": ("<img src='data:image/svg+xml;base64,"+btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 836.7 836.7"><path d="M648.4 228.1h-66.6c-4.5 0-8.9 1.8-12.1 5-3.2 3.2-5 7.5-5 12.1v54.1c0 4.5 1.8 8.9 5 12.1 3.2 3.2 7.6 5 12.1 5l66.6-.2c55.4 0 100.2 44.9 100.2 100.2v2.9c0 55.4-44.9 100.2-100.2 100.2H397.1v-146c0-4.5-1.8-8.9-5-12.1-3.2-3.2-7.5-5-12.1-5h-54c-4.5 0-8.9 1.8-12.1 5-3.2 3.2-5 7.5-5 12.1v214.2c0 11 9 20 20 20h319.4c50.3 0 97.6-19.6 133.2-55.2s55.2-82.9 55.2-133.2v-2.9c0-50.3-19.6-97.6-55.2-133.2S698.7 228.1 648.4 228.1zM255 520.4l-66.6.2c-55.4 0-100.2-44.9-100.2-100.2v-2.9c0-55.4 44.9-100.2 100.2-100.2h251.2v146.1c0 4.5 1.8 8.9 5 12.1 3.2 3.2 7.5 5 12.1 5h54c4.5 0 8.9-1.8 12.1-5 3.2-3.2 5-7.5 5-12.1V249.1c0-11-9-20-20-20H188.4c-50.3 0-97.6 19.6-133.2 55.2C19.6 319.8 0 367 0 417.4v2.9c0 50.3 19.6 97.6 55.2 133.2s82.9 55.2 133.2 55.2H255c4.5 0 8.9-1.8 12.1-5 3.2-3.2 5-7.5 5-12.1v-54.1c0-4.5-1.8-8.9-5-12.1-3.2-3.2-7.6-5-12.1-5z"/></svg>')+"' />")},
@@ -899,80 +900,60 @@ function renderEditControls(section) {
 				}
 			}
 			else if (field == "order") {
+				if (state.selected.entry.type == "table-cell") {
+
+					const orderBuildData = [];
+					const entries = guideData.content.filter(e => e.parent == state.selected.entry.parent && e.type == 'table-cell');
+					const rowMax = entries.reduce((max, current) => current.row > max.row ? current : max).row;
+
+					let totalRows = 0;
+					for (let r = 0; r < rowMax; r++) {
+						const foundEntries = entries.filter(e => e.row == (r+1));
+						if (foundEntries.length > 0) {
+							totalRows++;
+							const object = {};
+							object.data = foundEntries;
+							object.groupTitle = `${totalRows}`;
+							object.groupKey = "row";
+							orderBuildData.push(object);
+						}
+					}
+
+					const extraRowMax = guideData.content.filter(e => e.parent == state.selected.entry.parent && e.type == 'table-cell' && e.id != state.selected.entry.id).reduce((max, current) => current.row > max.row ? current : max).row;
+					let extraRows = 0;
+					for (let r = 0; r < extraRowMax; r++) {
+						const foundEntries = entries.filter(e => e.row == (r+1));
+						if (foundEntries.length > 0) {
+							extraRows++;
+						}
+					}
+		
+					if (extraRows >= totalRows) {
+						const extraObj = {};
+						extraObj.data = [];
+						extraObj.groupTitle = `${totalRows+1}`;
+						extraObj.groupKey = "row";
+						orderBuildData.push(extraObj);
+					}
+
+					orderBuildData.length && (fieldDiv.append(buildOrderSort(orderBuildData)[0]));
+				}
+				else {
+					fieldDiv.append(buildOrderSort([
+						{ data: guideData.content.filter(e => e.parent == state.selected.entry.parent), }
+					])[0]);
+				}
+			}
+			else if (field == "row") {
 				const input = document.createElement("input");
 				input.type = "number";
 				input.id = crypto.randomUUID();
 				input.dataset.field = field;
 				input.min = 1;
-				input.max = getEntryFamily(state.selected.entry).filter(e => e.order !== 9999 && e.order !== -1).length;
-
-				input.value = state.selected.entry.order || "";
-				input.disabled = (input.value == 9999 || input.value == -1)
-				fieldLabel.appendChild(input);
-
-				const wrap = document.createElement("div")
-				wrap.className = "order-wrapper"
-				fieldLabel.appendChild(wrap);
-
-				const firstLabel = document.createElement("label");
-				firstLabel.innerHTML = "<span>First</span>";
-				firstLabel.for = "order-radio-first";
-				wrap.appendChild(firstLabel)
-
-				const firstCheck = document.createElement("input");
-				firstCheck.type = "checkbox";
-				firstCheck.name = "order-radio";
-				firstCheck.id = "order-radio-first";
-				firstCheck.checked = state.selected.entry.order == -1 ? true : false;
-				firstLabel.appendChild(firstCheck);
-
-				const lastLabel = document.createElement("label");
-				lastLabel.innerHTML = "<span>Last</span>";
-				lastLabel.for = "order-radio-last";
-				wrap.appendChild(lastLabel)
-
-				const lastCheck = document.createElement("input");
-				lastCheck.type = "checkbox";
-				lastCheck.name = "order-radio";
-				lastCheck.id = "order-radio-last";
-				lastCheck.checked = state.selected.entry.order == 9999 ? true : false;
-				lastLabel.appendChild(lastCheck);
-
-				firstCheck.addEventListener("change", function() {
-					handleFirstLastOrderInput(this, lastCheck, input);
-				});
-				lastCheck.addEventListener("change", function() {
-					handleFirstLastOrderInput(this, firstCheck, input);
-				});
-				input.addEventListener("change",() => {
-					updateOrder(input,state.selected.entry);
-				})
-				
-				function handleFirstLastOrderInput(currentCheck, siblingCheck, orderInput) {
-					currentCheck.checked && (siblingCheck.checked = false);
-					state.selected.entry.order = currentCheck.checked ? (currentCheck.id === "order-radio-first" ? -1 : 9999) : getEntryFamily(state.selected.entry).filter(e => e.order !== 9999 && e.order !== -1).length+1;
-					orderInput.disabled = currentCheck.checked;
-	
-					updateOrder(orderInput, state.selected.entry);
-					
-		
-
-					
-					if (!currentCheck.checked) {
-						handleFieldChange(orderInput.value,orderInput.dataset.field);
-						return;
-					};
-
-					if (currentCheck.id == "order-radio-first") {
-						handleFieldChange(-1,orderInput.dataset.field);
-					}
-					else if (currentCheck.id == "order-radio-last") {
-						handleFieldChange(9999,orderInput.dataset.field);
-					}
-
-					
-				}
-				
+				input.max = (guideData.content.filter(e => e.parent == state.selected.entry.parent && e.type == 'table-cell' && e.id != state.selected.entry.id).reduce((max, current) => current.row > max.row ? current : max).row)+1;
+				input.value = allOptions[field] == "style" ? (state.selected?.entry?.style?.[field] || "") : allOptions[field] == "key" ? (state.selected?.entry?.[field] || "") : ""
+				input.dataset.oldValue = input.value;
+				fieldDiv.appendChild(input);
 			}
 			else if (field == "parent") {
 				const currentPage = getCurrentPage();
@@ -988,13 +969,52 @@ function renderEditControls(section) {
 					select.appendChild(option);
 				});
 				select.value = (state.selected?.entry?.[field] || "");
-				fieldLabel.appendChild(select);
+				fieldDiv.appendChild(select);
+			}
+			else if (field == "target") {
+				const wrap = document.createElement("div");
+				fieldDiv.appendChild(wrap)
+
+				const targets = state.selected.entry.target || [];
+				const allTargets = guideData.content.filter(e => e.parent == state.selected.entry.parent && e.id != state.selected.entry.id);
+				
+				allTargets.forEach(t => {
+					const inputId = crypto.randomUUID();
+					const label = document.createElement("label");
+					label.for = inputId;
+					wrap.appendChild(label);
+
+					const text = document.createElement("span");
+					text.textContent = `${capitalizeString(t.text.toString().replace(/<[^>]*>/g, ''))} (${t.id})`;
+					label.appendChild(text)
+
+					const checkbox = document.createElement("input");
+					checkbox.type = "checkbox";
+					checkbox.id = inputId;
+					checkbox.dataset.id = t.id;
+					checkbox.checked = targets.includes(t.id)
+					label.appendChild(checkbox);
+
+					checkbox.addEventListener("change", function() {handleTargetChange(this)});
+				});
+
+				function handleTargetChange(_this) {
+					const array = [];
+					fieldDiv.parentElement.querySelectorAll("input[data-id]:checked").forEach(i => {
+						array.push(i.dataset.id);
+					});
+
+					state.selected.entry.target = array;
+
+					refreshBuild();
+					saveGuide();
+				}
+			
 			}
 			else if (field == "background") {
-
 				const wrap = document.createElement("div");
 				wrap.classList.add("sidebar-inline")
-				fieldLabel.appendChild(wrap)
+				fieldDiv.appendChild(wrap)
 
 				const input = document.createElement("input");
 				input.type = "text";
@@ -1021,7 +1041,7 @@ function renderEditControls(section) {
 			}
 			else if (selectOptions[field]) {
 				const select = createSelect(field, selectOptions[field], (allOptions[field] == "style" ? (state.selected?.entry?.style?.[field] || "") : allOptions[field] == "key" ? (state.selected?.entry?.[field] || "") : ""));
-				fieldLabel.appendChild(select);
+				fieldDiv.appendChild(select);
 			}
 			else {
 				const input = document.createElement("input");
@@ -1030,7 +1050,7 @@ function renderEditControls(section) {
 				input.dataset.field = field;
 				input.value = allOptions[field] == "style" ? (state.selected?.entry?.style?.[field] || "") : allOptions[field] == "key" ? (state.selected?.entry?.[field] || "") : ""
 				input.dataset.oldValue = input.value;
-				fieldLabel.appendChild(input);
+				fieldDiv.appendChild(input);
 			}
 			
 		});
@@ -1105,15 +1125,15 @@ function addFieldEventListeners() {
 
 		switch (element?.dataset?.field) {
 			case "id":
-				element.addEventListener("change", function() { handleIdChange(element.value,element.dataset.oldValue) });
+				element.addEventListener("change", function() { handleIdChange(this,element.value,element.dataset.oldValue) });
 				break;
 			default:
-				element.addEventListener("change", function() { handleFieldChange(element.value,element.dataset.field) });
+				element.addEventListener("change", function() { handleFieldChange(this,element.value,element.dataset.field) });
 				break;
 		}
 
 		
-		if (["parent"].includes(element?.dataset?.field)) {
+		if (["parent","row"].includes(element?.dataset?.field)) {
 			element.addEventListener("change", refreshSidebar);
 		}
 	});
@@ -1151,7 +1171,7 @@ function handleDisplaySelects(_this) {
 	});
 }
 
-function handleFieldChange(val,field) {
+function handleFieldChange(_this,val,field) {
     const now = Date.now();
     const last = self.lastCall || 0;
     const delay = 150;
@@ -1196,15 +1216,26 @@ function handleFieldChange(val,field) {
 
 
 
-function handleIdChange(val,oldVal) {
+function handleIdChange(_this) {
+
+	const newVal = _this.value;
+	const oldVal = _this.dataset.oldValue;
+
+	if (guideData.content.find(e => e.id === newVal)) {
+		alert("ID already exists.")
+		_this.value = oldVal;
+		return;
+	}
+
     const now = Date.now();
     const last = self.lastCall || 0;
     const delay = 150;
-    
+
+
     if (now - last < delay) {
         if (!self.pending) {
             self.pending = setTimeout(() => {
-                inputChange(val,oldVal);
+                inputChange(_this);
                 self.lastCall = Date.now();
                 delete self.pending;
             }, delay - (now - last));
@@ -1212,11 +1243,34 @@ function handleIdChange(val,oldVal) {
         return;
     }
 
-    inputChange(val,oldVal);
+    inputChange(_this);
     self.lastCall = now;
 
-	function inputChange(val,oldVal) {
-		guideData.content.filter(e => e.parent === oldVal).forEach(e => { e.parent = val; });
+	function inputChange(_this) {
+		const newVal = _this.value;
+		const oldVal = _this.dataset.oldValue;
+
+		// update oldValue
+		_this.dataset.oldValue = _this.value;
+
+		// update entry id
+		guideData.content.filter(e => e.id == oldVal).forEach(e => { e.id = newVal; });
+
+		// update parents
+		guideData.content.filter(e => e.parent == oldVal).forEach(e => { e.parent = newVal; });
+
+		// update links
+		guideData.content.filter(e => e.text && e.text.toString().match(new RegExp(`href=['"][^'"]*#${oldVal}`))).forEach(e => { text = text.replaceAll(/(href=['"])(.*?)(#.*?)(['"])/g, `$1$2#${newVal}$4`); });
+
+		// update targets
+		guideData.content.filter(e => e.target && e.target.includes(oldVal)).forEach(e => { 
+			e.target = e.target.map(item => item === oldVal ? newVal : item);
+		});
+
+		refreshSidebar();
+
+		// update element select
+		document.getElementById("sidebar-element-select").value = newVal;
 
 		refreshBuild();
 		saveGuide();
@@ -1237,7 +1291,7 @@ function handlePageSelect(_this) {
 }
 function handleElementSelect(_this) {
 	const val = _this.value;
-	const element = val ? document.getElementById(val) : null;
+	const element = document.getElementById(val) || document.querySelector(`*[data-id='${val}']`);
 
 	if (element) {
 		selectTarget(element, { allowIgnored: true });
@@ -1284,13 +1338,13 @@ function clearSelection() {
 
 
 function selectTarget(el, options = {}) {
-	if (!el || !el.id) return;
+	if (!el || (!el.id && !el.dataset.id)) return;
 	if (!getElementType(el)) return;
 	if (!options.allowIgnored && isIgnoredElement(el)) return;
 	if (state.selected?.element && state.selected?.element !== el) {
 		state.selected?.element.classList.remove("editor-selected");
 	}
-	const entry = guideData.content.find(item => item.id === el.id);
+	const entry = guideData.content.find(item => item.id === el.id || item.id === el.dataset.id);
 	if (!entry) return;
 
 	const page = el.closest('#content > *');
@@ -1309,6 +1363,7 @@ function computeSidebarSide() {
 	if (!state.selected) return "right";
 	
 	const rect = document.getElementById(state.selected?.entry.id)?.getBoundingClientRect();
+	if (!rect) return "right";
 	const midpoint = rect.left + rect.width / 2;
 	return midpoint > window.innerWidth / 2 ? "left" : "right";
 }
@@ -1377,9 +1432,10 @@ document.addEventListener("contextmenu", (e) => {
 	if (!isEditor()) return;
 	if (e.altKey) return;
 	const el = getSelectableTarget(e.target.closest("#content *"));
-	if (!el || !el.id) return;
+	if (!el || (!el.id && !el.dataset.id)) return;
 	e.preventDefault();
 	selectTarget(el);
+	refreshSidebar();
 	openMenu(e.clientX, e.clientY);
 });
 
@@ -1402,10 +1458,18 @@ document.addEventListener("click", (e) => {
 	}
 
 	const el = getSelectableTarget(e.target.closest("#content *"));
-	if (!el || !el.id) return;
+	if (!el || (!el.id && !el.dataset.id)) return;
 	selectTarget(el);
 	refreshSidebar();
 	closeMenu();
+});
+
+document.addEventListener("dblclick", (e) => {
+	if (!isEditor()) return;
+	if (e.target.closest("#editor-context-menu")) return;
+	if (!e.target.closest("#content") || !e.target.closest("*[data-type][id]")) return;
+
+	openSidebar(true);
 });
 
 
@@ -1419,11 +1483,11 @@ document.addEventListener("keydown", (e) => {
 
 function isIgnoredElement(el) {
 	if (!el) return false;
-	return Object.entries(ignoredElements).some(([className, mode]) => {
+	return Object.entries(ignoredElements).some(([type, mode]) => {
 		if (mode === "element") {
-			return el.classList.contains(className);
+			return el.dataset.type == type;
 		}
-		return !!el.closest(`.${className}`);
+		return !!el.closest(`*[data-type='${type}']`);
 	});
 }
 
@@ -1715,7 +1779,7 @@ function handleGuideBaseChange(_this) {
 	saveGuide();
 }
 
-function buildData() {
+async function buildData() {
 	document.getElementById("content").innerHTML = "";
 
 	const data = guideData.content.filter(e => e.type === "page" || e.type === "navigator").sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).flatMap(page => [page, ...getPageChildren(page.id)]);
@@ -1724,13 +1788,39 @@ function buildData() {
 		base.innerHTML += buildContent(content)
 	});
 
-	changePage(document.querySelector("#content > .page")?.id)
-	selectTarget(document.getElementById(document.getElementById("sidebar-element-select")?.value), { allowIgnored: true });
-	renderDiagrams();
+	changePage(document.querySelector("#content > *[data-type='page']")?.id)
+	await renderDiagrams();
+
+	const id = document.getElementById("sidebar-element-select")?.value;
+	const el = document.getElementById(id) || document.querySelector(`*[data-id='${id}']`);
+	selectTarget(el, { allowIgnored: true });
 
 
 	document.querySelectorAll("#content a").forEach(a => {
 		a.addEventListener("click", redirectHighlight);
+	})
+
+	document.querySelectorAll("#content a.link").forEach(e => {
+		e.addEventListener("click", function() {
+			const link = e.href.match(/#(.*)$/)?.[0];
+			if (link) {
+				let target = findById(link.slice(1));
+				if (target) {
+					let i = 0;
+					while (target && target.type !== "page" && i < 10) {
+						target = guideData.content.find(item => item.id === target.parent);
+						i++;
+					}
+					changePage(target.id)
+				}
+			}
+		}) 
+	})
+
+	document.querySelectorAll("#content .spoiler").forEach(e => {
+		e.addEventListener("click", function() {
+			this.dataset.spoiler = false;
+		}) 
 	})
 }
 

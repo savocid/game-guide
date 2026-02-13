@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>test</title>
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.14.2/themes/base/jquery-ui.css">
+	<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+	<script src="https://code.jquery.com/ui/1.14.2/jquery-ui.js"></script>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+		#wrapper {
+			background: red;
+			gap: 0.5rem;			
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			align-content: flex-start;
+			padding: 0.5rem;
+		}
+		.sort-container {
+			width: 100%;
+			background: rgba(255,255,255,0.1);
+			padding: 0.5rem;
+		}
+		.sort-group {
+			background: ghostwhite;
+			min-height: 1rem;
+			width: 100%;
+			margin-bottom: 1rem;
+			border: 1px solid #ccc;
+		}
+		.group-header {
+			background: #333;
+			color: white;
+			padding: 0.5rem;
+			font-weight: bold;
+		}
+		.sort {
+			background: ghostwhite;
+			min-height: 1rem;
+			width: 100%;
+			padding: 0.5rem;
+		}
+		.sort > div {
+			width: 100%;
+			background: slateblue;
+			color: white;
+			text-align: center;
+			padding: 0.5rem;
+			border: 1px solid rgba(0,0,0,0.5);
+			cursor: grab;
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			flex-wrap: wrap;
+			align-content: center;
+			align-items: center;
+			transition: opacity 0.2s;
+		}
+		.sort > div:active {
+			cursor: grabbing;
+		}
+		.sort > div.ui-sortable-helper {
+			cursor: grabbing;
+		}
+		.sort > div.no-sort {
+			cursor: default;
+			opacity: 0.7;
+			background: #4a4e8c;
+		}
+		.sort > div.no-sort:active {
+			cursor: default;
+		}
+
+		.sort > div,
+		.ui-state-highlight { 
+			height: 3rem;  
+		}
+
+		.ui-state-highlight {
+			background: rgba(255,255,255,0.3) !important;
+			border: 2px dashed white !important;
+		}
+
+		label {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+		}
+		
+		label input {
+			cursor: pointer;
+		}
+		
+		.order-badge {
+			font-size: 0.8rem;
+			background: rgba(0,0,0,0.3);
+			padding: 0.2rem 0.5rem;
+			border-radius: 3px;
+			margin-left: 0.5rem;
+		}
+	</style>
+</head>
+<body>
+   <div id="wrapper"></div>
+   <script>
+	const example_table = [
+		{
+			"id": "test_parent1",
+			"order": 1,
+		},
+		{
+			"id": "test_entry1",
+			"parent": "test_parent1",
+			"order": 1,
+		},
+		{
+			"id": "test_entry2",
+			"parent": "test_parent1",
+			"order": 2,
+		},
+		{
+			"id": "test_entry3",
+			"parent": "test_parent1",
+			"order": 3,
+		},
+		{
+			"id": "test_parent2",
+			"order": 2,
+		},
+		{
+			"id": "test_entry4",
+			"parent": "test_parent2",
+			"order": 1,
+			"row": 1,
+		},
+		{
+			"id": "test_entry5",
+			"parent": "test_parent2",
+			"order": 2,
+			"row": 1,
+		},
+		{
+			"id": "test_entry6",
+			"parent": "test_parent2",
+			"order": 3,
+			"row": 1,
+		},
+		{
+			"id": "test_entry7",
+			"parent": "test_parent2",
+			"order": 1,
+			"row": 2,
+		},
+		{
+			"id": "test_entry8",
+			"parent": "test_parent2",
+			"order": 2,
+			"row": 2,
+		},
+	];
+
+
+
+	// Function to update order in table
+	function updateTableOrder(id, newOrder) {
+		const entry = globalTable.find(e => e.id == id);
+		if (entry) {
+			entry.order = newOrder;
+		}
+	}
+
+	// Function to update group key
+	function updateGroupKey(id, groupKey, groupValue) {
+		const entry = globalTable.find(e => e.id == id);
+		if (entry && groupKey) {
+			entry[groupKey] = groupValue;
+		}
+	}
+
+	// Function to update order numbers
+	function updateOrderNumbers(container) {
+		$(container).find(".sort > div").each(function(index) {
+			const $el = $(this);
+			const id = $el.attr("data-id");
+			const $firstCheckbox = $el.find("label:has(span:contains('First')) input");
+			const $lastCheckbox = $el.find("label:has(span:contains('Last')) input");
+			
+			if ($firstCheckbox.prop("checked")) {
+				$el.attr("data-order", -1);
+				updateTableOrder(id, -1);
+				let $badge = $el.find(".order-badge");
+				if (!$badge.length) {
+					$badge = $('<span class="order-badge"></span>');
+					$el.append($badge);
+				}
+				$badge.text("First");
+			} else if ($lastCheckbox.prop("checked")) {
+				$el.attr("data-order", 9999);
+				updateTableOrder(id, 9999);
+				let $badge = $el.find(".order-badge");
+				if (!$badge.length) {
+					$badge = $('<span class="order-badge"></span>');
+					$el.append($badge);
+				}
+				$badge.text("Last");
+			} else {
+				const order = $el.index() + 1;
+				$el.attr("data-order", order);
+				updateTableOrder(id, order);
+				let $badge = $el.find(".order-badge");
+				if (!$badge.length) {
+					$badge = $('<span class="order-badge"></span>');
+					$el.append($badge);
+				}
+				$badge.text(`#${order}`);
+			}
+		});
+	}
+
+	// Function to initialize sortable for a container
+	function initSortable(container) {
+		const $container = $(container);
+		
+		if ($container.hasClass("ui-sortable")) {
+			$container.sortable("destroy");
+		}
+		
+		$container.sortable({
+			connectWith: ".sort",
+			containment: "#wrapper",
+			axis: "y",
+			placeholder: "ui-state-highlight",
+			items: "> div:not(.no-sort)",
+			stop: function(event, ui) {
+				updateOrderNumbers($(this).parent());
+			},
+			receive: function(event, ui) {
+				const $targetParent = $(this);
+				const $targetGroup = $targetParent.closest(".sort-group");
+				const $sourceSort = ui.sender;
+				
+				// Get group information from target
+				const targetGroupTitle = $targetParent.data("group");
+				const targetGroupKey = $targetParent.data("groupkey");
+				
+				// Get the dragged item's id
+				const itemId = ui.item.attr("data-id");
+				
+				// Update group key in table if target has a group key
+				if (targetGroupKey && targetGroupTitle !== undefined) {
+					updateGroupKey(itemId, targetGroupKey, targetGroupTitle);
+				}
+				
+				const $lastItems = $targetParent.children(".no-sort[data-order='9999']");
+				if ($lastItems.length) {
+					ui.item.insertBefore($lastItems.first());
+				}
+				
+				updateOrderNumbers($(this).parent());
+			}
+		}).disableSelection();
+	}
+
+	// Function to build HTML from data
+	function buildOrderSort(configs) {
+		let containerId = 'container-' + Date.now();
+		let $container = $(`<div class="sort-container" id="${containerId}"></div>`);
+		
+		configs.forEach((config, index) => {
+			const { data, table, groupTitle, groupKey } = config;
+			globalTable = table; // Update global table reference
+			
+			let $groupWrapper = $(`<div class="sort-group"></div>`);
+			
+			// Add group header if groupTitle exists
+			if (groupTitle !== undefined) {
+				$groupWrapper.append(`<div class="group-header">Group: ${groupTitle}</div>`);
+			}
+			
+			let $sortDiv = $(`<div class="sort" data-group="${groupTitle !== undefined ? groupTitle : ''}" data-groupkey="${groupKey || ''}"></div>`);
+			
+			// Sort data by order
+			const sortedData = [...data].sort((a, b) => {
+				if (a.order === -1) return -1;
+				if (b.order === -1) return 1;
+				if (a.order === 9999) return 1;
+				if (b.order === 9999) return -1;
+				return a.order - b.order;
+			});
+			
+			// Build elements
+			sortedData.forEach(item => {
+				const itemId = item.id;
+				const isFirst = item.order === -1;
+				const isLast = item.order === 9999;
+				
+				let $div = $(`
+					<div data-id="${itemId}" class="${isFirst || isLast ? 'no-sort' : ''}" data-order="${item.order}">
+						<label><span>First: </span><input type="checkbox" ${isFirst ? 'checked' : ''}></label>
+						<span>${itemId}</span>
+						<label><span>Last: </span><input type="checkbox" ${isLast ? 'checked' : ''}></label>
+					</div>
+				`);
+				
+				$sortDiv.append($div);
+			});
+			
+			$groupWrapper.append($sortDiv);
+			$container.append($groupWrapper);
+			
+			// Initialize checkboxes for this group
+			$sortDiv.find("> div").each(function() {
+				const $el = $(this);
+				const id = $el.attr("data-id");
+				const $firstCheckbox = $el.find("label:has(span:contains('First')) input");
+				const $lastCheckbox = $el.find("label:has(span:contains('Last')) input");
+				
+				$firstCheckbox.on("change", function() {
+					if (this.checked) {
+						$lastCheckbox.prop("checked", false);
+						$el.parent().prepend($el);
+						$el.attr("data-order", -1);
+						$el.addClass("no-sort");
+						updateTableOrder(id, -1);
+						
+						// Update group key if exists
+						if (groupKey) {
+							updateGroupKey(id, groupKey, groupTitle);
+						}
+					} else {
+						$el.removeClass("no-sort");
+						$el.removeAttr("data-order");
+					}
+					
+					initSortable($sortDiv);
+					updateOrderNumbers($container);
+				});
+				
+				$lastCheckbox.on("change", function() {
+					if (this.checked) {
+						$firstCheckbox.prop("checked", false);
+						$el.parent().append($el);
+						$el.attr("data-order", 9999);
+						$el.addClass("no-sort");
+						updateTableOrder(id, 9999);
+						
+						// Update group key if exists
+						if (groupKey) {
+							updateGroupKey(id, groupKey, groupTitle);
+						}
+					} else {
+						$el.removeClass("no-sort");
+						$el.removeAttr("data-order");
+					}
+					
+					initSortable($sortDiv);
+					updateOrderNumbers($container);
+				});
+			});
+			
+			// Initialize sortable for this group
+			initSortable($sortDiv);
+		});
+		
+		updateOrderNumbers($container);
+		
+		return $container;
+	}
+
+
+	
+	// Build the sortable interfaces
+	$(document).ready(function() {
+		$("#wrapper").append(buildOrderSort([
+			{
+				data: example_table.filter(e => e.parent == "test_parent1"), 
+				table: example_table
+			}
+		])[0]);
+
+		// Build parent2 with groups
+		$("#wrapper").append(buildOrderSort([
+			{
+				data: example_table.filter(e => e.parent == "test_parent1"), 
+				table: example_table, 
+				groupTitle: "test_parent1", 
+				groupKey: "parent"
+			},
+			{
+				data: example_table.filter(e => e.parent == "test_parent2"), 
+				table: example_table, 
+				groupTitle: "test_parent2", 
+				groupKey: "parent"
+			}
+		])[0]);
+	});
+
+   </script>
+</body>
+</html>

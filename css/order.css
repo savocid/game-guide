@@ -1,0 +1,104 @@
+#sidebar .sidebar-field.order {
+	.sort-container {
+		width: 100%;
+		display: flex;
+        flex-direction: column;
+        gap: 1rem;
+	}
+	.sort-group {
+		min-height: 1rem;
+		width: 100%;
+	}
+	.group-header {
+		background: #333;
+		color: white;
+		padding: 0.5rem;
+		font-weight: bold;
+	}
+	.sort {
+		min-height: 1rem;
+		width: 100%;
+	}
+	.sort > div {
+		width: 100%;
+		background: lightslategray;
+		color: white;
+		font-size: 0.8rem;
+		font-weight: bold;
+		text-align: center;
+		padding: 0.5rem;
+		border: 1px solid rgba(0,0,0,0.5);
+		cursor: grab;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		align-content: center;
+		align-items: center;
+		transition: opacity 0.2s;
+		padding: 0.5rem 1rem;
+	}
+	.sort > div:active {
+		cursor: grabbing;
+	}
+	.sort > div.ui-sortable-helper {
+		cursor: grabbing;
+	}
+	.sort > div.no-sort {
+		cursor: default;
+		background: darkslategray;
+	}
+	.sort > div.no-sort > span {
+		opacity: 0.5;
+	}
+	.sort > div.no-sort:active {
+		cursor: default;
+	}
+	.sort > div > span {
+		max-width: 70%;
+		padding: 0.2rem 0.5rem;
+	}
+	.sort > div > label {
+		max-width: 15%;
+	}
+
+	.ui-state-highlight { 
+		height: 3rem;  
+	}
+
+	.sort > div[data-current='true'] {
+		background: limegreen;
+	}
+
+	label {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+	}
+
+	label input {
+		display: none;
+	}
+	label > span {
+		padding: 0.5rem;
+		border: 2px solid rgba(0,0,0,0.2);
+		background: gray;
+		border-radius: 5px;
+	}
+	label:has(input:checked) > span {
+		background: green;
+	}
+
+}
+
+
+.order-highlight {
+	outline: 2px dashed orange !important;
+}
+
+
+body[data-editor="true"] #content * {
+	user-select: none !important;
+}
