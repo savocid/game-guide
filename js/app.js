@@ -10,12 +10,12 @@ function buildContent(content) {
 		case "navigator":
 			var output = `<div data-type='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>`;
 			output += `<ul>`;
-			const pages = guideData.content.filter(item => item.type === "page");
+			const pages = guideData.content.filter(item => item.type === "page").sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 			let pageCount = 0;
 			for (const page of pages) {
 				pageCount++;
 				output += `<li>`;
-				output += `<a onClick='changePage("${page.id}");' data-page='${page.id}' ${pageCount == 1 ? "data-page-open" : ""}>${page.title}</a>`;
+				output += `<a onClick='changePage("${page.id}");' data-page='${page.id}'>${page.title}</a>`;
 				output += `<ul>`;
 				const sections = guideData.content.filter(item => item.type === "section" && item.parent === page.id);
 				let sectionCount = 0;
@@ -47,7 +47,7 @@ function buildContent(content) {
 			});
 			tabs.length > 0 && (output += `</div>`);
 			tabs.forEach((tab, i) => {
-				output += `<div id="${tab.id}" class='tab' data-tab="${tab.id}-input" ${i == 0 ? "data-tab-open" : ""} style='${addStyles(tab.style)}'></div>`
+				output += `<div id="${tab.id}" data-type='tab' data-tab="${tab.id}-input" ${i == 0 ? "data-tab-open" : ""} style='${addStyles(tab.style)}'></div>`
 			});
 			output += `</div>`;
 			

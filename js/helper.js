@@ -30,6 +30,19 @@ function getPageChildren(id, excludeBranchId = null) {
     collectChildren(id);
     return children;
 }
+
+function getElementPage(id) {
+  const element = document.getElementById(id);
+  
+  if (!element) return null;
+  
+  let current = element;
+  while (current && current.getAttribute('data-type') !== 'page') {
+    current = current.parentElement;
+  }
+  
+  return current;
+}
 function getElementType(el) {
 	if (!el) return "";
 	return selectableTypes.find(type => el.dataset.type == type) || "";
@@ -53,6 +66,10 @@ function normalizeColor(color) {
 	const ctx = document.createElement('canvas').getContext('2d');
 	ctx.fillStyle = color;
 	return ctx.fillStyle;
+}
+
+function generateID(prefix = 'id') {
+	return `${prefix}-${crypto.randomUUID()}`;
 }
 
 function debounce(func, wait) {

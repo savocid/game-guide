@@ -51,25 +51,28 @@ const allOptions = {
 	"colspan": "key",
 	"rowspan": "key",
 	"target": "key",
+	"title": "key",
+	"direction": "key",
 };
 
 
 const groupDefinitions = [
-	["width", "height", "min-width", "min-height", "max-width", "max-height", "aspect-ratio"],
-	["margin", "padding"],
-	["background"],
-	["text", "color", "font-size", "font-weight", "font-style", "text-align", "text-shadow"],
-	["src"],
-	["display", "flex-direction", "flex-wrap", "align-content", "justify-content", "align-items", "justify-self", "align-self", "float", "clear",],
-	["object-fit"],
-	["border", "border-radius", "box-shadow"],
-	["id","parent","order", "row", "target"],
+	["text", "src","title","direction","row","colspan","rowspan"],
+	["color", "font-size", "font-weight", "font-style", "text-align", "text-shadow"],
+	["background", "border", "border-radius", "box-shadow"],
+	["width", "height"],
+	["min-width", "min-height"],
+	["max-width", "max-height"],
+	["margin", "padding", "aspect-ratio"],
+	["display", "flex-direction", "flex-wrap", "align-content", "justify-content", "align-items", "justify-self", "align-self", "float", "clear", "object-fit"],
+	["id","parent","order", "target"],
 ];
 
 const typeOptions = {
 	"page": [
 		"order",
 		"id",
+		"title",
 		"background",
 		"color",
 		"padding",
@@ -130,6 +133,7 @@ const typeOptions = {
 	"tab": [
 		"order",
 		"id",
+		"title",
 		"width",
 		"height",
 	],
@@ -183,6 +187,7 @@ const typeOptions = {
 		"max-width",
 		"height",
 		"max-height",
+		"direction"
 	],
 	"diagram-node": [
 		"id",
@@ -254,6 +259,7 @@ const selectOptions = {
 	"text-align": ["left", "right", "center", "justify", "start", "end"],
 	"font-style": ["normal", "italic", "oblique"],
 	"object-fit": ["cover", "contain", "fill", "none", "scale-down"],
+	"direction": ["TB", "BT", "RL", "LR"],
 };
 
 const isEditor = () => document.body.dataset.editor === "true";
@@ -468,7 +474,7 @@ function addEntry(type) {
 			var pageCount = guideData.content.filter(e => e.type === "page").length;
 			var totalCount = guideData.content.filter(e => (e.type === "page") || (e.type === "navigator"));
 			var entry = {...entryTemplates[type]};
-			entry.id = crypto.randomUUID();
+			entry.id = generateID();
 			newId = entry.id;
 			entry.order = totalCount+1;
 			entry.title = `New ${capitalizeString(type)} ${pageCount+1}`;
@@ -481,13 +487,13 @@ function addEntry(type) {
 
 			var pages = guideData.content.filter(e => e.type === "page")
 			var nav = {...entryTemplates["navigator"]};
-			nav.id = crypto.randomUUID();
+			nav.id = generateID();
 			newId = nav.id;
 			guideData.content.push(nav);
 			
 			pages.forEach(page => {
 				var footer = {...entryTemplates["footer"]};
-				footer.id = crypto.randomUUID();
+				footer.id = generateID();
 				footer.order = 9999;
 				footer.parent = page.id;
 				guideData.content.push(footer)
@@ -497,7 +503,7 @@ function addEntry(type) {
 		case "tabs":
 			var siblingCount = guideData.content.filter(e => e.parent === getCurrentPage().id).length;
 			var entry = {...entryTemplates[type]};
-			entry.id = crypto.randomUUID();
+			entry.id = generateID();
 			newId = entry.id;
 			entry.parent = getCurrentPage().id;
 			entry.order = siblingCount+1;
@@ -506,14 +512,14 @@ function addEntry(type) {
 			const tabs = ["Example Tab 1", "Example Tab 2", "Example Tab 3"]
 			tabs.forEach((tab, i) => {
 				var tabEntry = {...entryTemplates["tab"]};
-				tabEntry.id = crypto.randomUUID();
+				tabEntry.id = generateID();
 				tabEntry.parent = entry.id;
 				tabEntry.order = i+1;
 				tabEntry.title = tab;
 				guideData.content.push(tabEntry);
 
 				var textEntry = {...entryTemplates["text"]};
-				textEntry.id = crypto.randomUUID();
+				textEntry.id = generateID();
 				textEntry.parent = tabEntry.id;
 				textEntry.order = 1;
 				textEntry.text = tab;
@@ -524,7 +530,7 @@ function addEntry(type) {
 		case "table":
 			var siblingCount = guideData.content.filter(e => e.parent === getCurrentPage().id).length;
 			var tableEntry = {...entryTemplates[type]};
-			tableEntry.id = crypto.randomUUID();
+			tableEntry.id = generateID();
 			newId = tableEntry.id;
 			tableEntry.parent = getCurrentPage().id;
 			tableEntry.order = siblingCount+1;
@@ -540,7 +546,7 @@ function addEntry(type) {
 				row.forEach((cell, c) => {
 					var cellEntry = {}
 					cellEntry.type = "table-cell";
-					cellEntry.id = crypto.randomUUID();
+					cellEntry.id = generateID();
 					cellEntry.order = c+1;
 					cellEntry.row = r+1;
 					cellEntry.parent = tableEntry.id;
@@ -552,10 +558,42 @@ function addEntry(type) {
 			})
 
 			break;
+		case "diagram":
+			var siblingCount = guideData.content.filter(e => e.parent === getCurrentPage().id).length;
+			var entry = {...entryTemplates[type]};
+			entry.id = generateID();
+			newId = entry.id;
+			entry.parent = getCurrentPage().id;
+			entry.order = siblingCount+1;
+			guideData.content.push(entry);
+
+			const example_nodes = [
+				{"text": "Example Node 1", "id": generateID(),},
+				{"text": "Example Node 2", "id": generateID(),},
+				{"text": "Example Node 3", "id": generateID(),},
+				{"text": "Example Node 4", "id": generateID(),},
+				{"text": "Example Node 5", "id": generateID(),},
+				{"text": "Example Node 6", "id": generateID(),},
+			];
+
+			example_nodes.forEach((n,i) => {
+				const object = {};
+				object.type = "diagram-node"
+				object.id = n.id;
+				object.parent = entry.id;
+				object.order = i+1;
+				object.text = n.text;
+
+				if (i <= 3) {
+					object.target = example_nodes.filter((e,i) => i >= 4 && (Math.random() * 1 > 0.5)).map(e => e.id);
+				}
+				guideData.content.push(object);
+			});
+			break;
 		default:
 			var siblingCount = guideData.content.filter(e => e.parent === getCurrentPage().id).length;
 			var entry = {...entryTemplates[type]};
-			entry.id = crypto.randomUUID();
+			entry.id = generateID();
 			newId = entry.id;
 			entry.parent = getCurrentPage().id;
 			entry.order = siblingCount+1;
@@ -661,7 +699,7 @@ function renderEditControls(section) {
 
 				const borderWidth = document.createElement("input");
 				borderWidth.type = "text";
-				borderWidth.id = crypto.randomUUID();
+				borderWidth.id = generateID();
 				borderWidth.placeholder = "Width";
 				borderWidth.dataset.field = "border-width";
 				borderWidth.value = state.selected?.entry?.style?.["border-width"] || "";
@@ -672,23 +710,27 @@ function renderEditControls(section) {
 
 				const borderColor = document.createElement("input");
 				borderColor.type = "text";
-				borderColor.id = crypto.randomUUID();
+				borderColor.id = generateID();
 				borderColor.dataset.field = "border-color";
 				borderColor.value = state.selected?.entry?.style?.["border-color"] || "";
 				borderRow.appendChild(borderColor);
 
 				const colorPicker = document.createElement("input");
 				colorPicker.type = "color";
-				colorPicker.id = crypto.randomUUID();
+				colorPicker.id = generateID();
 				colorPicker.value = borderColor.value;
 				borderRow.appendChild(colorPicker);
 
 				colorPicker.addEventListener("change", function() {
 					borderColor.value = this.value;
-					handleFieldChange(borderColor.value,borderColor.dataset.field);
+					handleFieldChange(borderColor, borderColor.value,borderColor.dataset.field);
 				})
 				borderColor.addEventListener("change", function() {
-					this.value != "" && (this.value = normalizeColor(this.value));
+					const normalizedColor = normalizeColor(this.value);
+					const toNormalize = normalizedColor != "#000000" ? true : (this.value.toLowerCase() == "black" || this.value.match(/^#0*$/) || false);
+					if (this.value != "" && toNormalize) {
+						this.value = normalizedColor
+					}
 					colorPicker.value = this.value;
 				})
 			}
@@ -715,7 +757,7 @@ function renderEditControls(section) {
 					{"label": "color", "html": "<span class='color1'>A</span><span class='color2'>A</span>"},
 				]
 
-				const dropdownId = crypto.randomUUID();
+				const dropdownId = generateID();
 
 				const dropdown = document.createElement("div");
 				dropdown.classList.add("dropdown");
@@ -896,7 +938,7 @@ function renderEditControls(section) {
 					fullText.substring(selectPos.end);
 			
 
-					handleFieldChange(input.value,input.dataset.field);
+					handleFieldChange(input, input.value, input.dataset.field);
 				}
 			}
 			else if (field == "order") {
@@ -947,11 +989,22 @@ function renderEditControls(section) {
 			else if (field == "row") {
 				const input = document.createElement("input");
 				input.type = "number";
-				input.id = crypto.randomUUID();
+				input.id = generateID();
 				input.dataset.field = field;
 				input.min = 1;
 				input.max = (guideData.content.filter(e => e.parent == state.selected.entry.parent && e.type == 'table-cell' && e.id != state.selected.entry.id).reduce((max, current) => current.row > max.row ? current : max).row)+1;
 				input.value = allOptions[field] == "style" ? (state.selected?.entry?.style?.[field] || "") : allOptions[field] == "key" ? (state.selected?.entry?.[field] || "") : ""
+				input.dataset.oldValue = input.value;
+				fieldDiv.appendChild(input);
+			}
+			else if (field == "colspan" || field == "rowspan") {
+				const input = document.createElement("input");
+				input.type = "number";
+				input.id = generateID();
+				input.dataset.field = field;
+				input.min = 1;
+				input.max = 99;
+				input.value = state.selected?.entry?.[field] || 1
 				input.dataset.oldValue = input.value;
 				fieldDiv.appendChild(input);
 			}
@@ -979,7 +1032,7 @@ function renderEditControls(section) {
 				const allTargets = guideData.content.filter(e => e.parent == state.selected.entry.parent && e.id != state.selected.entry.id);
 				
 				allTargets.forEach(t => {
-					const inputId = crypto.randomUUID();
+					const inputId = generateID();
 					const label = document.createElement("label");
 					label.for = inputId;
 					wrap.appendChild(label);
@@ -1018,7 +1071,7 @@ function renderEditControls(section) {
 
 				const input = document.createElement("input");
 				input.type = "text";
-				input.id = crypto.randomUUID();
+				input.id = generateID();
 				input.dataset.field = field;
 				input.value = allOptions[field] == "style" ? (state.selected?.entry?.style?.[field] || "") : allOptions[field] == "key" ? (state.selected?.entry?.[field] || "") : ""
 				input.dataset.oldValue = input.value;
@@ -1026,16 +1079,20 @@ function renderEditControls(section) {
 
 				const colorPicker = document.createElement("input");
 				colorPicker.type = "color";
-				colorPicker.id = crypto.randomUUID();
+				colorPicker.id = generateID();
 				colorPicker.value = input.value;
 				wrap.appendChild(colorPicker);
 
 				colorPicker.addEventListener("change", function() {
 					input.value = this.value;
-					handleFieldChange(input.value,input.dataset.field);
+					handleFieldChange(input, input.value,input.dataset.field);
 				})
 				input.addEventListener("change", function() {
-					this.value != "" && (this.value = normalizeColor(this.value));
+					const normalizedColor = normalizeColor(this.value);
+					const toNormalize = normalizedColor != "#000000" ? true : (this.value.toLowerCase() == "black" || this.value.match(/^#0*$/) || false);
+					if (this.value != "" && toNormalize) {
+						this.value = normalizedColor
+					}
 					colorPicker.value = this.value;
 				})
 			}
@@ -1046,7 +1103,7 @@ function renderEditControls(section) {
 			else {
 				const input = document.createElement("input");
 				input.type = "text";
-				input.id = crypto.randomUUID();
+				input.id = generateID();
 				input.dataset.field = field;
 				input.value = allOptions[field] == "style" ? (state.selected?.entry?.style?.[field] || "") : allOptions[field] == "key" ? (state.selected?.entry?.[field] || "") : ""
 				input.dataset.oldValue = input.value;
@@ -1158,7 +1215,7 @@ function handleFieldInput(e) {
 	let newVal = +parseFloat(numericVal+(incrementStep*direction)).toFixed(1)
 	_this.value = `${newVal}${suffix}`;
 
-	handleFieldChange(_this.value,_this.dataset.field);
+	handleFieldChange(_this, _this.value,_this.dataset.field);
 }
 
 
@@ -1176,7 +1233,6 @@ function handleFieldChange(_this,val,field) {
     const last = self.lastCall || 0;
     const delay = 150;
 
-
     if (now - last < delay) {
         if (!self.pending) {
             self.pending = setTimeout(() => {
@@ -1190,6 +1246,7 @@ function handleFieldChange(_this,val,field) {
 
     inputChange(val,field);
     self.lastCall = now;
+
 
 	function inputChange(val,field) {
 		if (!state.selected) return;
@@ -1216,6 +1273,26 @@ function handleFieldChange(_this,val,field) {
 
 
 
+function isValidElementId(id) {
+	if (typeof id !== 'string') return false;
+    if (id.length === 0) return false;
+    if (id.trim().length === 0) return false;
+    if (id.includes(' ')) return false;
+    if (!isValidCSSSelector(id)) return false;
+    
+    return true;
+}
+
+function isValidCSSSelector(id) {
+    try {
+        // This will throw if the selector is invalid
+        document.querySelector(`#${id}`);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
 function handleIdChange(_this) {
 
 	const newVal = _this.value;
@@ -1223,6 +1300,12 @@ function handleIdChange(_this) {
 
 	if (guideData.content.find(e => e.id === newVal)) {
 		alert("ID already exists.")
+		_this.value = oldVal;
+		return;
+	}
+
+	if (!isValidElementId(newVal)) {
+		alert("Invalid ID.")
 		_this.value = oldVal;
 		return;
 	}
@@ -1475,7 +1558,12 @@ document.addEventListener("dblclick", (e) => {
 
 document.addEventListener("keydown", (e) => {
 	if (e.key !== "Escape") return;
-	clearSelection();
+	if (state.selected) {
+		clearSelection();
+	}
+	else {
+		closeSidebar();
+	}
 	closeMenu();
 });
 
@@ -1583,6 +1671,7 @@ async function readDataFile(_this) {
 
 		initLoad();
 		buildData();
+		changePage(guideData.content.filter(e => e.type == "page").sort((a, b) => a.order - b.order)[0]?.id);
 		refreshSidebar();
 
 		saveGuide();
@@ -1712,6 +1801,7 @@ function loadGuide(data) {
 	guideData = new ManualSaveWrapper(data);
 	initLoad();
 	buildData();
+	changePage(guideData.content.filter(e => e.type == "page").sort((a, b) => a.order - b.order)[0]?.id);
 	refreshSidebar();
 }
 
@@ -1736,13 +1826,14 @@ function newGuide() {
 
 	if (guideName != undefined) {
 		guideData = new ManualSaveWrapper(example_data);
-		guideData.id = crypto.randomUUID();
+		guideData.id = generateID();
 		guideData.created = Date.now();
 		guideData.modified = guideData.created;
 		guideName && (guideData.title = guideName);
 
 		initLoad();
 		buildData();
+		changePage(guideData.content.filter(e => e.type == "page").sort((a, b) => a.order - b.order)[0]?.id);
 		refreshSidebar();
 	}
 }
@@ -1788,7 +1879,10 @@ async function buildData() {
 		base.innerHTML += buildContent(content)
 	});
 
-	changePage(document.querySelector("#content > *[data-type='page']")?.id)
+
+	if (state.selected) {
+		changePage(getElementPage(state.selected?.element?.id)?.id)
+	}
 	await renderDiagrams();
 
 	const id = document.getElementById("sidebar-element-select")?.value;

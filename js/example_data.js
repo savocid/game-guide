@@ -9,7 +9,8 @@ const example_data = {
 		{
 			"type": "navigator",
 			"id": "nav-1",
-			"order": 1
+			"order": 1,
+			"title": "Navigator"
 		},
 		{
 			"type": "page",

@@ -40,10 +40,10 @@ body[data-editor="true"] .editor-selected {
 
 	&& {
 		position: fixed;
-		top: calc(50px + 3rem);
+		top: max(100px, 10%);
 		right: 0;
 		width: min(320px, 85vw);
-		height: calc(calc(100% - 50px) - 3rem);
+		height: calc(100% - max(100px, 10%));
 		background: #12161d;
 		color: #e6edf3;
 		border-left: 1px solid rgba(255, 255, 255, 0.12);
@@ -122,6 +122,7 @@ body[data-editor="true"] .editor-selected {
 		--percent: 50%;
 		width: var(--percent);
 		height: var(--percent);
+		margin: auto;
 	}
 	.sidebar-section > h4 {
 		padding: 0.5rem 0.2rem;
@@ -336,7 +337,7 @@ body[data-editor="true"] .editor-selected {
 	.sidebar-inline > input[type='color'] {
 		padding: 0;
         border: 0;
-        height: -webkit-fill-available;
+        height: auto;
 		width: revert;
 	}
 
