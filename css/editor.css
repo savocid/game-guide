@@ -1,40 +1,17 @@
 
 body[data-editor="true"] .editor-selected {
-	outline: 2px dashed #7bdff2;
+	border: 2px dashed #7bdff2 !important;
 	position: relative;
 }
 
-
-
-.editor-context-menu {
-	position: fixed;
-	z-index: 10000;
-	display: none;
-	flex-direction: column;
-	gap: 0.25rem;
-	padding: 0.5rem;
-	min-width: 180px;
-	background: #11151a;
-	border: 1px solid rgba(255, 255, 255, 0.12);
-	border-radius: 0.5rem;
-	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+body[data-editor="true"] .editor-selected[data-type='diagram-node'] {
+	border: none !important;
+	outline: 2px dashed #7bdff2 !important;
 }
 
-.editor-context-menu button {
-	background: transparent;
-	border: 1px solid rgba(255, 255, 255, 0.08);
-	border-radius: 0.35rem;
-	color: #e6edf3;
-	text-align: left;
-	padding: 0.5rem 0.6rem;
-	cursor: pointer;
+*[data-type] {
+	min-width: 1rem;
 }
-
-.editor-context-menu button:hover,
-.editor-context-menu button:active {
-	background: rgba(123, 223, 242, 0.12);
-}
-
 
 #sidebar {
 
@@ -57,6 +34,9 @@ body[data-editor="true"] .editor-selected {
 	}
 	&& > section {
 		padding: 1rem 1rem 0.5rem;
+	}
+	&& > section:has(> div:empty) {
+		display: none;
 	}
 
 	&&::-webkit-scrollbar {
@@ -103,6 +83,7 @@ body[data-editor="true"] .editor-selected {
 		font-weight: 600;
 		cursor: pointer;
 		text-align: center;
+		aspect-ratio: 3 / 2;
 	}
 
 	.sidebar-grid button:hover {
@@ -123,6 +104,7 @@ body[data-editor="true"] .editor-selected {
 		width: var(--percent);
 		height: var(--percent);
 		margin: auto;
+		filter: brightness(0) invert(0.5);
 	}
 	.sidebar-section > h4 {
 		padding: 0.5rem 0.2rem;
@@ -134,6 +116,7 @@ body[data-editor="true"] .editor-selected {
 		flex-direction: column;
 		gap: 0.35rem;
 		margin-bottom: 0.75rem;
+		position: relative;
 	}
 	
 	.sidebar-field.target > div {
@@ -181,119 +164,142 @@ body[data-editor="true"] .editor-selected {
 	}
 
 
-	.sidebar-field.text > div {
-		padding: 0.2rem;
-        display: flex;
-        gap: 0.2rem;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-		position: relative;
-	}
-	.sidebar-field.text > div > button {
-		padding: 0.2rem;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: lightslategray;
-        border: 2px solid rgba(0, 0, 0, 0.5);
-        box-sizing: content-box;
-		font-family: serif;
-		width: 1.25rem;
-		height: 1.25rem;
-		cursor: pointer;
-	}
-	.sidebar-field.text > div > button:active {
-		background-color: slategrey;
-	}
+	.sidebar-field.text,
+	.sidebar-field.caption {
+		.textile {
+            width: fit-content;
+            text-transform: none;
+            background: #ffe7ac;
+            font-family: 'PT Serif', 'math';
+            font-weight: bold;
+            color: black;
+            border-radius: 2px;
+            font-weight: bold;
+            font-size: 1rem;
+			position: absolute;
+            right: 0.5rem;
+            top: -1rem;
+		}
+		.textile > * {
+			padding: 4px;
+			color: black;
+			text-decoration: none;
+		}
+		&& > div {
+			padding: 0.2rem;
+			display: flex;
+			gap: 0.2rem;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: flex-start;
+			position: relative;
+		}
+		&& > div > button {
+			padding: 0.2rem;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			background-color: lightslategray;
+			border: 2px solid rgba(0, 0, 0, 0.5);
+			box-sizing: content-box;
+			font-family: serif;
+			width: 1.25rem;
+			height: 1.25rem;
+			cursor: pointer;
+		}
+		&& > div > button:active {
+			background-color: slategrey;
+		}
 
-	.sidebar-field.text > div > button.size span {
-		align-self: baseline;
-		margin-top: -2px;
-	}
-	.sidebar-field.text > div > button.size span.small {
-		font-size: 0.75rem;
-	}
-	.sidebar-field.text > div > button.size span.large {
-		font-size: 1.25rem;
-	}
-	.sidebar-field.text > div > button.super > * {
-	    place-self: start;
-    	margin-top: 2px;
-	}
-	.sidebar-field.text > div > button.super > sup {
-		font-size: 0.6rem;
-	}
+		&& > div > button.size span {
+			align-self: baseline;
+			margin-top: -2px;
+		}
+		&& > div > button.size span.small {
+			font-size: 0.75rem;
+		}
+		&& > div > button.size span.large {
+			font-size: 1.25rem;
+		}
+		&& > div > button.super > * {
+			place-self: start;
+			margin-top: 2px;
+		}
+		&& > div > button.super > sup {
+			font-size: 0.6rem;
+		}
 
-	.sidebar-field.text > div > button.color span {
-		text-shadow: 1px 1px 0px rgba(0,0,0,1);
-	}
-	.sidebar-field.text > div > button.color span.color1 {
-		color: fuchsia;
-	}
-	.sidebar-field.text > div > button.color span.color2 {
-		color: lawngreen;
-	}
-	.sidebar-field.text > div > button.link img {
-		width: 80%;
-	}
+		&& > div > button.color span {
+			text-shadow: 1px 1px 0px rgba(0,0,0,1);
+		}
+		&& > div > button.color span.color1 {
+			color: fuchsia;
+		}
+		&& > div > button.color span.color2 {
+			color: lawngreen;
+		}
+		&& > div > button.link img {
+			width: 80%;
+		}
 
-	.sidebar-field.text .dropdown:not([data-open='true']) {
-		display: none;
-	}
-
-	.sidebar-field.text .dropdown {
-		position: absolute;
-        top: 100%;
-        left: 0;
-        background: slategray;
-        box-sizing: border-box;
-        border-radius: 0.2rem;
-        border: 2px solid rgba(0, 0, 0, 0.5);
-        border-top-right-radius: 0px;
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        align-items: center;
-        width: calc(100% - 6px);
-        margin-left: 2px;
-	}
-	.sidebar-field.text .dropdown > * {
-		margin: 0.5rem 2%;
-	}
-	.sidebar-field.text .dropdown > span {
-		width: 60%;
-		display: inline-grid;
-        grid-template-columns: 10% 90%;
-        grid-auto-rows: auto;
-        gap: 0.2rem;
-	}
-	.sidebar-field.text .dropdown > button {
-		width: 30%;
-        padding: 0.25rem;
-        font-size: 0.7rem;
-	}
-	.sidebar-field.text .dropdown > strong {
-		width: 100%;
-		text-align: center;
-		margin: 0.2rem;
-		font-size: 0.9rem;
-	}
-	.sidebar-field.text .dropdown select,
-	.sidebar-field.text .dropdown input {
-		width: 100%;
-		box-sizing: border-box;
-	}
-
-	.sidebar-field.text .dropdown[data-field='color'],
-	.sidebar-field.text .dropdown[data-field='size'] {
-
-		select,
-		input[type='radio']:nth-child(3) {
+		&& .dropdown:not([data-open='true']) {
 			display: none;
 		}
-		input[type='radio'] {
-			visibility:hidden;
+
+		&& .dropdown {
+			position: absolute;
+			top: 100%;
+			left: 0;
+			background: slategray;
+			box-sizing: border-box;
+			border-radius: 0.2rem;
+			border: 2px solid rgba(0, 0, 0, 0.5);
+			border-top-right-radius: 0px;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			align-items: center;
+			width: calc(100% - 6px);
+			margin-left: 2px;
+			z-index: 100;
+		}
+		&& .dropdown > * {
+			margin: 0.5rem 2%;
+		}
+		&& .dropdown > span {
+			width: 60%;
+			display: inline-grid;
+			grid-template-columns: 10% 90%;
+			grid-auto-rows: auto;
+			gap: 0.2rem;
+		}
+		&& .dropdown > button {
+			width: 30%;
+			padding: 0.25rem;
+			font-size: 0.7rem;
+		}
+		&& .dropdown > strong {
+			width: 100%;
+			text-align: center;
+			margin: 0.2rem;
+			font-size: 0.9rem;
+		}
+		&& .dropdown select,
+		&& .dropdown input {
+			width: 100%;
+			box-sizing: border-box;
+		}
+
+		&& .dropdown[data-field='color'],
+		&& .dropdown[data-field='size'] {
+
+			select,
+			input[type='radio']:nth-child(3) {
+				display: none;
+			}
+			input[type='radio'] {
+				visibility:hidden;
+			}
 		}
 	}
 
@@ -396,6 +402,10 @@ body[data-editor="true"] .editor-selected {
 		color: rgba(230,237,243,0.4);
 	}
 
+	.sidebar-field:has(> select:first-of-type:last-of-type:disabled) {
+		display: none;
+	}
+
 	.sidebar-style-groups {
 		display: flex;
 		flex-direction: column;
@@ -462,24 +472,12 @@ body[data-editor="true"] .editor-selected {
 }
 
 
-body[data-editor="false"][data-sidebar-side="right"] #sidebar,
-body[data-editor="false"]:not([data-sidebar-side]) #sidebar,
-body[data-sidebar="false"][data-sidebar-side="right"] #sidebar,
-body[data-sidebar="false"]:not([data-sidebar-side]) #sidebar {
+body[data-editor="false"] #sidebar,
+body[data-sidebar="false"] #sidebar {
 	transform: translateX(100%) !important;
 }
 
-body[data-sidebar="true"][data-sidebar-side="right"] #sidebar,
-body[data-sidebar="true"]:not([data-sidebar-side]) #sidebar {
-	transform: translateX(0%);
-}
-
-body[data-editor="false"][data-sidebar-side="left"] #sidebar,
-body[data-sidebar="false"][data-sidebar-side="left"] #sidebar {
-	transform: translateX(-100%) !important;
-}
-
-body[data-sidebar="true"][data-sidebar-side="left"] #sidebar {
+body[data-sidebar="true"] #sidebar {
 	transform: translateX(0%);
 }
 
@@ -487,25 +485,13 @@ body[data-sidebar="true"][data-sidebar-side="left"] #sidebar {
 	transform: translateX(0%);
 }
 
-
+body:has(#sidebar.disable-anim) > #browse,
+body:has(#sidebar.disable-anim) > #content,
 #sidebar.disable-anim {
 	transition: none !important;
 }
 
 
-body[data-sidebar-side="left"] #sidebar {
-	left: 0;
-	right: auto;
-	border-left: none;
-	border-right: 1px solid rgba(255, 255, 255, 0.12);
-	box-shadow: 10px 0 30px rgba(0, 0, 0, 0.35);
-}
-
-
-
-body[data-sidebar-no-anim="true"] #sidebar {
-	transition: none !important;
-}
 
 body[data-editor='true'] #content {
 	cursor:crosshair;
@@ -528,3 +514,9 @@ header .btn.download {
 	height: 30px;
 }
 
+#content .drop-target-valid {
+	border: 2px dashed limegreen !important;
+}
+#content .drop-target-invalid {
+	border: 2px dashed red !important;
+}

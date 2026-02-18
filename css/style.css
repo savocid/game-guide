@@ -211,6 +211,13 @@ header .guide-info .title * {
     height: calc(100% - max(100px, 10%));
     padding: 1rem 0;
     overflow: auto;
+	transition: width 0.2s ease;
+}
+body[data-sidebar='true'][data-editor='true'] {
+	#browse,
+	#content {
+		width: calc(100% - min(320px, 85vw));
+	}
 }
 
 #browse {
@@ -353,6 +360,7 @@ header .btn img {
     justify-content: center;
     align-items: center;
     text-decoration: underline;
+	margin: 0 0.25rem;
 }
 
 .spoiler[data-spoiler='true']::before {
@@ -375,4 +383,44 @@ header .btn img {
 
 .spoiler[data-spoiler='true'] > .spoiler-content {
 	visibility: hidden;
+}
+
+
+
+#console {
+	position: fixed;
+	z-index: 1000000;
+	cursor: default;
+	display: flex;
+	flex-direction: column;
+	pointer-events: none;
+	max-width: 50vw;
+	max-height: 95vh;
+}
+
+#console span {
+	padding: 5px 20px;
+    background: rgba(0, 0, 0, 0.5);
+    transition: 1s ease opacity 0.1s;
+	border: 1px solid rgba(255,255,255,0.2)
+}
+
+#console.top-right {
+	top: 25px;
+	right: 25px;
+}
+
+#console.top-left {
+	top: 25px;
+	left: 25px;
+}
+
+#console.bottom-right {
+	bottom: 25px;
+	right: 25px;
+}
+
+#console.bottom-left {
+	bottom: 25px;
+	left: 25px;
 }

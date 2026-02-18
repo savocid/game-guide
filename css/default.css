@@ -13,18 +13,18 @@
 		text-shadow: 1px 1px 0px rgba(255,255,255,0.3);
 	}
 
-	a:not([data-page-open]):hover,
-	a:not([data-page-open]):active {
+	a[data-open='false']:hover,
+	a[data-open='false']:active {
 		text-decoration: underline;
 	}
 
-	a[data-page-open] {
+	a[data-open='true'] {
 		cursor: default;
 		color: black;
 		text-decoration: underline;
 	}
 
-	[data-type='page']:not([data-page-open]) {
+	[data-type='page'][data-open='false'] {
 		display: none;
 	}
 
@@ -35,6 +35,7 @@
 		background: white;
 		margin: 0.5rem 0;
 		color:black;
+		text-align: center;
 	}
 	table, th, td {
 		border: 1px solid #000;
@@ -42,13 +43,20 @@
 	table:has(thead > tr:first-child > th:first-child:empty) td:first-child,
 	th {
 		background: rgba(0,0,0,0.1);
-		filter:brightness(0.5);
 		font-weight: bold;
 	}
 
 
 	th, td {
 		padding: 0.25rem 0.5rem;
+	}
+
+	th, td {
+		&& > img {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
 	}
 
 
@@ -59,7 +67,9 @@
 	[data-type='image'] {
 		display: flex;
 		flex-direction: column;
+		text-align: center;
 	}
+	
 
 	[data-type='image'] img {
 		width: 100%;
@@ -134,37 +144,50 @@
 	[data-type='header'],
 	[data-type='sub-header'] {
 		padding: 0.5rem 0 0;
-		width: fit-content;
 		box-sizing: border-box;
 	}
 
-	li:not(:has(> a[data-page-open])) > ul {
+	[data-type='section'] {
+		width: auto;
+	}
+	[data-type='image'],
+	[data-type='text'],
+	[data-type='header'],
+	[data-type='sub-header'] {
+		width: fit-content;
+	}
+
+	[data-type='text'] {
+		display: inline-block;
+	}
+
+	li:not(:has(> a[data-open='true'])) > ul {
 		display: none;
 	}
 
 
-	[data-type='footer'] {
+	[data-type='page-nav'] {
 		display: flex;
 		justify-content: space-between;
 		width: 100%;
 		padding: 2rem 0 0;
 		color: black;
 	}
-	[data-type='footer'] > span.previous {
+	[data-type='page-nav'] > span.previous {
 		margin-right: auto;
 		padding-left: 0.5rem;
 	}
-	[data-type='footer'] > span.next {
+	[data-type='page-nav'] > span.next {
 		margin-left: auto;
 		padding-right: 0.5rem;
 	}
-	[data-type='footer'] > span {
+	[data-type='page-nav'] > span {
 		background: aliceblue;
 		border-radius: 10px;
 		font-weight: bold;
 		border: 2px solid rgba(0, 0, 0, 0.2);
 	}
-	[data-type='footer'] > span a {
+	[data-type='page-nav'] > span a {
 		display: inline-block;
 		padding: 1rem;
 	}
@@ -177,6 +200,7 @@
 		border: 2px solid rgba(0, 0, 0, 0.2);
 		width: fit-content;
 		color: black;
+		overflow: auto;
 	}
 
 

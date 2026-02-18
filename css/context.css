@@ -1,0 +1,146 @@
+#context-menu {
+
+	&& {
+		position: fixed;
+		z-index: 10000;
+		display: flex;
+		flex-direction: column;
+		min-width: 180px;
+		border: 2px solid rgba(255, 255, 255, 0.15);
+		text-align: center;
+		user-select: none;
+	}
+
+	&& > div {
+		position: relative;
+		background: transparent;
+		color: #e6edf3;
+		padding: 0.5rem 0.6rem;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		transition: background 0.15s ease;
+		cursor: pointer;
+	}
+	&& > div:has(.submenu) {
+		cursor: default;
+	}
+
+	&& > div:not(:last-child) {
+		border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+	}
+
+	&&:not([data-open='true']) {
+		display: none;
+	}
+
+
+	&& > div.add,
+	&& > div.remove {
+		font-weight: bold;
+		text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
+	}
+
+	&& > div.add {
+		color: lawngreen;
+	}
+	&& > div.remove {
+		color: crimson;
+	}
+
+	&& > div > *:first-child {
+		flex: 1;
+	}
+
+	/* Submenu styles */
+	.submenu {
+		position: fixed; /* Change from absolute to fixed for viewport positioning */
+		display: none;
+		flex-direction: column;
+		min-width: 160px;
+		z-index: 10001;
+		top: 0;
+		left: 0;
+		border: 2px solid rgba(255, 255, 255, 0.15);
+		text-align: left;
+		font-size: 0.8rem;
+	}
+
+	.submenu[data-open="true"] {
+		display: flex;
+	}
+	&& > div.add:has(.submenu:empty) {
+		display: none;
+	}
+	.submenu:empty {
+		display: none;
+	}
+
+	/* Submenu items */
+	.submenu > div {
+		background: transparent;
+		color: #e6edf3;
+		padding: 0.5rem 0.6rem;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		transition: background 0.15s ease;
+	}
+
+	.submenu > div:not(:last-child) {
+		border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+	}
+
+	/* Submenu item text */
+	.submenu > div > *:first-child {
+		flex: 1;
+	}
+
+	/* Submenu item images */
+	.submenu > div > img {
+		width: 20px;
+		height: 20px;
+		opacity: 0.8;
+		transition: opacity 0.15s ease;
+		filter: brightness(0) invert(1);
+	}
+
+	.submenu > div:hover > img {
+		opacity: 1;
+	}
+
+
+
+
+	&& > div {
+		position: relative;
+	}
+	&& > div:has(.submenu[data-open='false'])::before {
+		content: "";
+		position: absolute;
+		right: -6px;
+		width: 10px;
+		height: 10px;
+		pointer-events: none;
+		transform: rotate(var(--arrow-rotate, 45deg));
+		border-right: 2px solid rgba(255, 255, 255, 0.15);
+		border-top: 2px solid rgba(255, 255, 255, 0.15);
+
+		left: var(--arrow-left, auto);
+		right: var(--arrow-right, -6px);
+	}
+
+	&&,
+	&& > div::before,
+	.submenu {
+		background: rgb(35, 50, 53);
+	}
+
+	&& > div:hover,
+	.submenu > div:hover {
+		background: rgba(123, 223, 242, 0.12);
+	}
+
+
+}

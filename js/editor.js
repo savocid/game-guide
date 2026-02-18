@@ -1,337 +1,503 @@
 const state = {
 	selected: null,
-	startX: 0,
-	startY: 0,
-	startW: 0,
-	startH: 0,
-};
-const ignoredElements = {
-	//"page": "element",
-	//"navigator": "closest",
-};
-const allOptions = {
-	"order": "key",
-	"id": "key",
-	"text": "key",
-	"parent": "key",
-	"width": "style",
-	"height": "style",
-	"min-width": "style",
-	"min-height": "style",
-	"max-width": "style",
-	"max-height": "style",
-	"background": "style",
-	"aspect-ratio": "style",
-	"text-align": "style",
-	"float": "style",
-	"object-fit": "style",
-	"margin": "style",
-	"padding": "style",
-	"border-width": "style",
-	"border-style": "style",
-	"border-color": "style",
-	"border-radius": "style",
-	"color": "style",
-	"font-size": "style",
-	"box-shadow": "style",
-	"text-shadow": "style",
-	"font-weight": "style",
-	"font-style": "style",
-	"display": "style",
-	"src": "key",
-	"flex-direction": "style",
-	"flex-wrap": "style",
-	"align-content": "style",
-	"justify-content": "style",
-	"align-items": "style",
-	"clear": "style",
-	"justify-self": "style",
-	"align-self": "style",
-	"row": "key",
-	"colspan": "key",
-	"rowspan": "key",
-	"target": "key",
-	"title": "key",
-	"direction": "key",
 };
 
+const entryOptions = {
+	"order": {
+		label: "order",
+		type: "key",
+	},
+	"id": {
+		label: "id",
+		type: "key",
+	},
+	"text": {
+		label: "text",
+		type: "key",
+	},
+	"parent": {
+		label: "parent",
+		type: "key",
+	},
+	"width": {
+		label: "width",
+		type: "style",
+	},
+	"height": {
+		label: "height",
+		type: "style",
+	},
+	"min-width": {
+		label: "min-width",
+		type: "style",
+	},
+	"min-height": {
+		label: "min-height",
+		type: "style",
+	},
+	"max-width": {
+		label: "max-width",
+		type: "style",
+	},
+	"max-height": {
+		label: "max-height",
+		type: "style",
+	},
+	"background": {
+		label: "background",
+		type: "style",
+	},
+	"aspect-ratio": {
+		label: "aspect-ratio",
+		type: "style",
+	},
+	"text-align": {
+		label: "text-align",
+		type: "style",
+		options: ["left", "right", "center", "justify", "start", "end"],
+	},
+	"float": {
+		label: "float",
+		type: "style",
+		options: ["none", "left", "right", "inline-start", "inline-end"],
+	},
+	"object-fit": {
+		label: "object-fit",
+		type: "style",
+		options: ["cover", "contain", "fill", "none", "scale-down"],
+	},
+	"margin": {
+		label: "margin",
+		type: "style",
+	},
+	"padding": {
+		label: "padding",
+		type: "style",
+	},
+	"border-width": {
+		label: "border-width",
+		type: "style",
+	},
+	"border-style": {
+		label: "border-style",
+		type: "style",
+		options: ["none", "solid", "dashed", "dotted", "double", "groove", "ridge", "inset", "outset", "hidden"],
+	},
+	"border-color": {
+		label: "border-color",
+		type: "style",
+	},
+	"border-radius": {
+		label: "border-radius",
+		type: "style",
+	},
+	"color": {
+		label: "color",
+		type: "style",
+	},
+	"font-size": {
+		label: "font-size",
+		type: "style",
+	},
+	"box-shadow": {
+		label: "box-shadow",
+		type: "style",
+	},
+	"text-shadow": {
+		label: "text-shadow",
+		type: "style",
+	},
+	"font-weight": {
+		label: "font-weight",
+		type: "style",
+	},
+	"font-style": {
+		label: "font-style",
+		type: "style",
+		options: ["normal", "italic", "oblique"],
+	},
+	"display": {
+		label: "display",
+		type: "style",
+		options: ["block", "inline", "inline-block", "inline-flex", "flex", "grid", "inline-grid", "none", "inherit", "initial", "unset"],
+	},
+	"image": {
+		label: "image",
+		type: "key",
+	},
+	"image-position": {
+		label: "position",
+		type: "key",
+		options: ["top","bottom"]
+	},
+	"flex-direction": {
+		label: "flex-direction",
+		type: "style",
+		options: ["row", "row-reverse", "column", "column-reverse"],
+	},
+	"flex-wrap": {
+		label: "flex-wrap",
+		type: "style",
+		options: ["nowrap", "wrap", "wrap-reverse"],
+	},
+	"align-content": {
+		label: "align-content",
+		type: "style",
+		options: ["baseline", "center", "end", "flex-end", "flex-start","normal","space-around","space-between","space-evenly","start","stretch"],
+	},
+	"justify-content": {
+		label: "justify-content",
+		type: "style",
+		options: ["flex-start", "flex-end", "center", "space-between", "space-around", "space-evenly"],
+	},
+	"align-items": {
+		label: "align-items",
+		type: "style",
+		options: ["stretch", "flex-start", "flex-end", "center", "baseline"],
+	},
+	"clear": {
+		label: "clear",
+		type: "style",
+		options: ["none", "left", "right", "both", "inline-start", "inline-end"],
+	},
+	"justify-self": {
+		label: "justify-self",
+		type: "style",
+		options: ["auto", "normal", "stretch", "center", "start", "end", "self-start", "self-end", "left", "right"],
+	},
+	"align-self": {
+		label: "align-self",
+		type: "style",
+		options: ["auto", "stretch", "flex-start", "flex-end", "center", "baseline"],
+	},
+	"row": {
+		label: "row",
+		type: "key",
+	},
+	"colspan": {
+		label: "colspan",
+		type: "key",
+	},
+	"rowspan": {
+		label: "rowspan",
+		type: "key",
+	},
+	"target": {
+		label: "target",
+		type: "key",
+	},
+	"title": {
+		label: "title",
+		type: "key",
+	},
+	"direction": {
+		label: "direction",
+		type: "key",
+		options: ["TB", "BT", "RL", "LR"],
+	},
+	"caption": {
+		label: "caption",
+		type: "key",
+	}
+}
 
-const groupDefinitions = [
-	["text", "src","title","direction","row","colspan","rowspan"],
+const optionsGrouped = {
+	"basic": [
+		"order",
+		"id",
+		"parent",
+	],
+	"alignment": [
+		"display",
+		"flex-direction",
+		"flex-wrap",
+		"align-content",
+		"justify-content",
+		"align-items",
+		"justify-self",
+		"align-self",
+		"float",
+		"clear",
+	],
+	"background": [
+		"background",
+		"border-width",
+		"border-style",
+		"border-color",
+		"border-radius",
+		"box-shadow",
+	],
+	"size": [
+		"width",
+		"height",
+		"min-width",
+		"min-height",
+		"max-width",
+		"max-height",
+		"aspect-ratio"
+	],
+	"displacement": [
+		"margin",
+		"padding",
+	],
+	"text": [
+		"color",
+		"font-size",
+		"font-weight",
+		"font-style",
+		"text-align",
+		"text-shadow",
+	]
+}
+
+const entryTypes = {
+	"page": {
+		add:  true,
+		parentTypes: ["base"],
+		svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 406 406" fill="#000"><rect x="172" y="86" width="128" height="12"/><rect x="172" y="164" width="128" height="12"/><rect x="172" y="243" width="128" height="12"/><path d="M380 406H26V0h354v406zM38 394h330V12H38v382z"/><path d="M152 129H77v-75h75v75zm-63-12h51V66H89v51z"/><path d="M152 208H77v-75h75v75zm-63-12h51v-51H89v51z"/><path d="M152 286H77v-75h75v75zm-63-12h51v-51H89v51z"/></svg>`,
+		template: {
+			"type": "page",
+		},
+		options: [
+			...optionsGrouped["basic"].filter(i => i !== "parent"),
+			...optionsGrouped["background"],
+			...optionsGrouped["text"],
+			"padding",
+			"title",
+		]
+	},
+	"navigator": {
+		add:  true,
+		parentTypes: ["base"],
+		svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="#000"><path d="M0 1h14v1H0zM0 5h9v1H0zM0 9h18v1H0z"/><path d="M2.5 14L0 16.5 2.5 19 4 19 2 17h6v-1H2l2-2H2.5z"/><path d="M15.5 14L18 16.5 15.5 19 14 19l2-2h-6v-1h6l-2-2h1.5z"/></svg>`,
+		template: {
+			"type": "navigator",
+			"title": "Navigator",
+			"order": -1,
+		},
+		options: [
+			...optionsGrouped["basic"].filter(i => i !== "parent"),
+		],
+	},
+	"section": {
+		add:  true,
+		parentTypes: ["page"],
+		svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="#000"><rect x="3" y="3" width="2" height="2"/><rect x="7" y="3" width="2" height="2"/><rect x="11" y="3" width="2" height="2"/><rect x="15" y="3" width="2" height="2"/><rect x="3" y="7" width="2" height="2"/><rect x="3" y="11" width="2" height="2"/><rect x="3" y="15" width="2" height="2"/><rect x="3" y="19" width="2" height="2"/><rect x="3" y="23" width="2" height="2"/><rect x="3" y="27" width="2" height="2"/><rect x="27" y="3" width="2" height="2"/><rect x="23" y="3" width="2" height="2"/><rect x="19" y="3" width="2" height="2"/><rect x="7" y="27" width="2" height="2"/><rect x="11" y="27" width="2" height="2"/><rect x="15" y="27" width="2" height="2"/><rect x="23" y="27" width="2" height="2"/><rect x="19" y="27" width="2" height="2"/><rect x="27" y="7" width="2" height="2"/><rect x="27" y="11" width="2" height="2"/><rect x="27" y="15" width="2" height="2"/><rect x="27" y="19" width="2" height="2"/><rect x="27" y="23" width="2" height="2"/><rect x="27" y="27" width="2" height="2"/><rect x="8" y="10" width="10" height="2"/><rect x="8" y="15" width="6" height="2"/></svg>`,
+		template: {
+			"type": "section",
+			"style": {
+				"min-width": "100px",
+				"min-height": "100px",
+			}
+		},
+		options: [
+			...optionsGrouped["basic"],
+			...optionsGrouped["size"],
+			...optionsGrouped["displacement"],
+			...optionsGrouped["background"],
+			"title"
+		],
+	},
+	"panel": {
+		add:  true,
+		parentTypes: ["page","panel","section","tab"],
+		svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#000"><path d="M216 212H40a12 12 0 0 1-12-12V56a12 12 0 0 1 12-12h176a12 12 0 0 1 12 12v144a12 12 0 0 1-12 12Zm-176-160a4 4 0 0 0-4 4v144a4 4 0 0 0 4 4h176a4 4 0 0 0 4-4V56a4 4 0 0 0-4-4H40Z"/></svg>`,
+		template: {
+			"type": "panel",
+		},
+		options: [
+			...optionsGrouped["basic"],
+			...optionsGrouped["size"],
+			...optionsGrouped["displacement"],
+			...optionsGrouped["background"],
+			...optionsGrouped["text"],
+			...optionsGrouped["alignment"],
+		],
+	},
+	"tabs": {
+		add:  true,
+		parentTypes: ["page","panel","section","tab"],
+		svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 489 489" fill="#000"><path d="M464 488H24c-14 0-24-9-24-22V26C0 14 10 0 24 0h440c14 0 24 14 24 26v440c0 13-10 22-24 22zM24 16c-4 0-8 5-8 10v440c0 5 6 6 8 6h440c2 0 8-1 8-6V26c0-5-4-10-8-10H24z"/><path d="M464 489H24c-15 0-24-7-24-18V36h16v434c0 1 4 2 8 2h440c4 0 8-1 8-2V122c0 0 0 0 0 0-1-1-3-1-8-1H207L154 7l15-7 48 103h247c22 0 24 13 24 18v349c0 7-10 14-24 14z"/><rect x="328" y="3" width="16" height="114"/></svg>`,
+		template: {
+			"type": "tabs",
+		},
+		options: [
+			...optionsGrouped["basic"],
+			...optionsGrouped["size"],
+		],
+	},
+	"tab": {
+		add:  true,
+		parentTypes: ["tabs"],
+		template: {
+			"type": "tab",
+		},
+		options: [
+			...optionsGrouped["basic"].filter(i => i !== "parent"),
+			...optionsGrouped["size"],
+		],
+	},
+	"image": {
+		add:  true,
+		parentTypes: ["page","panel","section","tab"],
+		svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 1800" fill="#000"><path d="M1716 5H84C40 5 5 41 5 85v1632c0 44 35 79 79 79h1632c44 0 79-35 79-79V85c0-44-35-79-79-79zm0 1728H84c-9 0-17-7-17-16v-197l588-588 571 571c6 6 14 9 22 9s16-3 22-9c12-12 12-32 0-44L678 864c-6-6-14-9-22-9s-16 3-22 9L68 1430V85c0-9 7-16 16-16h1632c9 0 16 7 16 16v1333l-553-553c-2-2-5-4-8-5-12-6-27-4-37 6l-124 124c-12 12-12 32 0 44 6 6 14 9 22 9s16-3 22-9l101-101 571 571c1 1 3 2 4 3v211c0 9-7 16-16 16z"/><path d="M1089 560c0-98-79-177-177-177s-177 79-177 177 79 177 177 177 177-79 177-177zm-177 114c-63 0-114-51-114-114s51-114 114-114 114 51 114 114-51 114-114 114z"/></svg>`,
+		template: {
+			"type": "image",
+			"image": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTA1IiBoZWlnaHQ9IjMzNSIgdmlld0JveD0iMCAwIDUwNSAzMzUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjUwNSIgaGVpZ2h0PSIzMzUiIGZpbGw9IiNjZmQ2ZGEiPjwvcmVjdD48cGF0aCBkPSJNIDAgMjMwQyA2MCAxNzAsIDEyMCAxNzAsIDE4MCAyNDBDIDI1MCAzMzAsIDM2MCAxMjAsIDUwNSAyMzBMIDUwNSAzMzVMIDAgMzM1WiIgZmlsbD0iI2Y2ZjdmNyI+PC9wYXRoPjxjaXJjbGUgY3g9IjE2MCIgY3k9IjE1MCIgcj0iMTgiIGZpbGw9IiNmNmY3ZjciPjwvY2lyY2xlPjwvc3ZnPg==",
+			"caption": "Example Image Caption Text",
+		},
+		options: [
+			...optionsGrouped["basic"],
+			...optionsGrouped["size"],
+			...optionsGrouped["alignment"],
+			...optionsGrouped["background"],
+			...optionsGrouped["displacement"],
+			...optionsGrouped["text"],
+			"object-fit",
+			"image",
+			"caption",
+		],
+	},
+	"table": {
+		add:  true,
+		parentTypes: ["page","panel","section","tab"],
+		svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#000"><path d="M1 21h22V3H1v18zm5-1v-3h8v3H6zm8-8H6V9h8v3zm0 1v3H6v-3h8zm8 7h-7v-3h7v3zm0-4h-7v-3h7v3zm0-4h-7V9h7v3zM2 4h20v4H2V4zm0 5h3v3H2V9zm0 4h3v3H2v-3zm0 4h3v3H2v-3z"/></svg>`,
+		template: {
+			"type": "table",
+		},
+		options: [
+			...optionsGrouped["basic"],
+			...optionsGrouped["size"],
+			...optionsGrouped["background"],
+		],
+	},
+	"table-cell": {
+		add: true,
+		parentTypes: ["table"],
+		svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 20 260 174" fill="#000"><g><rect x="20" y="20" width="20" height="8"/><rect x="50" y="20" width="20" height="8"/><rect x="80" y="20" width="20" height="8"/><rect x="110" y="20" width="20" height="8"/><rect x="140" y="20" width="20" height="8"/><rect x="170" y="20" width="20" height="8"/><rect x="200" y="20" width="20" height="8"/><rect x="230" y="20" width="20" height="8"/><rect x="260" y="20" width="20" height="8"/><rect x="20" y="182" width="20" height="8"/><rect x="50" y="182" width="20" height="8"/><rect x="80" y="182" width="20" height="8"/><rect x="110" y="182" width="20" height="8"/><rect x="140" y="182" width="20" height="8"/><rect x="170" y="182" width="20" height="8"/><rect x="200" y="182" width="20" height="8"/><rect x="230" y="182" width="20" height="8"/><rect x="260" y="182" width="20" height="8"/><rect x="20" y="20" width="8" height="20"/><rect x="20" y="50" width="8" height="20"/><rect x="20" y="80" width="8" height="20"/><rect x="20" y="110" width="8" height="20"/><rect x="20" y="140" width="8" height="20"/><rect x="20" y="170" width="8" height="20"/><rect x="272" y="20" width="8" height="20"/><rect x="272" y="50" width="8" height="20"/><rect x="272" y="80" width="8" height="20"/><rect x="272" y="110" width="8" height="20"/><rect x="272" y="140" width="8" height="20"/><rect x="272" y="170" width="8" height="20"/></g></svg>`,
+		template: {
+			"type": "table-cell",
+			"text": "Example Cell",
+			"row": 1,
+			"colspan": 1,
+			"rowspan": 1,
+		},
+		options: [
+			...optionsGrouped["basic"].filter(i => i !== "parent"),
+			"text",
+			"colspan",
+			"rowspan",
+			"row",
+		],
+	},
+	"diagram": {
+		add:  true,
+		parentTypes: ["page","panel","section","tab"],
+		svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 1800" fill="#000"><path d="M1765 0H35C18 0 3 14 3 31v477c0 17 15 31 32 31h1730c17 0 31-14 31-31V31c0-17-14-31-31-31zm-32 477H66V63h1667v414z"/><path d="M512 1260H35c-17 0-32 14-32 31v477c0 17 15 31 32 31h477c17 0 31-14 31-31v-477c0-17-14-31-31-31zm-32 477H66v-414h414v414z"/><path d="M1138 1260H662c-17 0-31 14-31 31v477c0 17 14 31 31 31h477c17 0 31-14 31-31v-477c0-17-14-31-31-31zm-31 477H693v-414h414v414z"/><path d="M1765 1260h-477c-17 0-31 14-31 31v477c0 17 14 31 31 31h477c17 0 31-14 31-31v-477c0-17-14-31-31-31zm-32 477h-414v-414h414v414z"/><path d="M900 594c-17 0-31 14-31 31v325H273c-17 0-32 14-32 31v193c0 17 15 32 32 32 17 0 31-15 31-32v-162h564v162c0 17 14 32 31 32s32-15 32-32v-162h564v162c0 17 15 32 32 32s31-15 31-32v-193c0-17-14-31-31-31H931V625c0-17-14-31-31-31z"/></svg>`,
+		template: {
+			"type": "diagram",
+			"direction": "LR",
+		},
+		options: [
+			...optionsGrouped["basic"],
+			...optionsGrouped["size"],
+			...optionsGrouped["background"],
+			...optionsGrouped["displacement"],
+			"direction",
+		],
+	},
+	"diagram-node": {
+		add:  true,
+		parentTypes: ["diagram"],
+		svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="#000"><defs><style type="text/css"></style></defs><path d="M843.5 737.4c-12.4-75.2-79.2-129.1-155.3-125.4S550.9 676 546 752c-153.5-4.8-208-40.7-199.1-113.7 3.3-27.3 19.8-41.9 50.1-49 18.4-4.3 38.8-4.9 57.3-3.2 1.7 0.2 3.5 0.3 5.2 0.5 11.3 2.7 22.8 5 34.3 6.8 34.1 5.6 68.8 8.4 101.8 6.6 92.8-5 156-45.9 159.2-132.7 3.1-84.1-54.7-143.7-147.9-183.6-29.9-12.8-61.6-22.7-93.3-30.2-14.3-3.4-26.3-5.7-35.2-7.2-7.9-75.9-71.5-133.8-147.8-134.4-76.3-0.6-140.9 56.1-150.1 131.9s40 146.3 114.2 163.9c74.2 17.6 149.9-23.3 175.7-95.1 9.4 1.7 18.7 3.6 28 5.8 28.2 6.6 56.4 15.4 82.4 26.6 70.7 30.2 109.3 70.1 107.5 119.9-1.6 44.6-33.6 65.2-96.2 68.6-27.5 1.5-57.6-0.9-87.3-5.8-8.3-1.4-15.9-2.8-22.6-4.3-3.9-0.8-6.6-1.5-7.8-1.8l-3.1-0.6c-2.2-0.3-5.9-0.8-10.7-1.3-25-2.3-52.1-1.5-78.5 4.6-55.2 12.9-93.9 47.2-101.1 105.8-15.7 126.2 78.6 184.7 276 188.9 29.1 70.4 106.4 107.9 179.6 87 73.3-20.9 119.3-93.4 106.9-168.6zM329.1 345.2c-46 0-83.3-37.3-83.3-83.3s37.3-83.3 83.3-83.3 83.3 37.3 83.3 83.3-37.3 83.3-83.3 83.3zM695.6 845c-46 0-83.3-37.3-83.3-83.3s37.3-83.3 83.3-83.3 83.3 37.3 83.3 83.3-37.3 83.3-83.3 83.3z" p-id="12712"></path></svg>`,
+		template: {
+			"type": "diagram-node",
+			"text": "Example Node",
+		},
+		options: [
+			...optionsGrouped["basic"].filter(i => i !== "parent" && i !== "order"),
+			"text",
+			"target",
+			"image",
+			"image-position",
+		],
+	},
+	"header": {
+		add:  true,
+		parentTypes: ["page","panel","section","tab"],
+		svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="#000"><path d="M16.5 4c.06.01.12.03.17.06.07.03.12.08.17.13.07.1.11.23.11.36v11c0 .28-.22.5-.5.5s-.5-.22-.5-.5V6.7c-.58.83-1.36 1.6-2.22 2.18-.23.15-.54.09-.69-.14-.15-.23-.09-.54.14-.69C14.56 7.19 15.62 5.78 15.96 4.6l.05-.21c.01-.04.02-.08.04-.12.03-.07.08-.13.14-.18.06-.04.12-.07.19-.09.06-.01.12-.01.18 0zM9.5 4c.28 0 .5.22.5.5v11c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-5.5H3v5.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5V4.5c0-.28.22-.5.5-.5s.5.22.5.5v4.5h6V4.5c0-.28.22-.5.5-.5z"/></svg>`,
+		template: {
+			"type": "header",
+			"text": "Example Header",
+		},
+		options: [
+			...optionsGrouped["basic"],
+			...optionsGrouped["text"],
+			"text",
+		],
+	},
+	"sub-header": {
+		add:  true,
+		parentTypes: ["page","panel","section","tab"],
+		svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="#000"><path d="M9.5 4c.28 0 .5.22.5.5v11c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-5.5H3v5.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5V4.5c0-.28.22-.5.5-.5s.5.22.5.5v4.5h6V4.5c0-.28.22-.5.5-.5zm5 0c1.24 0 2.4.57 3.05 1.54.66 1 .71 2.33-.13 3.72-.42.7-1.01 1.25-1.62 1.72-.2.16-.41.31-.62.45l-.44.31c-.27.18-.52.36-.78.54-1.02.75-1.79 1.52-1.96 2.72H17.5c.28 0 .5.22.5.5s-.22.5-.5.5h-6c-.28 0-.5-.22-.5-.5 0-2 1.17-3.13 2.39-4.03l.4-.28.53-.36c.31-.21.61-.41.9-.62.56-.44 1.04-.9 1.37-1.45.67-1.11.56-2.03.14-2.66C16.28 5.43 15.45 5 14.5 5c-1.44 0-2.5 1.25-2.5 2.5 0 .28-.22.5-.5.5s-.5-.22-.5-.5c0-1.75 1.45-3.5 3.5-3.5z"/></svg>`,
+		template: {
+			"type": "sub-header",
+			"text": "Example Sub-header",
+		},
+		options: [
+			...optionsGrouped["basic"],
+			...optionsGrouped["text"],
+			"text",
+		],
+	},
+	"text": {
+		add:  true,
+		parentTypes: ["page","panel","section","tab"],
+		svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="#000"><path d="M0 7h64v2H0zM0 17h64v2H0zM0 27h64v2H0zM0 37h64v2H0zM0 47h64v2H0zM0 57h44v2H0z"/></svg>`,
+		template: {
+			"type": "text",
+			"text": "Example Text",
+		},
+		options: [
+			...optionsGrouped["basic"],
+			...optionsGrouped["text"],
+			"text",
+		],
+	},
+	"page-nav": {
+		add: true,
+		parentTypes: ["page"],
+		svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" fill="#000"><path d="M3.5 10h23c.674 0 .658-1 0-1h-23c-.673 0-.654 1 0 1zm1.344-4.126l-3.64 3.644 3.64 3.612c.463.45-.235 1.2-.71.71L.14 9.873c-.186-.186-.186-.525 0-.71l3.994-4c.487-.49 1.18.238.71.71zM26.5 20h-23c-.673 0-.657 1 0 1h23c.674 0 .655-1 0-1zm-1.344 4.126l3.64-3.644-3.64-3.612c-.463-.45.235-1.2.71-.71l3.994 3.967c.186.186.186.525 0 .71l-3.994 4c-.487.49-1.18-.238-.71-.71z"/></svg>`,
+		template: {
+			"type": "page-nav",
+			"order": 9999,
+		},
+		options: [
+			...optionsGrouped["basic"].filter(i => i !== "parent"),
+			...optionsGrouped["size"],
+			...optionsGrouped["displacement"],
+			...optionsGrouped["background"],
+		],
+	},
+}
+
+const entryTypeGrouping = [
+	["text", "image", "image-position", "caption", "title", "direction", "row", "colspan", "rowspan"],
 	["color", "font-size", "font-weight", "font-style", "text-align", "text-shadow"],
-	["background", "border", "border-radius", "box-shadow"],
+	["background", "border-width", "border-style", "border-color", "border-radius", "box-shadow"],
 	["width", "height"],
 	["min-width", "min-height"],
 	["max-width", "max-height"],
 	["margin", "padding", "aspect-ratio"],
 	["display", "flex-direction", "flex-wrap", "align-content", "justify-content", "align-items", "justify-self", "align-self", "float", "clear", "object-fit"],
-	["id","parent","order", "target"],
+	["id", "parent", "order", "target"],
 ];
-
-const typeOptions = {
-	"page": [
-		"order",
-		"id",
-		"title",
-		"background",
-		"color",
-		"padding",
-	],
-	"navigator": [
-		"order",
-		"id",
-	],
-	"section": [
-		"order",
-		"id",
-		"parent",
-		"width",
-		"max-width",
-		"height",
-		"max-height",
-		"padding",
-		"margin",
-		"background",
-		"border",
-		"border-radius",
-	],
-	"panel": [
-		"order",
-		"id",
-		"parent",
-		"text-align",
-		"display",
-		"flex-direction",
-		"flex-wrap",
-		"align-content",
-		"justify-content",
-		"align-items",
-		"justify-self",
-		"align-self",
-		"float",
-		"clear",
-		"padding",
-		"margin",
-		"background",
-		"border",
-		"border-radius",
-		"box-shadow",
-		"width",
-		"max-width",
-		"height",
-		"max-height",
-	],
-	"tabs": [
-		"order",
-		"id",
-		"parent",
-		"width",
-		"max-width",
-		"height",
-		"max-height",
-	],
-	"tab": [
-		"order",
-		"id",
-		"title",
-		"width",
-		"height",
-	],
-	"image": [
-		"order",
-		"id",
-		"parent",
-		"src",
-		"width",
-		"max-width",
-		"height",
-		"max-height",
-		"display",
-		"flex-direction",
-		"flex-wrap",
-		"align-content",
-		"justify-content",
-		"align-items",
-		"justify-self",
-		"align-self",
-		"float",
-		"clear",
-		"object-fit",
-		"border",
-		"border-radius",
-	],
-	"table": [
-		"order",
-		"id",
-		"parent",
-		"width",
-		"max-width",
-		"height",
-		"max-height",
-		"border",
-		"border-radius",
-	],
-	"table-cell": [
-		"order",
-		"id",
-		"row",
-		"text",
-		"colspan",
-		"rowspan",
-	],
-	"diagram": [
-		"order",
-		"id",
-		"parent",
-		"width",
-		"max-width",
-		"height",
-		"max-height",
-		"direction"
-	],
-	"diagram-node": [
-		"id",
-		"target",
-		"text",
-	],
-	"sub-header": [
-		"order",
-		"id",
-		"parent",
-		"text",
-		"color",
-		"font-size",
-		"font-weight",
-		"font-style",
-		"text-align",
-		"text-shadow",
-	],
-	"header": [
-		"order",
-		"id",
-		"parent",
-		"text",
-		"color",
-		"font-size",
-		"font-weight",
-		"font-style",
-		"text-align",
-		"text-shadow",
-	],
-	"text": [
-		"order",
-		"id",
-		"parent",
-		"text",
-		"color",
-		"font-size",
-		"font-weight",
-		"font-style",
-		"text-align",
-		"text-shadow",
-	],
-	"footer": [
-		"id",
-		"width",
-		"max-width",
-		"height",
-		"max-height",
-		"padding",
-		"margin",
-		"background",
-		"border",
-		"border-radius",
-	]
-};
-
-const selectOptions = {
-	"border-style": ["none", "solid", "dashed", "dotted", "double", "groove", "ridge", "inset", "outset", "hidden"],
-	"display": ["block", "inline", "inline-block", "inline-flex", "flex", "grid", "inline-grid", "none", "inherit", "initial", "unset"],
-	"float": ["none", "left", "right", "inline-start", "inline-end"],
-	"clear": ["none", "left", "right", "both", "inline-start", "inline-end"],
-	"align-items": ["stretch", "flex-start", "flex-end", "center", "baseline"],
-	"align-content": ["baseline", "center", "end", "flex-end", "flex-start","normal","space-around","space-between","space-evenly","start","stretch"],
-	"justify-content": ["flex-start", "flex-end", "center", "space-between", "space-around", "space-evenly"],
-	"flex-direction": ["row", "row-reverse", "column", "column-reverse"],
-	"flex-wrap": ["nowrap", "wrap", "wrap-reverse"],
-	"justify-self": ["auto", "normal", "stretch", "center", "start", "end", "self-start", "self-end", "left", "right"],
-	"align-self": ["auto", "stretch", "flex-start", "flex-end", "center", "baseline"],
-	"text-align": ["left", "right", "center", "justify", "start", "end"],
-	"font-style": ["normal", "italic", "oblique"],
-	"object-fit": ["cover", "contain", "fill", "none", "scale-down"],
-	"direction": ["TB", "BT", "RL", "LR"],
-};
 
 const isEditor = () => document.body.dataset.editor === "true";
 
-function openSidebar(open = document.body.dataset.sidebar !== "true") {
-	if (open) {
-		const desiredSide = computeSidebarSide();
-		const currentSide = document.body.dataset.sidebarSide || "right";
-		if (desiredSide !== currentSide) {
-			document.body.dataset.sidebarNoAnim = "true";
-			document.body.dataset.sidebarSide = desiredSide;
-		}
-	}
+function openSidebar(open = document.body.dataset.sidebar != "true") {
 	document.body.dataset.sidebar = open ? "true" : "false";
-	updateSidebarSide();
-	if (document.body.dataset.sidebarNoAnim === "true") {
-		requestAnimationFrame(() => {
-			delete document.body.dataset.sidebarNoAnim;
-		});
-	}
 };
-
-function ensureSidebarOpen() {
-	document.body.dataset.sidebar = "true";
-	updateSidebarSide();
-}
-
-const sidebar = document.getElementById("sidebar");
-const sidebarState = {
-	currentPageId: "",
-	currentElementId: "",
-};
-
-const menu = document.createElement("div");
-menu.id = "editor-context-menu";
-menu.className = "editor-context-menu";
-menu.innerHTML = `
-	<button type="button" data-action="edit">Edit</button>
-	<button type="button" data-action="remove">Remove</button>
-	<button type="button" data-action="close">Close</button>
-`;
-document.body.appendChild(menu);
-
-
-function closeMenu() {
-	menu.style.display = "none";
-}
-
-function closeSidebar() {
-	document.body.dataset.sidebar = false;
-	
-}
-
-const selectableTypes = [
-	"page",
-	"navigator",
-	"section",
-	"panel",
-	"tabs",
-	"tab",
-	"table",
-	"table-cell",
-	"diagram",
-	"diagram-node",
-	"image",
-	"header",
-	"sub-header",
-	"text",
-	"footer",
-];
-
-
 
 function createSelect(field, options, currentValue) {
 	const select = document.createElement("select");
@@ -351,84 +517,13 @@ function createSelect(field, options, currentValue) {
 }
 
 
-
 function clearSidebar() {
-	if (!sidebar) return;
-	sidebar.innerHTML = "";
+	document.getElementById("sidebar").innerHTML = "";
 }
 
 
-const entryTemplates = {
-	"page": {
-		"type": "page",
-	},
-	"navigator": {
-		"type": "navigator",
-		"title": "Navigator",
-		"order": -1,
-	},
-	"footer": {
-		"type": "footer",
-	},
-	"section": {
-		"type": "section",
-	},
-	"panel": {
-		"type": "panel",
-	},
-	"text": {
-		"type": "text",
-		"text": "Example normal text.",
-	},
-	"header": {
-		"type": "header",
-		"text": "Example header text."
-	},
-	"sub-header": {
-		"type": "sub-header",
-		"text": "Example sub-header text."
-	},
-	"image": {
-		"type": "image",
-		"src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTA1IiBoZWlnaHQ9IjMzNSIgdmlld0JveD0iMCAwIDUwNSAzMzUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjUwNSIgaGVpZ2h0PSIzMzUiIGZpbGw9IiNjZmQ2ZGEiPjwvcmVjdD48cGF0aCBkPSJNIDAgMjMwQyA2MCAxNzAsIDEyMCAxNzAsIDE4MCAyNDBDIDI1MCAzMzAsIDM2MCAxMjAsIDUwNSAyMzBMIDUwNSAzMzVMIDAgMzM1WiIgZmlsbD0iI2Y2ZjdmNyI+PC9wYXRoPjxjaXJjbGUgY3g9IjE2MCIgY3k9IjE1MCIgcj0iMTgiIGZpbGw9IiNmNmY3ZjciPjwvY2lyY2xlPjwvc3ZnPg==",
-		"caption": "Example Image Caption Text",
-	},
-	"tabs": {
-		"type": "tabs",
-	},
-	"tab": {
-		"type": "tab",
-	},
-	"table": {
-		"type": "table",
-	},
-	"diagram": {
-		"type": "diagram",
-		"direction": "LR",
-		"nodes": [
-			{ "id": "apple", "text": "Apple" },
-			{ "id": "banana", "text": "Banana" },
-			{ "id": "orange", "text": "Orange" },
-			{ "id": "fruit_basket", "text": "Fruit Basket" },
-			{ "id": "fruit_salad", "text": "Fruit Salad" },
-			{ "id": "apple_pie", "text": "Apple Pie" },
-			{ "id": "smoothie", "text": "Smoothie" }
-		],
-		"links": [
-			{ "source": "apple", "target": "fruit_basket" },
-			{ "source": "banana", "target": "fruit_basket" },
-			{ "source": "orange", "target": "fruit_basket" },
-			{ "source": "fruit_basket", "target": "fruit_salad" },
-			{ "source": "apple", "target": "apple_pie" },
-			{ "source": "banana", "target": "smoothie" },
-			{ "source": "orange", "target": "smoothie" },
-			{ "source": "fruit_salad", "target": "smoothie" }
-		]
-	}
-}
 
 function renderAddTools(section) {
-	if (getCurrentPage()?.type == "navigator") return;
 
 	const header = document.createElement("h4");
 	header.textContent = "Add";
@@ -436,89 +531,123 @@ function renderAddTools(section) {
 
 	const addWrap = document.createElement("div");
 	addWrap.className = "sidebar-grid";
-	const addItems = [
-		{"label": "page", "svg": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 406 406" fill="#000"><rect x="172" y="86" width="128" height="12"/><rect x="172" y="164" width="128" height="12"/><rect x="172" y="243" width="128" height="12"/><path d="M380 406H26V0h354v406zM38 394h330V12H38v382z"/><path d="M152 129H77v-75h75v75zm-63-12h51V66H89v51z"/><path d="M152 208H77v-75h75v75zm-63-12h51v-51H89v51z"/><path d="M152 286H77v-75h75v75zm-63-12h51v-51H89v51z"/></svg>`, },
-		{"label": "navigator", "svg": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="#000"><path d="M0 1h14v1H0zM0 5h9v1H0zM0 9h18v1H0z"/><path d="M2.5 14L0 16.5 2.5 19 4 19 2 17h6v-1H2l2-2H2.5z"/><path d="M15.5 14L18 16.5 15.5 19 14 19l2-2h-6v-1h6l-2-2h1.5z"/></svg>`, },
-		{"label": "section", "svg": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="#000"><rect x="3" y="3" width="2" height="2"/><rect x="7" y="3" width="2" height="2"/><rect x="11" y="3" width="2" height="2"/><rect x="15" y="3" width="2" height="2"/><rect x="3" y="7" width="2" height="2"/><rect x="3" y="11" width="2" height="2"/><rect x="3" y="15" width="2" height="2"/><rect x="3" y="19" width="2" height="2"/><rect x="3" y="23" width="2" height="2"/><rect x="3" y="27" width="2" height="2"/><rect x="27" y="3" width="2" height="2"/><rect x="23" y="3" width="2" height="2"/><rect x="19" y="3" width="2" height="2"/><rect x="7" y="27" width="2" height="2"/><rect x="11" y="27" width="2" height="2"/><rect x="15" y="27" width="2" height="2"/><rect x="23" y="27" width="2" height="2"/><rect x="19" y="27" width="2" height="2"/><rect x="27" y="7" width="2" height="2"/><rect x="27" y="11" width="2" height="2"/><rect x="27" y="15" width="2" height="2"/><rect x="27" y="19" width="2" height="2"/><rect x="27" y="23" width="2" height="2"/><rect x="27" y="27" width="2" height="2"/><rect x="8" y="10" width="10" height="2"/><rect x="8" y="15" width="6" height="2"/></svg>`, },
-		{"label": "panel", "svg": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#000"><path d="M216 212H40a12 12 0 0 1-12-12V56a12 12 0 0 1 12-12h176a12 12 0 0 1 12 12v144a12 12 0 0 1-12 12Zm-176-160a4 4 0 0 0-4 4v144a4 4 0 0 0 4 4h176a4 4 0 0 0 4-4V56a4 4 0 0 0-4-4H40Z"/></svg>`, },
-		{"label": "tabs", "svg": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 489 489" fill="#000"><path d="M464 488H24c-14 0-24-9-24-22V26C0 14 10 0 24 0h440c14 0 24 14 24 26v440c0 13-10 22-24 22zM24 16c-4 0-8 5-8 10v440c0 5 6 6 8 6h440c2 0 8-1 8-6V26c0-5-4-10-8-10H24z"/><path d="M464 489H24c-15 0-24-7-24-18V36h16v434c0 1 4 2 8 2h440c4 0 8-1 8-2V122c0 0 0 0 0 0-1-1-3-1-8-1H207L154 7l15-7 48 103h247c22 0 24 13 24 18v349c0 7-10 14-24 14z"/><rect x="328" y="3" width="16" height="114"/></svg>`, },
-		{"label": "image", "svg": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 1800" fill="#000"><path d="M1716 5H84C40 5 5 41 5 85v1632c0 44 35 79 79 79h1632c44 0 79-35 79-79V85c0-44-35-79-79-79zm0 1728H84c-9 0-17-7-17-16v-197l588-588 571 571c6 6 14 9 22 9s16-3 22-9c12-12 12-32 0-44L678 864c-6-6-14-9-22-9s-16 3-22 9L68 1430V85c0-9 7-16 16-16h1632c9 0 16 7 16 16v1333l-553-553c-2-2-5-4-8-5-12-6-27-4-37 6l-124 124c-12 12-12 32 0 44 6 6 14 9 22 9s16-3 22-9l101-101 571 571c1 1 3 2 4 3v211c0 9-7 16-16 16z"/><path d="M1089 560c0-98-79-177-177-177s-177 79-177 177 79 177 177 177 177-79 177-177zm-177 114c-63 0-114-51-114-114s51-114 114-114 114 51 114 114-51 114-114 114z"/></svg>`, },
-		{"label": "table", "svg": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#000"><path d="M1 21h22V3H1v18zm5-1v-3h8v3H6zm8-8H6V9h8v3zm0 1v3H6v-3h8zm8 7h-7v-3h7v3zm0-4h-7v-3h7v3zm0-4h-7V9h7v3zM2 4h20v4H2V4zm0 5h3v3H2V9zm0 4h3v3H2v-3zm0 4h3v3H2v-3z"/></svg>`, },
-		{"label": "diagram", "svg": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 1800" fill="#000"><path d="M1765 0H35C18 0 3 14 3 31v477c0 17 15 31 32 31h1730c17 0 31-14 31-31V31c0-17-14-31-31-31zm-32 477H66V63h1667v414z"/><path d="M512 1260H35c-17 0-32 14-32 31v477c0 17 15 31 32 31h477c17 0 31-14 31-31v-477c0-17-14-31-31-31zm-32 477H66v-414h414v414z"/><path d="M1138 1260H662c-17 0-31 14-31 31v477c0 17 14 31 31 31h477c17 0 31-14 31-31v-477c0-17-14-31-31-31zm-31 477H693v-414h414v414z"/><path d="M1765 1260h-477c-17 0-31 14-31 31v477c0 17 14 31 31 31h477c17 0 31-14 31-31v-477c0-17-14-31-31-31zm-32 477h-414v-414h414v414z"/><path d="M900 594c-17 0-31 14-31 31v325H273c-17 0-32 14-32 31v193c0 17 15 32 32 32 17 0 31-15 31-32v-162h564v162c0 17 14 32 31 32s32-15 32-32v-162h564v162c0 17 15 32 32 32s31-15 31-32v-193c0-17-14-31-31-31H931V625c0-17-14-31-31-31z"/></svg>`, },
-		{"label": "header", "svg": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="#000"><path d="M16.5 4c.06.01.12.03.17.06.07.03.12.08.17.13.07.1.11.23.11.36v11c0 .28-.22.5-.5.5s-.5-.22-.5-.5V6.7c-.58.83-1.36 1.6-2.22 2.18-.23.15-.54.09-.69-.14-.15-.23-.09-.54.14-.69C14.56 7.19 15.62 5.78 15.96 4.6l.05-.21c.01-.04.02-.08.04-.12.03-.07.08-.13.14-.18.06-.04.12-.07.19-.09.06-.01.12-.01.18 0zM9.5 4c.28 0 .5.22.5.5v11c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-5.5H3v5.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5V4.5c0-.28.22-.5.5-.5s.5.22.5.5v4.5h6V4.5c0-.28.22-.5.5-.5z"/></svg>`, },
-		{"label": "sub-header", "svg": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="#000"><path d="M9.5 4c.28 0 .5.22.5.5v11c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-5.5H3v5.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5V4.5c0-.28.22-.5.5-.5s.5.22.5.5v4.5h6V4.5c0-.28.22-.5.5-.5zm5 0c1.24 0 2.4.57 3.05 1.54.66 1 .71 2.33-.13 3.72-.42.7-1.01 1.25-1.62 1.72-.2.16-.41.31-.62.45l-.44.31c-.27.18-.52.36-.78.54-1.02.75-1.79 1.52-1.96 2.72H17.5c.28 0 .5.22.5.5s-.22.5-.5.5h-6c-.28 0-.5-.22-.5-.5 0-2 1.17-3.13 2.39-4.03l.4-.28.53-.36c.31-.21.61-.41.9-.62.56-.44 1.04-.9 1.37-1.45.67-1.11.56-2.03.14-2.66C16.28 5.43 15.45 5 14.5 5c-1.44 0-2.5 1.25-2.5 2.5 0 .28-.22.5-.5.5s-.5-.22-.5-.5c0-1.75 1.45-3.5 3.5-3.5z"/></svg>`, },
-		{"label": "text", "svg": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="#000"><path d="M0 7h64v2H0zM0 17h64v2H0zM0 27h64v2H0zM0 37h64v2H0zM0 47h64v2H0zM0 57h44v2H0z"/></svg>`, },
-	];
-	addItems.forEach(item => {
-		//if (item.label == "navigator" && guideData.content.find(e => e.type === "navigator")) return;
+
+	Object.keys(entryTypes).filter(key => entryTypes[key].add === true && (entryTypes[key].parentTypes.includes(state.selected?.entry.type) || !state.selected && entryTypes[key].parentTypes.includes("base"))).forEach(i => {
+		if (getCurrentPage()?.type == "navigator" && i != "page") return;
+		if (!getCurrentPage() && (i != "page" && i != "navigator")) return;
+		if (i == "page-nav" && guideData.content.find(e => e.type == "page-nav" && e.parent == getCurrentPage()?.id)) return;
+
 		const button = document.createElement("button");
-		button.classList.add(item.label);
-		const txt = document.createElement("span");
-		txt.innerText = capitalizeString(item.label);
-		const img = document.createElement('img');
-		img.src = `data:image/svg+xml;base64,${btoa(item.svg)}`;
-		img.alt = capitalizeString(item.label);
+		button.classList.add(i);
 		addWrap.appendChild(button);
+
+		if (i == "page" || i == "navigator") {
+			button.addEventListener("click", function() { addEntry(i, "base") })
+		}
+		else {
+			button.addEventListener("click", function() { addEntry(i, state.selected.entry.id) })
+		}
+
+		const txt = document.createElement("span");
+		txt.innerText = capitalizeString(i);
 		button.appendChild(txt);
-		button.appendChild(img);
-		
-		button.addEventListener("click", function() {addEntry(item.label)})
+
+		if (entryTypes[i]?.svg) {
+			const img = document.createElement('img');
+			img.src = `data:image/svg+xml;base64,${btoa(entryTypes[i]?.svg)}`;
+			img.alt = capitalizeString(i);
+			button.appendChild(img);
+		}
 	});
 	section.appendChild(addWrap);
 }
 
-function addEntry(type) {
+function renderMiscTools(section) {
+
+	const actionRow = document.createElement("div");
+	actionRow.className = "sidebar-actions";
+	section.appendChild(actionRow);
+
+	const removeButton = document.createElement("button");
+	removeButton.type = "button";
+	removeButton.dataset.action = "remove";
+	removeButton.textContent = "Remove";
+	actionRow.appendChild(removeButton);
+
+	const cloneButton = document.createElement("button");
+	cloneButton.type = "button";
+	cloneButton.dataset.action = "clone";
+	cloneButton.textContent = "Clone";
+	actionRow.appendChild(cloneButton);
+
+	removeButton.addEventListener("click", removeEntry)
+	cloneButton.addEventListener("click", cloneEntry)
+}
+
+async function addEntry(entryType,entryParent) {
+
+	if (!entryType || !entryParent) return null;
+	
 	let newId = null
-	switch(type) {
+	
+	switch(entryType) {
 		case "page":
 			var pageCount = guideData.content.filter(e => e.type === "page").length;
-			var totalCount = guideData.content.filter(e => (e.type === "page") || (e.type === "navigator"));
-			var entry = {...entryTemplates[type]};
+			var totalCount = guideData.content.filter(e => (e.type === "page") || (e.type === "navigator"))?.length;
+			var entry = {...entryTypes?.[entryType]?.template};
 			entry.id = generateID();
 			newId = entry.id;
 			entry.order = totalCount+1;
-			entry.title = `New ${capitalizeString(type)} ${pageCount+1}`;
+			entry.title = `New ${capitalizeString(entryType)} ${pageCount+1}`;
 			guideData.content.push(entry);
+
+
+			if (guideData.content.find(e => e.type === "navigator")) {
+				var pageNav = {...entryTypes?.["page-nav"]?.template};
+				pageNav.id = generateID();
+				pageNav.parent = entry.id;
+				guideData.content.push(pageNav)
+			}
+
 			break;
 		case "navigator":
-			if (guideData.content.find(e => e.type === "navigator")) { alert("Navigator already exists."); return; }
+			if (guideData.content.find(e => e.type == "navigator")) { alert("Navigator already exists."); return; }
 			
-			guideData.content = guideData.content.filter(e => e.type !== "footer");
+			guideData.content = guideData.content.filter(e => e.type !== "page-nav");
 
 			var pages = guideData.content.filter(e => e.type === "page")
-			var nav = {...entryTemplates["navigator"]};
+			var nav = {...entryTypes?.[entryType]?.template};
 			nav.id = generateID();
 			newId = nav.id;
 			guideData.content.push(nav);
 			
 			pages.forEach(page => {
-				var footer = {...entryTemplates["footer"]};
-				footer.id = generateID();
-				footer.order = 9999;
-				footer.parent = page.id;
-				guideData.content.push(footer)
+				var pageNav = {...entryTypes?.["page-nav"]?.template};
+				pageNav.id = generateID();
+				pageNav.parent = page.id;
+				guideData.content.push(pageNav)
 			});
 			
 			break;
 		case "tabs":
-			var siblingCount = guideData.content.filter(e => e.parent === getCurrentPage().id).length;
-			var entry = {...entryTemplates[type]};
+			var siblingCount = guideData.content.filter(e => e.parent === entryParent).length;
+			var entry = {...entryTypes?.[entryType]?.template};
 			entry.id = generateID();
 			newId = entry.id;
-			entry.parent = getCurrentPage().id;
+			entry.parent = entryParent;
 			entry.order = siblingCount+1;
 			guideData.content.push(entry);
 
 			const tabs = ["Example Tab 1", "Example Tab 2", "Example Tab 3"]
 			tabs.forEach((tab, i) => {
-				var tabEntry = {...entryTemplates["tab"]};
+				var tabEntry = {...entryTypes?.["tab"]?.template};
 				tabEntry.id = generateID();
 				tabEntry.parent = entry.id;
 				tabEntry.order = i+1;
 				tabEntry.title = tab;
 				guideData.content.push(tabEntry);
 
-				var textEntry = {...entryTemplates["text"]};
+				var textEntry = {...entryTypes?.["text"]?.template};
 				textEntry.id = generateID();
 				textEntry.parent = tabEntry.id;
 				textEntry.order = 1;
@@ -526,13 +655,12 @@ function addEntry(type) {
 				guideData.content.push(textEntry);
 			})
 			break;
-
 		case "table":
-			var siblingCount = guideData.content.filter(e => e.parent === getCurrentPage().id).length;
-			var tableEntry = {...entryTemplates[type]};
+			var siblingCount = guideData.content.filter(e => e.parent === entryParent).length;
+			var tableEntry = {...entryTypes?.[entryType]?.template};
 			tableEntry.id = generateID();
 			newId = tableEntry.id;
-			tableEntry.parent = getCurrentPage().id;
+			tableEntry.parent = entryParent;
 			tableEntry.order = siblingCount+1;
 			guideData.content.push(tableEntry);
 
@@ -559,11 +687,11 @@ function addEntry(type) {
 
 			break;
 		case "diagram":
-			var siblingCount = guideData.content.filter(e => e.parent === getCurrentPage().id).length;
-			var entry = {...entryTemplates[type]};
+			var siblingCount = guideData.content.filter(e => e.parent === entryParent).length;
+			var entry = {...entryTypes?.[entryType]?.template};
 			entry.id = generateID();
 			newId = entry.id;
-			entry.parent = getCurrentPage().id;
+			entry.parent = entryParent;
 			entry.order = siblingCount+1;
 			guideData.content.push(entry);
 
@@ -591,26 +719,37 @@ function addEntry(type) {
 			});
 			break;
 		default:
-			var siblingCount = guideData.content.filter(e => e.parent === getCurrentPage().id).length;
-			var entry = {...entryTemplates[type]};
+			var siblingCount = guideData.content.filter(e => e.parent === entryParent).length;
+			var entry = {...entryTypes?.[entryType]?.template};
 			entry.id = generateID();
 			newId = entry.id;
-			entry.parent = getCurrentPage().id;
-			entry.order = siblingCount+1;
-			if (type == "section") entry.title = `New ${capitalizeString(type)} ${siblingCount}`;
+			entry.parent = entryParent;
+			!entry.order && (entry.order = siblingCount+1);
+			if (entryType == "section") entry.title = `New ${capitalizeString(entryType)} ${siblingCount}`;
 			guideData.content.push(entry);
 			break;
 	}
-	refreshSidebar();
-	refreshBuild();
-	saveGuide();
-	
-	if (newId !== null) {
-		document.getElementById("sidebar-element-select").value = newId
-		handleElementSelect(document.getElementById("sidebar-element-select"))
-	}
 	
 
+	await buildData(guideData);
+	saveGuide();
+
+	if (newId !== null) {
+		const newPageId = getEntryPageId(newId);
+
+		if (newPageId) {
+			changePage(newPageId);
+		}
+
+		const element = document.getElementById(newId) || document.querySelector(`*[data-id='${newId}']`);
+		if (element) {
+			selectTarget(element, { allowIgnored: true });
+		} else {
+			clearSelection();
+		}
+
+		buildSidebar();
+	}
 }
 
 function renderSelectors(section, selected) {
@@ -643,32 +782,34 @@ function renderSelectors(section, selected) {
 		pageSelect.appendChild(option);
 	});
 
-	const currentPage = getCurrentPage();
-	if (currentPage) {
-		pageSelect.value = currentPage.id;
-		sidebarState.currentPageId = currentPage.id;
+	// prefer selected entry's page (data-driven); fall back to visible page
+	const selectedEntryId = state.selected?.entry?.id || (selected?.dataset?.id || selected?.id);
+	const pageToShowId = selectedEntryId ? getEntryPageId(selectedEntryId) : getCurrentPage()?.id;
+
+	if (pageToShowId) {
+		pageSelect.value = pageToShowId;
+
+		elementSelect.innerHTML = "";
+		const placeholder = document.createElement("option");
+		placeholder.value = "";
+		placeholder.textContent = "";
+		elementSelect.appendChild(placeholder);
+
+		const selectContent = [guideData.content.find(e => e.id === pageToShowId), ...getPageChildren(pageToShowId)].map(entry => `${(capitalizeString(entry.type))} (${entry.id})`);
+		selectContent.forEach(sel => {
+			const option = document.createElement("option");
+			option.value = sel?.match(/(?<=\()[^)]+(?=\))/) || sel;
+			option.textContent = sel;
+			elementSelect.appendChild(option);
+		});
+
+		if (selectedEntryId) {
+			elementSelect.value = selectedEntryId;
+		}
 	}
-
-	elementSelect.innerHTML = "";
-	const placeholder = document.createElement("option");
-	placeholder.value = "";
-	placeholder.textContent = "";
-	elementSelect.appendChild(placeholder);
-
-	const selectContent = [guideData.content.find(e => e.id === currentPage?.id), ...getPageChildren(currentPage?.id)].map(entry => `${(capitalizeString(entry.type))} (${entry.id})` );
-	selectContent.forEach(sel => {
-		const option = document.createElement("option");
-		option.value = sel?.match(/(?<=\()[^)]+(?=\))/) || sel;
-		option.textContent = sel;
-		elementSelect.appendChild(option);
-	});
 
 	
-	if (selected) {
-		const id = guideData.content.find(e => e.id == selected?.dataset.id || e.id == selected?.id)?.id
-		elementSelect.value = id;
-		sidebarState.currentElementId = id;
-	}
+	
 }
 
 function renderEditControls(section) {
@@ -678,84 +819,43 @@ function renderEditControls(section) {
 
 	const selectedType = state.selected?.entry?.type;
 
-	groupDefinitions.forEach(group => {
+	entryTypeGrouping.forEach(group => {
 		const groupEl = document.createElement("div");
 		groupEl.className = "sidebar-style-group";
 
 		group.forEach(field => {
-			if (!field || !typeOptions[selectedType]?.includes(field)) return;
+			if (!field || !entryOptions[field] || !entryTypes[selectedType] || !entryTypes[selectedType]?.options.includes(field)) return;
+
 			const fieldDiv = document.createElement("div");
 			fieldDiv.classList.add("sidebar-field");
 			fieldDiv.classList.add(field);
-			const name = document.createElement("span");
-			name.textContent = field;
-			fieldDiv.appendChild(name);
 			groupEl.appendChild(fieldDiv);
+
+			const name = document.createElement("span");
+			name.textContent = entryOptions[field]?.label || field;
+			fieldDiv.appendChild(name);
+
 		
-			if (field == "border") {
-				const borderRow = document.createElement("div");
-				borderRow.className = "sidebar-inline";
-				fieldDiv.appendChild(borderRow);
 
-				const borderWidth = document.createElement("input");
-				borderWidth.type = "text";
-				borderWidth.id = generateID();
-				borderWidth.placeholder = "Width";
-				borderWidth.dataset.field = "border-width";
-				borderWidth.value = state.selected?.entry?.style?.["border-width"] || "";
-				borderRow.appendChild(borderWidth);
-				
-				const borderStyle = createSelect("border-style", selectOptions["border-style"], (state.selected?.entry?.style?.["border-style"] || ""));
-				borderRow.appendChild(borderStyle);
+			if (field == "text" || field == "caption") {
 
-				const borderColor = document.createElement("input");
-				borderColor.type = "text";
-				borderColor.id = generateID();
-				borderColor.dataset.field = "border-color";
-				borderColor.value = state.selected?.entry?.style?.["border-color"] || "";
-				borderRow.appendChild(borderColor);
+				const textileHead = document.createElement("span");
+				textileHead.classList.add("textile");
+				fieldDiv.appendChild(textileHead);
 
-				const colorPicker = document.createElement("input");
-				colorPicker.type = "color";
-				colorPicker.id = generateID();
-				colorPicker.value = borderColor.value;
-				borderRow.appendChild(colorPicker);
+				const textilehref = document.createElement("a");
+				textilehref.href = "https://textile-lang.com/";
+				textilehref.target = "_blank"
+				textilehref.textContent = "textile";
+				textileHead.appendChild(textilehref);
 
-				colorPicker.addEventListener("change", function() {
-					borderColor.value = this.value;
-					handleFieldChange(borderColor, borderColor.value,borderColor.dataset.field);
-				})
-				borderColor.addEventListener("change", function() {
-					const normalizedColor = normalizeColor(this.value);
-					const toNormalize = normalizedColor != "#000000" ? true : (this.value.toLowerCase() == "black" || this.value.match(/^#0*$/) || false);
-					if (this.value != "" && toNormalize) {
-						this.value = normalizedColor
-					}
-					colorPicker.value = this.value;
-				})
-			}
-			else if (field == "text") {
 				const input = document.createElement("textarea");
-				input.dataset.field = "text";
-				input.value = state.selected?.entry?.text || "";
+				input.dataset.field = field;
+				input.value = state.selected?.entry?.[field] || "";
 				fieldDiv.appendChild(input);
 
 				const wrap = document.createElement("div");
 				fieldDiv.appendChild(wrap);
-
-				const btns = [
-					{"label": "bold", "html": "<b>B</b>"},
-					{"label": "italic", "html": "<i>I</i>"},
-					{"label": "underline", "html": "<u>U</u>"},
-					{"label": "strike", "html": "<s>S</s>"},
-					{"label": "super", "html": "<span>A</span><sup>2</sup>"},
-					{"label": "spoiler", "html": "<span>👁‍🗨</span>"},
-					//{"label": "quote", "html": '"'},
-					//{"label": "code", "html": "<>"},
-					{"label": "link", "html": ("<img src='data:image/svg+xml;base64,"+btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 836.7 836.7"><path d="M648.4 228.1h-66.6c-4.5 0-8.9 1.8-12.1 5-3.2 3.2-5 7.5-5 12.1v54.1c0 4.5 1.8 8.9 5 12.1 3.2 3.2 7.6 5 12.1 5l66.6-.2c55.4 0 100.2 44.9 100.2 100.2v2.9c0 55.4-44.9 100.2-100.2 100.2H397.1v-146c0-4.5-1.8-8.9-5-12.1-3.2-3.2-7.5-5-12.1-5h-54c-4.5 0-8.9 1.8-12.1 5-3.2 3.2-5 7.5-5 12.1v214.2c0 11 9 20 20 20h319.4c50.3 0 97.6-19.6 133.2-55.2s55.2-82.9 55.2-133.2v-2.9c0-50.3-19.6-97.6-55.2-133.2S698.7 228.1 648.4 228.1zM255 520.4l-66.6.2c-55.4 0-100.2-44.9-100.2-100.2v-2.9c0-55.4 44.9-100.2 100.2-100.2h251.2v146.1c0 4.5 1.8 8.9 5 12.1 3.2 3.2 7.5 5 12.1 5h54c4.5 0 8.9-1.8 12.1-5 3.2-3.2 5-7.5 5-12.1V249.1c0-11-9-20-20-20H188.4c-50.3 0-97.6 19.6-133.2 55.2C19.6 319.8 0 367 0 417.4v2.9c0 50.3 19.6 97.6 55.2 133.2s82.9 55.2 133.2 55.2H255c4.5 0 8.9-1.8 12.1-5 3.2-3.2 5-7.5 5-12.1v-54.1c0-4.5-1.8-8.9-5-12.1-3.2-3.2-7.6-5-12.1-5z"/></svg>')+"' />")},
-					{"label": "size", "html": "<span class='small'>A</span><span class='large'>A</span>"},
-					{"label": "color", "html": "<span class='color1'>A</span><span class='color2'>A</span>"},
-				]
 
 				const dropdownId = generateID();
 
@@ -846,6 +946,20 @@ function renderEditControls(section) {
 					}
 				});
 
+				const btns = [
+					{"label": "bold", "html": "<b>B</b>"},
+					{"label": "italic", "html": "<i>I</i>"},
+					{"label": "underline", "html": "<u>U</u>"},
+					{"label": "strike", "html": "<s>S</s>"},
+					{"label": "super", "html": "<span>A</span><sup>2</sup>"},
+					{"label": "spoiler", "html": "<span>👁‍🗨</span>"},
+					//{"label": "quote", "html": '"'},
+					//{"label": "code", "html": "<>"},
+					{"label": "link", "html": ("<img src='data:image/svg+xml;base64,"+btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 836.7 836.7"><path d="M648.4 228.1h-66.6c-4.5 0-8.9 1.8-12.1 5-3.2 3.2-5 7.5-5 12.1v54.1c0 4.5 1.8 8.9 5 12.1 3.2 3.2 7.6 5 12.1 5l66.6-.2c55.4 0 100.2 44.9 100.2 100.2v2.9c0 55.4-44.9 100.2-100.2 100.2H397.1v-146c0-4.5-1.8-8.9-5-12.1-3.2-3.2-7.5-5-12.1-5h-54c-4.5 0-8.9 1.8-12.1 5-3.2 3.2-5 7.5-5 12.1v214.2c0 11 9 20 20 20h319.4c50.3 0 97.6-19.6 133.2-55.2s55.2-82.9 55.2-133.2v-2.9c0-50.3-19.6-97.6-55.2-133.2S698.7 228.1 648.4 228.1zM255 520.4l-66.6.2c-55.4 0-100.2-44.9-100.2-100.2v-2.9c0-55.4 44.9-100.2 100.2-100.2h251.2v146.1c0 4.5 1.8 8.9 5 12.1 3.2 3.2 7.5 5 12.1 5h54c4.5 0 8.9-1.8 12.1-5 3.2-3.2 5-7.5 5-12.1V249.1c0-11-9-20-20-20H188.4c-50.3 0-97.6 19.6-133.2 55.2C19.6 319.8 0 367 0 417.4v2.9c0 50.3 19.6 97.6 55.2 133.2s82.9 55.2 133.2 55.2H255c4.5 0 8.9-1.8 12.1-5 3.2-3.2 5-7.5 5-12.1v-54.1c0-4.5-1.8-8.9-5-12.1-3.2-3.2-7.6-5-12.1-5z"/></svg>')+"' />")},
+					{"label": "size", "html": "<span class='small'>A</span><span class='large'>A</span>"},
+					{"label": "color", "html": "<span class='color1'>A</span><span class='color2'>A</span>"},
+				]
+
 				btns.forEach(btn => {
 					const element = document.createElement("button");
 					element.innerHTML = btn.html;
@@ -887,59 +1001,192 @@ function renderEditControls(section) {
 				function addTextStyle(type) {
 					const input = document.activeElement;
 					const fullText = input?.value;
-					const selectPos = {"start": input?.selectionStart, "end": input?.selectionEnd};
+					const selectPos = { start: input?.selectionStart, end: input?.selectionEnd };
 					const selectedText = fullText.substring(selectPos?.start, selectPos?.end);
-					if (!input || !fullText || typeof selectPos.start !== 'number' || typeof selectPos.end !== 'number' || !selectedText) return;
+					if (!input || !fullText || typeof selectPos.start !== "number" || typeof selectPos.end !== "number" || !selectedText) return;
 
-					if (selectedText.includes("{") && !selectedText.includes("}")) return;
-					if (selectedText.includes("}") && !selectedText.includes("{")) return;
-					if (selectedText.includes("[") && !selectedText.includes("]")) return;
-					if (selectedText.includes("]") && !selectedText.includes("[")) return;
-					
-					let attr = type;
+					const markerByType = {
+						bold: "*",
+						italic: "_",
+						super: "^",
+						underline: "+",
+						strike: "-",
+					};
+					const marker = markerByType[type];
+					if (marker) {
+						const count = (selectedText.match(new RegExp(`\\${marker}`, "g")) || []).length;
+						if (count % 2 !== 0) return;
+					}
 
 					const requestData = dropdown.querySelector("input[type='radio']:checked ~ *")?.value;
 
-					if (!requestData && ['link','size','color'].includes(type)) return;
+					const wrapText = (t, text, value = "") => {
+						switch (t) {
+							case "bold": return `*${text}*`;
+							case "italic": return `_${text}_`;
+							case "super": return `^${text}^`;
+							case "underline": return `+${text}+`;
+							case "strike": return `-${text}-`;
+							case "link": return `["${text}":${value}]`;
+							case "color": return `%{color:${value}}${text}%`;
+							case "size": return `%{font-size:${value}}${text}%`;
+							case "spoiler": return `%(spoiler)<span class='spoiler-content'>${text}</span>%`;
+							default: return text;
+						}
+					};
 
-					switch (type) {
-						case "link":
-						case "size":
-						case "color":
-							attr = `${type}:'${requestData}'`;
-							break;
-						default:
-							break;
-					}
-				
-					let attributes = attr;
-					let text = selectedText;
+					const replaceRange = (start, end, replacement) => fullText.substring(0, start) + replacement + fullText.substring(end);
 
-					if (selectedText.startsWith("{") && selectedText.endsWith("}")) {
-						let matched_attr = selectedText.match(/\|([^|}]*)}?$/)?.[1].split(/[,;]/);
+					                    const parseStyleList = (styleText) => {
+                        const entries = {};
+                        const order = [];
+                        styleText.split(";").forEach(part => {
+                            const trimmed = part.trim();
+                            if (!trimmed) return;
+                            const colonIndex = trimmed.indexOf(":");
+                            if (colonIndex === -1) return;
+                            const key = trimmed.slice(0, colonIndex).trim();
+                            const value = trimmed.slice(colonIndex + 1).trim();
+                            if (!key) return;
+                            if (!(key in entries)) order.push(key);
+                            entries[key] = value;
+                        });
+                        return { entries, order };
+                    };
 
-						if (matched_attr) {
-							const removeAttr = matched_attr.some(a => a == attr);
-							const matched_text = selectedText.match(/^\{\[([\S\s]*)\]\|/)?.[1];
-							let combined_attr = [
-								...(!removeAttr ? [attr] : []),
-								...(!removeAttr ? [matched_attr] : [matched_attr.filter(a => a !== attr)]),
-							];
-							combined_attr = [...new Set(combined_attr)]?.join(";");
+                    const mergeStyleList = (styleText, key, value) => {
+                        const parsed = parseStyleList(styleText);
+                        if (!(key in parsed.entries)) parsed.order.push(key);
+                        parsed.entries[key] = value;
+                        return parsed.order.map(k => `${k}:${parsed.entries[k]}`).join(";");
+                    };
 
-							text = matched_text;
-							attributes = combined_attr;
+                    const findStyleWrapper = (text, start, end) => {
+                        const re = /%\{([^}]+)\}([\s\S]*?)%/g;
+                        for (const m of text.matchAll(re)) {
+                            const mStart = m.index;
+                            const mEnd = m.index + m[0].length;
+                            if (start >= mStart && end <= mEnd) {
+                                return { start: mStart, end: mEnd, style: m[1] ?? "", inner: m[2] ?? "" };
+                            }
+                        }
+                        return null;
+                    };
+
+                    const findWrapper = (t, text, start, end) => {
+                        const patterns = {
+                            link: /\["([^\n]+?)":((?:\[[a-z0-9]*\]|[^\]])+)\]/g,
+                            color: /%\{color\s*:\s*([^}]+)\}([\s\S]*?)%/g,
+                            size: /%\{font-size\s*:\s*([^}]+)\}([\s\S]*?)%/g,
+                            spoiler: /%\((?:spoiler)\)<span class='spoiler-content'>([\s\S]*?)<\/span>%/g,
+                        };
+                        
+                        const re = patterns[t];
+                        if (!re) return null;
+
+                        if (t === "spoiler") {
+                            for (const m of text.matchAll(re)) {
+                                const mStart = m.index;
+                                const mEnd = m.index + m[0].length;
+                                if (start >= mStart && end <= mEnd) {
+                                    return { start: mStart, end: mEnd, inner: m[1] ?? "" };
+                                }
+                            }
+                            return null;
+                        }
+
+                        for (const m of text.matchAll(re)) {
+                            const mStart = m.index;
+                            const mEnd = m.index + m[0].length;
+                            if (start >= mStart && end <= mEnd) {
+                                const inner = (t === "link") ? m[1] : (m[2] || m[1] || "");
+                                return { start: mStart, end: mEnd, inner };
+                            }
+                        }
+                        return null;
+                    };
+
+                    // If selection is inside an existing wrapper, update or remove it
+                    const styleWrapper = (type === "color" || type === "size")
+                        ? findStyleWrapper(fullText, selectPos.start, selectPos.end)
+                        : null;
+                    if (styleWrapper) {
+                        let replacement;
+                        const styleKey = type === "color" ? "color" : "font-size";
+
+                        if (!requestData) {
+                            const parsed = parseStyleList(styleWrapper.style);
+                            if (styleKey in parsed.entries) {
+                                delete parsed.entries[styleKey];
+                            }
+                            const remainingOrder = parsed.order.filter(key => key !== styleKey);
+                            const remaining = remainingOrder
+                                .map(key => `${key}:${parsed.entries[key]}`)
+                                .join(";");
+
+                            replacement = remaining
+                                ? `%{${remaining}}${styleWrapper.inner}%`
+                                : styleWrapper.inner;
+                        } else {
+                            const mergedStyle = mergeStyleList(styleWrapper.style, styleKey, requestData);
+                            replacement = `%{${mergedStyle}}${styleWrapper.inner}%`;
+                        }
+
+                        input.value = replaceRange(styleWrapper.start, styleWrapper.end, replacement);
+                        handleFieldChange(input, input.value, input.dataset.field);
+                        return;
+                    }
+
+                    const wrapper = findWrapper(type, fullText, selectPos.start, selectPos.end);
+                    if (wrapper) {
+                        let replacement;
+
+                        if (type === "spoiler") {
+                            replacement = wrapper.inner; // remove
+                        } else if (["link", "color", "size"].includes(type)) {
+                            replacement = requestData ? wrapText(type, wrapper.inner, requestData) : wrapper.inner;
+                        } else {
+                            replacement = wrapper.inner;
+                        }
+
+                        input.value = replaceRange(wrapper.start, wrapper.end, replacement);
+                        handleFieldChange(input, input.value, input.dataset.field);
+                        return;
+                    }
+
+					// No wrapper found: apply normal behavior
+					if (!requestData && ["link", "color", "size"].includes(type)) return;
+					const unwrapInline = (t, text) => {
+						switch (t) {
+							case "bold": return text.match(/^\*([\s\S]+)\*$/)?.[1] ?? null;
+							case "italic": return text.match(/^_([\s\S]+)_$/)?.[1] ?? null;
+							case "super": return text.match(/^\^([\s\S]+)\^$/)?.[1] ?? null;
+							case "underline": return text.match(/^\+([\s\S]+)\+$/)?.[1] ?? null;
+							case "strike": return text.match(/^-([\s\S]+)-$/)?.[1] ?? null;
+							default: return null;
+						}
+					};
+
+					const unwrapped = unwrapInline(type, selectedText);
+					let outputText;
+
+					if (unwrapped !== null) {
+						outputText = unwrapped;
+					} else {
+						if (["link", "color", "size", "spoiler"].includes(type)) {
+							outputText = wrapText(type, selectedText, requestData);
+						} else {
+							outputText = wrapText(type, selectedText);
 						}
 					}
 
-					input.value = 
-					fullText.substring(0, selectPos.start) +
-					(attributes ? (`{[${text}]|${attributes}}`) : text) +
-					fullText.substring(selectPos.end);
-			
+					input.value =
+						fullText.substring(0, selectPos.start) +
+						outputText +
+						fullText.substring(selectPos.end);
 
 					handleFieldChange(input, input.value, input.dataset.field);
-				}
+					}
 			}
 			else if (field == "order") {
 				if (state.selected.entry.type == "table-cell") {
@@ -993,7 +1240,7 @@ function renderEditControls(section) {
 				input.dataset.field = field;
 				input.min = 1;
 				input.max = (guideData.content.filter(e => e.parent == state.selected.entry.parent && e.type == 'table-cell' && e.id != state.selected.entry.id).reduce((max, current) => current.row > max.row ? current : max).row)+1;
-				input.value = allOptions[field] == "style" ? (state.selected?.entry?.style?.[field] || "") : allOptions[field] == "key" ? (state.selected?.entry?.[field] || "") : ""
+				input.value = (state.selected?.entry?.[field] || 1)
 				input.dataset.oldValue = input.value;
 				fieldDiv.appendChild(input);
 			}
@@ -1010,7 +1257,7 @@ function renderEditControls(section) {
 			}
 			else if (field == "parent") {
 				const currentPage = getCurrentPage();
-				const selectContent = [guideData.content.find(e => e.id === currentPage?.id), ...getPageChildren(currentPage?.id,state.selected?.entry.id)].filter(e => ["page","panel","section","tab"].includes(e.type)).map(entry => `${(capitalizeString(entry.type))} (${entry.id})` );
+				const selectContent = [guideData.content.find(e => e.id === currentPage?.id), ...getPageChildren(currentPage?.id,state.selected?.entry.id)].filter(e => ["page","panel","section","tab"].includes(e?.type)).map(entry => `${(capitalizeString(entry.type))} (${entry.id})` );
 		
 				const select = document.createElement("select");
 				select.dataset.field = field;
@@ -1059,12 +1306,12 @@ function renderEditControls(section) {
 
 					state.selected.entry.target = array;
 
-					refreshBuild();
+					buildData(guideData);
 					saveGuide();
 				}
 			
 			}
-			else if (field == "background") {
+			else if (field == "background" || field == "border-color") {
 				const wrap = document.createElement("div");
 				wrap.classList.add("sidebar-inline")
 				fieldDiv.appendChild(wrap)
@@ -1073,7 +1320,7 @@ function renderEditControls(section) {
 				input.type = "text";
 				input.id = generateID();
 				input.dataset.field = field;
-				input.value = allOptions[field] == "style" ? (state.selected?.entry?.style?.[field] || "") : allOptions[field] == "key" ? (state.selected?.entry?.[field] || "") : ""
+				input.value = entryOptions[field].type == "style" ? (state.selected?.entry?.style?.[field] || "") : entryOptions[field].type == "key" ? (state.selected?.entry?.[field] || "") : ""
 				input.dataset.oldValue = input.value;
 				wrap.appendChild(input);
 
@@ -1096,8 +1343,8 @@ function renderEditControls(section) {
 					colorPicker.value = this.value;
 				})
 			}
-			else if (selectOptions[field]) {
-				const select = createSelect(field, selectOptions[field], (allOptions[field] == "style" ? (state.selected?.entry?.style?.[field] || "") : allOptions[field] == "key" ? (state.selected?.entry?.[field] || "") : ""));
+			else if (entryOptions[field]?.options) {
+				const select = createSelect(field, entryOptions[field]?.options, (entryOptions[field].type == "style" ? (state.selected?.entry?.style?.[field] || "") : entryOptions[field].type == "key" ? (state.selected?.entry?.[field] || "") : ""));
 				fieldDiv.appendChild(select);
 			}
 			else {
@@ -1105,7 +1352,7 @@ function renderEditControls(section) {
 				input.type = "text";
 				input.id = generateID();
 				input.dataset.field = field;
-				input.value = allOptions[field] == "style" ? (state.selected?.entry?.style?.[field] || "") : allOptions[field] == "key" ? (state.selected?.entry?.[field] || "") : ""
+				input.value = entryOptions[field].type == "style" ? (state.selected?.entry?.style?.[field] || "") : entryOptions[field].type == "key" ? (state.selected?.entry?.[field] || "") : ""
 				input.dataset.oldValue = input.value;
 				fieldDiv.appendChild(input);
 			}
@@ -1114,59 +1361,85 @@ function renderEditControls(section) {
 
 		stylesWrap.appendChild(groupEl);
 	});
-
-	const actionRow = document.createElement("div");
-	actionRow.className = "sidebar-actions";
-	const removeButton = document.createElement("button");
-	removeButton.type = "button";
-	removeButton.dataset.action = "remove";
-	removeButton.textContent = "Remove";
-	const cloneButton = document.createElement("button");
-	cloneButton.type = "button";
-	cloneButton.dataset.action = "clone";
-	cloneButton.textContent = "Clone";
-	actionRow.appendChild(removeButton);
-	actionRow.appendChild(cloneButton);
-	section.appendChild(actionRow);
-
-	removeButton.addEventListener("click", removeEntry)
-	cloneButton.addEventListener("click", cloneEntry)
-
 }
 
-function refreshSidebar() {
-	if (!sidebar) return;
+async function buildSidebar() {
+	const sidebar = document.getElementById("sidebar");
+	
 	clearSidebar();
 
 	const selectorSection = document.createElement("section");
 	selectorSection.className = "sidebar-section";
 	selectorSection.dataset.section = "selectors";
 	renderSelectors(selectorSection, state.selected?.element);
-
-	const addSection = document.createElement("section");
-	addSection.className = "sidebar-section";
-	addSection.dataset.section = "add-tools";
-	renderAddTools(addSection);
+	sidebar.appendChild(selectorSection);
 
 	const editSection = document.createElement("section");
 	editSection.className = "sidebar-section";
 	editSection.dataset.section = "edit-tools";
 	renderEditControls(editSection);
+	sidebar.appendChild(editSection);
 
-	if (state.selected?.element) {
-		addSection.hidden = true;
-	} else {
+	const addSection = document.createElement("section");
+	addSection.className = "sidebar-section";
+	addSection.dataset.section = "add-tools";
+	renderAddTools(addSection);
+	sidebar.appendChild(addSection);
+
+	const miscSection = document.createElement("section");
+	miscSection.className = "sidebar-section";
+	miscSection.dataset.section = "misc-tools";
+	renderMiscTools(miscSection);
+	sidebar.appendChild(miscSection);
+
+	if (!state.selected?.element) {
 		editSection.hidden = true;
+		miscSection.hidden = true;
 	}
 
-	sidebar.appendChild(selectorSection);
-	sidebar.appendChild(addSection);
-	sidebar.appendChild(editSection);
+	handleDisplaySelects();
 
 	addFieldEventListeners();
 	addMiscEventListeners();
+}
 
-	updateSidebarSide();
+function consoleText(text, config = {}) {
+	
+	const { 
+        duration = 2000, 
+        position = "bottom-right", 
+        id = generateID(),
+    } = config;
+
+	const con = document.getElementById("console");
+	con.className = position;
+
+    let p = document.createElement("span");
+    p.textContent = text;
+	p.id = id;
+    con.appendChild(p);
+
+    p.style.opacity = "1";
+
+	if (duration != Infinity) {
+		removeConsoleText(p.id, duration)
+		
+	}
+
+    console.log(text);
+}
+
+function removeConsoleText(id, duration = 0) {
+	const p = document.getElementById(id);
+	if (!p) return;
+
+	setInterval(function() {
+		p.style.opacity = "0";
+
+		setTimeout(function () {
+			p.remove();
+		}, 1000);
+	}, duration);
 }
 
 function addFieldEventListeners() {
@@ -1191,7 +1464,7 @@ function addFieldEventListeners() {
 
 		
 		if (["parent","row"].includes(element?.dataset?.field)) {
-			element.addEventListener("change", refreshSidebar);
+			element.addEventListener("change", buildSidebar);
 		}
 	});
 }
@@ -1219,7 +1492,8 @@ function handleFieldInput(e) {
 }
 
 
-function handleDisplaySelects(_this) {
+function handleDisplaySelects(_this = document.querySelector("#sidebar .sidebar-field.display select")) {
+	if (!_this) return;
 	const displaySelect = _this.parentElement.parentElement.querySelector(".display select");
 	const elements = _this.parentElement.parentElement.querySelectorAll(".align-items select, .align-content select, .justify-content select, .flex-direction select, .flex-wrap select");
 
@@ -1252,7 +1526,7 @@ function handleFieldChange(_this,val,field) {
 		if (!state.selected) return;
 		if (!field) return;
 		
-		switch (allOptions[field]) {
+		switch (entryOptions[field]?.type) {
 			case "style":
 				state.selected.entry.style = state.selected.entry.style || {};
 				state.selected.entry.style[field] = val;
@@ -1266,7 +1540,7 @@ function handleFieldChange(_this,val,field) {
 				break;
 		}
 		
-		refreshBuild();
+		buildData(guideData);
 		saveGuide();
 	}
 }
@@ -1343,19 +1617,21 @@ function handleIdChange(_this) {
 		guideData.content.filter(e => e.parent == oldVal).forEach(e => { e.parent = newVal; });
 
 		// update links
-		guideData.content.filter(e => e.text && e.text.toString().match(new RegExp(`href=['"][^'"]*#${oldVal}`))).forEach(e => { text = text.replaceAll(/(href=['"])(.*?)(#.*?)(['"])/g, `$1$2#${newVal}$4`); });
+		guideData.content.forEach(entry => (entry.text) && (entry.text.toString().replace(new RegExp(`(link:'#)${oldVal}(';?)`, 'g'), `$1${newVal}$2`)));
 
 		// update targets
 		guideData.content.filter(e => e.target && e.target.includes(oldVal)).forEach(e => { 
 			e.target = e.target.map(item => item === oldVal ? newVal : item);
 		});
 
-		refreshSidebar();
+		
 
-		// update element select
-		document.getElementById("sidebar-element-select").value = newVal;
+		buildData(guideData);
+		buildSidebar();
 
-		refreshBuild();
+		changePage(getElementPage(newVal))
+		selectTarget(document.getElementById(newVal));
+
 		saveGuide();
 	}
 }
@@ -1365,48 +1641,27 @@ function addMiscEventListeners() {
 	document.getElementById("sidebar-element-select").addEventListener("change", function() {handleElementSelect(this);document.getElementById("sidebar-element-select")?.focus(); });
 }
 
-function handlePageSelect(_this) {
-	if (_this.value) {
+function handlePageSelect(_this = document.getElementById("sidebar-page-select")) {
+	if (_this?.value) {
 		clearSelection();
 		changePage(_this.value);
-		refreshSidebar();
+		buildSidebar();
+		handleElementSelect(document.getElementById("sidebar-element-select"))
 	}
 }
-function handleElementSelect(_this) {
+function handleElementSelect(_this = document.getElementById("sidebar-element-select")) {
 	const val = _this.value;
 	const element = document.getElementById(val) || document.querySelector(`*[data-id='${val}']`);
 
 	if (element) {
 		selectTarget(element, { allowIgnored: true });
-		refreshSidebar();
+		buildSidebar();
 	} else {
 		clearSelection();
 	}
 }
 
-function refreshBuild() {
-	buildData(guideData);
-	updateSidebarSide();
-}
 
-function openMenu(x, y) {
-	const hasSelection = !!state.selected?.element;
-	const removeButton = menu.querySelector("button[data-action='remove']");
-	if (removeButton) removeButton.hidden = !hasSelection;
-	menu.style.display = "flex";
-	menu.style.left = `${x}px`;
-	menu.style.top = `${y}px`;
-
-	const padding = 8;
-	const rect = menu.getBoundingClientRect();
-	const maxLeft = window.innerWidth - rect.width - padding;
-	const maxTop = window.innerHeight - rect.height - padding;
-	const nextLeft = Math.max(padding, Math.min(x, maxLeft));
-	const nextTop = Math.max(padding, Math.min(y, maxTop));
-
-	menu.style.left = `${nextLeft}px`;
-	menu.style.top = `${nextTop}px`;
-}
 
 
 
@@ -1415,7 +1670,7 @@ function clearSelection() {
 		state.selected?.element.classList.remove("editor-selected");
 	}
 	state.selected = null;
-	refreshSidebar();
+	buildSidebar();
 }
 
 
@@ -1431,7 +1686,7 @@ function selectTarget(el, options = {}) {
 	if (!entry) return;
 
 	const page = el.closest('#content > *');
-	if (page && !page.hasAttribute('data-page-open')) {
+	if (page && page.dataset.open != "true") {
 		changePage(page.id);
 	}
 
@@ -1442,59 +1697,31 @@ function selectTarget(el, options = {}) {
 	el.classList.add("editor-selected");
 }
 
-function computeSidebarSide() {
-	if (!state.selected) return "right";
-	
-	const rect = document.getElementById(state.selected?.entry.id)?.getBoundingClientRect();
-	if (!rect) return "right";
-	const midpoint = rect.left + rect.width / 2;
-	return midpoint > window.innerWidth / 2 ? "left" : "right";
-}
-
-function updateSidebarSide() {
-
-	const newSide = computeSidebarSide();
-
-	if (document.body.dataset.sidebarSide && newSide != document.body.dataset.sidebarSide) {
-		document.getElementById("sidebar").classList.add('disable-anim');
-		setTimeout(() => {
-			document.getElementById("sidebar").classList.remove('disable-anim');
-		}, 100);
-	}
-
-	document.body.dataset.sidebarSide = newSide;
-
-}
-
-menu.addEventListener("click", (e) => {
-	e.stopPropagation();
-	const action = e.target.closest("button")?.dataset.action;
-	if (!action) return;
-
-	if (action === "edit") {
-		ensureSidebarOpen();
-	}
-
-	if (action === "remove") {
-		removeEntry(state.selected?.element);
-	}
-
-	if (action === "close") {
-		closeMenu();
-		closeSidebar();
-		return;
-	}
-
-	closeMenu();
-});
-
 function removeEntry() {
-	if (state.selected && confirm("Remove this element?")) {
-		guideData.content = guideData.content.filter(e => e.id != state.selected.entry.id);
+	if (state.selected && confirm(`Warning: You're about to remove '${capitalizeString(state.selected.entry.type)} (${state.selected.entry.id})' and all of its content.\nProceed?`)) {
+		
+		const idsToRemove = [state.selected.entry.id, ...collectDescendantIds(state.selected.entry.id)];
+
+		// remove ids
+		guideData.content = guideData.content.filter(e => !idsToRemove.includes(e.id));
+
+		// clean links
+		for (const id of idsToRemove) {
+			guideData.content.forEach(entry => (entry.text) && (entry.text.toString().replace(new RegExp(`(\\|[^|{]*?)link:'#${id}';?`, 'g'), '$1').replace(/;+/g, ';').replace(/\|;/g, '|').replace(/;\}/g, '}')));
+		}
+
+		// clean targets
+		guideData.content = guideData.content.map(entry => entry.target ? { ...entry, target: entry.target.filter(id => !idsToRemove.includes(id)) } : entry);
+
+
+		const currentPage = getCurrentPage()?.id;
 		buildData(guideData);
 		saveGuide();
 
 		clearSelection();
+
+		changePage(currentPage);
+
 	}
 }
 function cloneEntry() {
@@ -1502,83 +1729,191 @@ function cloneEntry() {
 		
 	}
 }
+let copiedEntry = null;
+document.addEventListener("keydown", (e) => {
 
-document.addEventListener("mousedown", (e) => {
-	if (!isEditor()) return;
-	if (e.button === 2) return;
-	if (menu.style.display === "flex" && !e.target.closest("#editor-context-menu")) {
-		closeMenu();
-	}
-}, true);
+	if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' || document.activeElement.isContentEditable) return;
 
-document.addEventListener("contextmenu", (e) => {
-	if (!isEditor()) return;
-	if (e.altKey) return;
-	const el = getSelectableTarget(e.target.closest("#content *"));
-	if (!el || (!el.id && !el.dataset.id)) return;
-	e.preventDefault();
-	selectTarget(el);
-	refreshSidebar();
-	openMenu(e.clientX, e.clientY);
-});
-
-document.addEventListener("click", (e) => {
-	if (!isEditor()) return;
-	if (e.target.closest("#editor-context-menu")) return;
-	const inSidebar = e.target.closest("#sidebar");
-	const inHeader = e.target.closest("header");
-	const inContent = e.target.closest("#content");
-	if (!inContent) {
-		if (!inSidebar && !inHeader) {
-			//clearSelection();
-			closeMenu();
+	if (e.ctrlKey && e.key === 'z') {
+		if (false) {
+			alert("undo")
+			handleUndoRedo();
 		}
 		return;
 	}
 
-	if (state.selected?.element && !state.selected?.element.contains(e.target)) {
-		//clearSelection();
+	if ((e.ctrlKey && e.key === 'y') || (e.shiftKey && e.ctrlKey && e.key == 'z')) {
+		if (false) {
+			alert("redo")
+			handleUndoRedo();
+		}
+		return;
 	}
 
-	const el = getSelectableTarget(e.target.closest("#content *"));
-	if (!el || (!el.id && !el.dataset.id)) return;
-	selectTarget(el);
-	refreshSidebar();
-	closeMenu();
-});
-
-document.addEventListener("dblclick", (e) => {
-	if (!isEditor()) return;
-	if (e.target.closest("#editor-context-menu")) return;
-	if (!e.target.closest("#content") || !e.target.closest("*[data-type][id]")) return;
-
-	openSidebar(true);
-});
-
-
-document.addEventListener("keydown", (e) => {
-	if (e.key !== "Escape") return;
-	if (state.selected) {
-		clearSelection();
+	if (e.ctrlKey && e.key === 'c') {
+		copiedEntry = !["page-nav"].includes(state.selected?.entry.type) ? state.selected?.entry.id : null;
+		if (copiedEntry) {
+			consoleText("Copy successful")
+		}
+		else {
+			consoleText("Element")
+		}
 	}
-	else {
-		closeSidebar();
+
+	if (e.ctrlKey && e.key === 'v') {
+		if (copiedEntry) {
+			for (const i of [1]) {
+				let entry = { ...guideData.content.find(e => e.id == copiedEntry) }
+
+				if (!entry) break;
+		
+				if (!entryTypes[entry.type]?.parentTypes.includes(state.selected?.entry.type) && !(entryTypes[entry.type]?.parentTypes.includes("base") && !state.selected)) {
+					consoleText("Not a valid parent");
+					break;
+				}
+
+				const newId = copyPasteEntry(entry.id);
+				if (newId) {
+
+					buildData(guideData);
+					saveGuide();
+					
+					const newPageId = getEntryPageId(newId);
+					if (newPageId) {
+						changePage(newPageId);
+					}
+					
+					const element = document.getElementById(newId) || document.querySelector(`*[data-id='${newId}']`);
+					if (element) {
+						selectTarget(element, { allowIgnored: true });
+					}
+
+					buildSidebar();
+					
+					consoleText("Paste successful");
+				}
+			}
+		}
 	}
-	closeMenu();
+
+
+	function handleUndoRedo() {
+		guideData.modified = Date.now();
+		buildSidebar();
+		buildData(guideData);
+		changePage(getCurrentPage()?.id);
+	}
+
+	switch (e.key) {
+		case "Escape":
+			if (state.selected) {
+				clearSelection();
+			}
+			else {
+				closeSidebar();
+			}
+			closeMenu();
+			break;
+		case "Delete":
+			if (state.selected) {
+				removeEntry();
+			}
+			break;
+		default:
+			break;
+	}
 });
 
+function copyPasteEntry(id, recursive = true) {
+	const root = guideData.content.find(e => e.id === id);
+	if (!root) return null;
+
+	// 1) collect all IDs to copy (root + descendants)
+	const toCopy = [id].concat(recursive ? collectDescendantIds(id) : []);
+
+	// 2) allocate new IDs (oldId -> newId)
+	const idMap = new Map();
+	toCopy.forEach(oldId => idMap.set(oldId, generateID()));
+
+	// 3) clone & insert copies (preserve relative structure)
+	for (const oldId of toCopy) {
+		const src = guideData.content.find(e => e.id === oldId);
+		if (!src) continue;
+		const copy = JSON.parse(JSON.stringify(src)); // plain-data deep clone
+		copy.id = idMap.get(oldId);
+
+		// root copy: attach to current selection (if present), otherwise keep original parent
+
+		if (oldId === id) {
+			if (state.selected) {
+				copy.parent = state.selected.entry.id;
+			}
+
+			if (copy.type == "page" && copy.title) {
+				const escapeRegExp = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+				const base = copy.title.replace(/\s*\(\d+\)$/, '').trim();
+				const rx = new RegExp(`^${escapeRegExp(base)}(?: \\((\\d+)\\))?$`);
+				let max = 0;
+				guideData.content.forEach(e => {
+					if (!e.title) return;
+					const m = e.title.match(rx);
+					if (!m) return;
+					const n = m[1] ? Number(m[1]) : 0;
+					if (n > max) max = n;
+				});
+				copy.title = `${base} (${max + 1})`;
+			}
+		}
+		else {
+			copy.parent = idMap.get(src.parent) || src.parent;
+		}
+
+		guideData.content.push(copy);
+	}
+
+	// 4) remap internal references ONLY inside the newly-created copies
+	const newIdsSet = new Set(Array.from(idMap.values()));
+	const oldIds = Array.from(idMap.keys());
+
+	guideData.content.forEach(entry => {
+		if (!newIdsSet.has(entry.id)) return; // <-- IMPORTANT: update copied entries only
+
+		// remap link:'#OLD' → link:'#NEW' for copied internal refs
+		if (entry.text) {
+		oldIds.forEach(oldRefId => {
+			const newRefId = idMap.get(oldRefId);
+			entry.text = entry?.text.toString().replace(
+			new RegExp(`(link:'#)${oldRefId}(';?)`, 'g'),
+			`$1${newRefId}$2`
+			);
+		});
+		}
+
+		// remap target arrays only for copied entries
+		if (Array.isArray(entry.target)) {
+		entry.target = entry.target.map(t => idMap.get(t) || t);
+		}
+	});
+
+	return idMap.get(id); // return new root id
+}
 
 
 function isIgnoredElement(el) {
 	if (!el) return false;
-	return Object.entries(ignoredElements).some(([type, mode]) => {
-		if (mode === "element") {
-			return el.dataset.type == type;
+
+	return Object.entries(entryTypes).some(([type, config]) => {
+		if (!config.ignore) return false;
+		
+		if (config.ignore === "element") {
+			return el.dataset.type === type;
 		}
-		return !!el.closest(`*[data-type='${type}']`);
+		if (config.ignore === "closest") {
+			return !!el.closest(`*[data-type='${type}']`);
+		}
+		return false;
 	});
 }
-
 
 
 
@@ -1672,7 +2007,7 @@ async function readDataFile(_this) {
 		initLoad();
 		buildData();
 		changePage(guideData.content.filter(e => e.type == "page").sort((a, b) => a.order - b.order)[0]?.id);
-		refreshSidebar();
+		buildSidebar();
 
 		saveGuide();
 		
@@ -1783,7 +2118,6 @@ function createBrowsePanel(settings) {
 		const deletionConfirm = confirm(`You are deleting: ${settings.data.title}\nProceed?`);
 
 		if (deletionConfirm) {
-			
 			localStorage.removeItem(settings.key);
 			createLocalPanels();
 		}
@@ -1795,14 +2129,14 @@ function createBrowsePanel(settings) {
 	settings.parent.appendChild(panel)
 }
 function loadGuide(data) {
-	if (!data)
+	if (!data) return;
 	["title","version","author","created","modified","content"].forEach(k => { if (data[k] == undefined) return; });
 
 	guideData = new ManualSaveWrapper(data);
 	initLoad();
 	buildData();
 	changePage(guideData.content.filter(e => e.type == "page").sort((a, b) => a.order - b.order)[0]?.id);
-	refreshSidebar();
+	buildSidebar();
 }
 
 
@@ -1825,7 +2159,7 @@ function newGuide() {
 	const guideName = prompt("Select guide title:","");
 
 	if (guideName != undefined) {
-		guideData = new ManualSaveWrapper(example_data);
+		guideData = new ManualSaveWrapper(template_data);
 		guideData.id = generateID();
 		guideData.created = Date.now();
 		guideData.modified = guideData.created;
@@ -1834,7 +2168,7 @@ function newGuide() {
 		initLoad();
 		buildData();
 		changePage(guideData.content.filter(e => e.type == "page").sort((a, b) => a.order - b.order)[0]?.id);
-		refreshSidebar();
+		buildSidebar();
 	}
 }
 
@@ -1880,15 +2214,20 @@ async function buildData() {
 	});
 
 
-	if (state.selected) {
-		changePage(getElementPage(state.selected?.element?.id)?.id)
+	// prefer data-driven restore of the selected entry (entry.id -> page)
+	if (state.selected?.entry?.id) {
+	const pageId = getEntryPageId(state.selected.entry.id);
+	pageId && changePage(pageId);
 	}
+
 	await renderDiagrams();
 
-	const id = document.getElementById("sidebar-element-select")?.value;
-	const el = document.getElementById(id) || document.querySelector(`*[data-id='${id}']`);
+	// select by entry id first (stable), otherwise fall back to sidebar select value
+	const restoreId = state.selected?.entry?.id || document.getElementById("sidebar-element-select")?.value;
+	const el = restoreId ? (document.getElementById(restoreId) || document.querySelector(`*[data-id='${restoreId}']`)) : null;
 	selectTarget(el, { allowIgnored: true });
 
+	initDragDrop();
 
 	document.querySelectorAll("#content a").forEach(a => {
 		a.addEventListener("click", redirectHighlight);
@@ -1905,13 +2244,15 @@ async function buildData() {
 						target = guideData.content.find(item => item.id === target.parent);
 						i++;
 					}
-					changePage(target.id)
+
+					target && (changePage(target.id));
 				}
 			}
 		}) 
 	})
 
 	document.querySelectorAll("#content .spoiler").forEach(e => {
+		e.dataset.spoiler = true;
 		e.addEventListener("click", function() {
 			this.dataset.spoiler = false;
 		}) 
@@ -1919,3 +2260,110 @@ async function buildData() {
 }
 
 
+function initDragDrop() {
+	if (typeof $ === 'undefined' || !$.ui || !$.ui.draggable) return;
+
+	const $nodes = $('#content').find('[id],[data-id]').filter(function () { return this.dataset && this.dataset.type; });
+
+	$nodes.each(function () {
+		if ($(this).data('ui-draggable')) { try { $(this).draggable('destroy'); } catch(e){} }
+		if ($(this).data('ui-droppable')) { try { $(this).droppable('destroy'); } catch(e){} }
+	});
+
+	$nodes.draggable({
+		helper: 'clone',
+		revert: true,
+		zIndex: 20000,
+		start(event, ui) {
+			const oe = event.originalEvent || {};
+			const isModifier = !!(oe.ctrlKey || oe.altKey || oe.shiftKey);
+			if (!isModifier || !isEditor()) return false;
+
+			const mode = oe.ctrlKey ? 'copy' : 'move';
+			ui.helper.data('dragMode', mode);
+
+
+			consoleText(mode == "copy" ? "Copying Element": "Moving Element", { duration: Infinity, id: "entryDrag" })
+
+			const srcEl = this; // original DOM node
+			const sourceId = $(srcEl).attr('id') || $(srcEl).data('id');
+			ui.helper.data('sourceId', sourceId);
+			ui.helper.data('sourceEl', srcEl);
+
+			// hide original element using visibility (preserves layout)
+			srcEl.style.visibility = 'hidden';
+		},
+
+		stop(_event, ui) {
+			// always restore original element visibility (if it was hidden)
+			const srcEl = ui.helper && ui.helper.data && ui.helper.data('sourceEl');
+			if (srcEl && srcEl.style) srcEl.style.visibility = '';
+
+			removeConsoleText("entryDrag")
+
+			// cleanup helper data / UI cues
+			ui.helper && ui.helper.removeData && ui.helper.removeData('sourceEl');
+			$('.drop-target-valid, .drop-target-invalid').removeClass('drop-target-valid drop-target-invalid');
+		}
+	});
+
+	$nodes.droppable({
+		tolerance: 'pointer',
+		greedy: true,
+		over(_ev, ui) {
+			if (!ui.helper || !ui.helper.data) return;
+			const mode = ui.helper.data('dragMode');
+			const sourceId = ui.helper.data('sourceId');
+			if (!mode || !sourceId) return;
+
+			const src = guideData.content.find(e => e.id === sourceId);
+			const tgtId = $(this).attr('id') || $(this).data('id');
+			const tgt = guideData.content.find(e => e.id === tgtId);
+			const allowed = src && entryTypes[src.type]?.parentTypes || [];
+			const isValid = !!src && !!tgt && allowed.includes(tgt.type);
+
+			$(this).removeClass('drop-target-valid drop-target-invalid');
+			$(this).addClass(isValid ? 'drop-target-valid' : 'drop-target-invalid');
+		},
+		out(_ev, ui) {
+			$(this).removeClass('drop-target-valid drop-target-invalid');
+		},
+		drop(ev, ui) {
+			$(this).removeClass('drop-target');
+			const mode = ui.helper.data('dragMode');
+			if (!mode) return;
+
+			const sourceId = ui.helper.data('sourceId') || ui.draggable.attr('id') || ui.draggable.data('id');
+			const targetId = $(this).attr('id') || $(this).data('id');
+			if (!sourceId || !targetId || sourceId === targetId) return;
+
+			const src = guideData.content.find(e => e.id === sourceId);
+			const tgt = guideData.content.find(e => e.id === targetId);
+			if (!src || !tgt) return;
+
+			const allowed = entryTypes[src.type]?.parentTypes || [];
+			if (!allowed.includes(tgt.type)) { 
+				consoleText('Invalid drop target for this element'); return; 
+			}
+
+			if (mode === 'move') {
+				src.parent = targetId;
+				saveGuide();
+				buildData(guideData);
+				buildSidebar();
+				selectTarget(document.getElementById(src.id));
+			}
+			else if (mode === 'copy') {
+				const newId = copyPasteEntry(src.id);
+				if (!newId) return;
+				const newEntry = guideData.content.find(e => e.id === newId);
+				if (!newEntry) return;
+				newEntry.parent = targetId;
+				saveGuide();
+				buildData(guideData);
+				buildSidebar();
+				selectTarget(document.getElementById(newId));
+			}
+		}
+	});
+}

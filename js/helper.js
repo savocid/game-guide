@@ -4,7 +4,7 @@ function getPages() {
 }
 
 function getCurrentPage() {
-	return document.querySelector("#content > *[data-type='page'][data-page-open]") || getPages()[0] || null;
+	return guideData.content.find(e => e.id == document.querySelector("#content > *[data-open='true']")?.id);
 }
 
 function getPageChildren(id, excludeBranchId = null) {
@@ -32,7 +32,7 @@ function getPageChildren(id, excludeBranchId = null) {
 }
 
 function getElementPage(id) {
-  const element = document.getElementById(id);
+  const element = document.querySelector(`*[data-id='${id}']`) || document.getElementById(id);
   
   if (!element) return null;
   
@@ -43,14 +43,29 @@ function getElementPage(id) {
   
   return current;
 }
+function getEntryPageId(id) {
+	if (!id) return null;
+
+	let current = guideData.content.find(e => e.id === id);
+	while (current && !["page", "navigator"].includes(current.type)) {
+		current = guideData.content.find(e => e.id === current.parent);
+	}
+
+	return current?.id || null;
+}
+
+function isVisible(el) {
+	return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+}
+
 function getElementType(el) {
 	if (!el) return "";
-	return selectableTypes.find(type => el.dataset.type == type) || "";
+	return entryTypes[el?.dataset?.type] || "";
 }
 
 function getSelectableTarget(el) {
 	if (!el) return null;
-	return el.closest(selectableTypes.map(type => `[data-type="${type}"]`).join(","));
+	return el.closest(Object.keys(entryTypes).map(type => `[data-type="${type}"]`).join(","));
 }
 
 function getEntryFamily(entry) {
@@ -96,6 +111,19 @@ function throttle(func, limit) {
     };
 }
 
+
+
+const collectDescendantIds = (parentId) => {
+	let ids = [];
+	let children = guideData.content.filter(e => e.parent === parentId);
+	
+	children.forEach(child => {
+		ids.push(child.id);
+		ids = ids.concat(collectDescendantIds(child.id));
+	});
+	
+	return ids;
+};
 
 
 function addStyles(styleObj, include = [], exclude = []) {

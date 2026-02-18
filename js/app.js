@@ -6,7 +6,7 @@ function buildContent(content) {
 	switch (content.type)
 	{
 		case "page":
-			return `<div data-type='${content.type}' id='${content.id}' data-title='${content.title}' style='${addStyles(content.style)}'></div>`;
+			return `<div data-type='${content.type}' id='${content.id}' data-title='${content.title}' data-open='false' style='${addStyles(content.style)}'></div>`;
 		case "navigator":
 			var output = `<div data-type='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>`;
 			output += `<ul>`;
@@ -17,7 +17,7 @@ function buildContent(content) {
 				output += `<li>`;
 				output += `<a onClick='changePage("${page.id}");' data-page='${page.id}'>${page.title}</a>`;
 				output += `<ul>`;
-				const sections = guideData.content.filter(item => item.type === "section" && item.parent === page.id);
+				const sections = guideData.content.filter(item => item.type === "section" && item.parent === page.id).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 				let sectionCount = 0;
 				for (const section of sections) {
 					sectionCount++;
@@ -87,25 +87,25 @@ function buildContent(content) {
 			return `<div data-type='${content.type}' class='mermaid' id='${content.id}' style='${addStyles(content.style)}'></div>`;
 		case "image":
 			const imageStyles = {
-				"wrap": [],
-				"image": ["border-radius"],
-				"text": ["color","font-size","text-shadow","font-weight","font-style"],
+				"wrap": [...entryTypes["image"].options.filter(e => entryOptions[e]?.type == "style")],
+				"image": [...optionsGrouped["size"], "object-fit"],
+				"text": [...optionsGrouped["text"]],
 			}
-			imageStyles.wrap = Object.keys(allOptions).filter(s => allOptions[s] == "style" && !s.includes(imageStyles.image));
+			imageStyles.wrap = imageStyles.wrap.filter(e => !imageStyles.image.includes(e) && !imageStyles.text.includes(e))
 
 			var output = `<div data-type='${content.type}' id='${content.id}' style='${addStyles(content.style,imageStyles.wrap)}'>`
 			output += `<div class='imageWrap' style=''>`;
-			output += `<img src='${content.src}' alt='${content.id}' style='${addStyles(content.style,imageStyles.image)}' />`;
+			output += `<img src='${content.image}' alt='${content.id}' style='${addStyles(content.style,imageStyles.image)}' />`;
 			output += `</div>`;
-			content.caption && (output += `<strong class='caption' style='${addStyles(content.style,imageStyles.image,[])}'>${content.caption}</strong>`);
+			content.caption && (output += `<strong class='caption' style='${addStyles(content.style,imageStyles.text)}'>${processText(content.caption)}</strong>`);
 			return output;
 		case "header":
 			return `<h2 data-type='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>${processText(content.text)}</h2>`;
 		case "sub-header":
 			return `<h4 data-type='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>${processText(content.text)}</h4>`;
 		case "text":
-			return `<p data-type='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>${processText(content.text)}</p>`;
-		case "footer":
+			return `<span data-type='${content.type}' id='${content.id}' style='${addStyles(content.style)}'>${processText(content.text)}</span>`;
+		case "page-nav":
 			const pagesArr = guideData.content.filter(item => item.type === "page").sort((a, b) => a.order - b.order);
 			const pageId = content.parent;
 			const previousPage = pagesArr[pagesArr.findIndex(p => p.id === pageId) - 1] || null;
@@ -116,24 +116,54 @@ function buildContent(content) {
 	}
 }
 
-
 function generateDiagram(entry) {
 	const diagramNodes = guideData.content.filter(item => item.type === "diagram-node" && item.parent === entry.id).sort((a, b) => a.order - b.order);
-	const nodes = diagramNodes.map(node => ({ id: node.id, text: node.text || "" }));
+	const nodes = diagramNodes.map(node => ({ 
+        id: node.id, 
+        text: node.text || "",
+        image: node.image || null,
+		"image-position": node["image-position"] || null,
+    }));
 
 	const links = [];
 	diagramNodes.forEach(node => {
 		if (node.target && Array.isArray(node.target)) {
 			node.target.forEach(targetId => {
-				links.push({ source: node.id, target: targetId });
+				if (guideData.content.find(e => e.id === targetId)) {
+					links.push({ source: node.id, target: targetId });
+				}
 			});
 		}
 	});
-	const lines = [`graph ${entry.direction || "LR"}`].concat(nodes.map(n => `${n.id}[${processText(n.text)}]`)).concat(links.map(l => `${l.source} --- ${l.target}`));
+	
+	const lines = [
+        `graph ${entry.direction || "LR"}`,
+        ...nodes.map(n => {
+            if (n.image) {
+				if (n?.["image-position"] == "top") {
+					return `${n.id}["<img src='${n.image}'><br>${processText(n.text)}"]`;
+				}
+				else {
+					return `${n.id}["${processText(n.text)}<br><img src='${n.image}'>"]`;
+				}
+            } else {
+                return `${n.id}[${processText(n.text)}]`;
+            }
+        }),
+        ...links.map(l => `${l.source} --- ${l.target}`)
+    ];
+    
 	return lines.join("\n");
 }
 
 function processText(text) {
+	if (!text) return "";
+	if (!textile) return text;
+	text = text.toString();
+	return textile.convert(text);
+}
+
+function _processText(text) {
 	const pattern = /\{\[([^\{\}]*?)\]\|([^\{\}]*?)\}/g;
 
 	if (!text) return "";
@@ -230,57 +260,65 @@ function redirectHighlight() {
 
 function changePage(id) {
 
-	if (document.querySelector(`#content > *[data-type='page'][id='${id}'][data-page-open]`)) return;
+	if (document.querySelector(`#content > *[id='${id}'][data-open='true']`)) return;
 
-	document.querySelectorAll('#content *[data-type="navigator"] a[data-page-open]').forEach(el => el.removeAttribute('data-page-open'));
+	document.querySelectorAll("#content *[data-type='navigator'] a[data-open='true']").forEach(el => el.dataset.open = false);
     const link = document.querySelector(`#content *[data-type="navigator"] a[data-page='${id}']`)
-	link && (link.setAttribute("data-page-open",""));
+	link && (link.dataset.open = true);
 
-	const pages = document.querySelectorAll("#content > *[data-type='page']");
-	pages.forEach(page => {
-		page.removeAttribute('data-page-open');
-	});
+	const pages = document.querySelectorAll("#content > *");
+	pages.forEach(page => { page.dataset.open = false; });
 	
-	const page = document.querySelector(`#content > *[data-type='page'][id='${id}']`)
-	page && (page.setAttribute("data-page-open",""));
+	const page = document.querySelector(`#content > *[id='${id}']`)
+	page && (page.dataset.open = true);
 
 	renderDiagrams();
 	history.replaceState(null, "", location.pathname + location.search);
 }
 
+let mermaidInit = false;
 let diagramRenderCounter = 0;
 async function renderDiagrams() {
-	const isVisible = el => !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
-
-	if (!mermaid) {
+	
+	if (!mermaidInit) {
 		mermaid.initialize({
 			startOnLoad:false,
 		});
+		mermaidInit = true;
 	}
 
 	const diagrams = document.querySelectorAll("#content *[data-type='diagram']");
 	for (const diagram of diagrams) {
-		if (isVisible(diagram)) {
-			diagram.dataset.processed = false;
+		diagram.dataset.processed = false;
 
-			const mermaidString = generateDiagram(guideData.content.find(e => e.id == diagram.id))
-			const renderId = `mermaid-${diagramRenderCounter++}`;
+		const mermaidString = generateDiagram(guideData.content.find(e => e.id == diagram.id))
+		const renderId = `mermaid-${diagramRenderCounter++}`;
 
-			try {
-				const { svg } = await mermaid.render(renderId, mermaidString);
-				diagram.innerHTML = svg;
-				
-			} catch (error) {
-				console.error("Mermaid rendering failed:", error);
-				diagram.innerHTML = `${mermaidString}`;
-			}
+		try {
+			const { svg } = await mermaid.render(renderId, mermaidString);
+			diagram.innerHTML = svg;
+			
+		} catch (error) {
+			console.error("Mermaid rendering failed:", error);
+			diagram.innerHTML = `${mermaidString}`;
+		}
 
-			const nodes = diagram.querySelectorAll(":scope *[data-id][data-node='true']");
-			nodes.forEach(n => { 
-				n.dataset.type = "diagram-node";
+		const nodes = diagram.querySelectorAll(":scope *[data-id][data-node='true']");
+		nodes.forEach(n => { 
+			n.dataset.type = "diagram-node";
+		});
+
+		if (location.protocol === 'file:') {
+			document.querySelectorAll('#content a[href*="#"]').forEach(a => {
+				console.log(a)
+				const href = a.getAttribute('href');
+
+				if (href.startsWith('#') && !href.includes('index.html')) a.setAttribute('href', `./index.html${window.location.search}${href}`);
 			});
 		}
 	}
+
+
 }
 
 function saveGuide() {

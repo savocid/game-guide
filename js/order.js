@@ -49,8 +49,8 @@ function updateOrderNumbers(container) {
 		}
 	});
 
-	refreshBuild();
-	refreshSidebar();
+	buildSidebar();
+	buildData(guideData);
 	saveGuide();
 }
 
@@ -136,7 +136,7 @@ function initSortable(container) {
 			const el = document.querySelector(`#content #${id}`);
 			if (el) {
 				selectTarget(el);
-				refreshSidebar();
+				buildSidebar();
 			}
 		});
 		
