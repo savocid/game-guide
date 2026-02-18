@@ -3,10 +3,6 @@ function getPages() {
 	return guideData.content.filter(e => e.type === "page" || e.type === "navigator")
 }
 
-function getCurrentPage() {
-	return guideData.content.find(e => e.id == document.querySelector("#content > *[data-open='true']")?.id);
-}
-
 function getPageChildren(id, excludeBranchId = null) {
     const children = [];
     
@@ -31,19 +27,8 @@ function getPageChildren(id, excludeBranchId = null) {
     return children;
 }
 
-function getElementPage(id) {
-  const element = document.querySelector(`*[data-id='${id}']`) || document.getElementById(id);
-  
-  if (!element) return null;
-  
-  let current = element;
-  while (current && current.getAttribute('data-type') !== 'page') {
-    current = current.parentElement;
-  }
-  
-  return current;
-}
-function getEntryPageId(id) {
+
+function getEntryPage(id) {
 	if (!id) return null;
 
 	let current = guideData.content.find(e => e.id === id);
@@ -51,17 +36,13 @@ function getEntryPageId(id) {
 		current = guideData.content.find(e => e.id === current.parent);
 	}
 
-	return current?.id || null;
+	return current || null;
 }
 
 function isVisible(el) {
 	return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
 }
 
-function getElementType(el) {
-	if (!el) return "";
-	return entryTypes[el?.dataset?.type] || "";
-}
 
 function getSelectableTarget(el) {
 	if (!el) return null;
@@ -125,6 +106,9 @@ const collectDescendantIds = (parentId) => {
 	return ids;
 };
 
+function isEditor() {
+	return document.body.dataset.editor == "true";
+}
 
 function addStyles(styleObj, include = [], exclude = []) {
 	const styles = [

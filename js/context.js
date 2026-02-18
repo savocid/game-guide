@@ -45,11 +45,11 @@ function loadMenu() {
 				
 				const items = Object.keys(entryTypes).filter(key => entryTypes[key].add === true);
 				for (const i of items) {
-					if (entryTypes[i].parentTypes && !entryTypes[i].parentTypes.includes(state.selected.entry.type)) continue;
+					if (entryTypes[i].parentTypes && !entryTypes[i].parentTypes.includes(state.currentEntry?.type)) continue;
 					if (i == "navigator" || i == "page") continue;
 					if (i == "page-nav") {
 						if (!guideData.content.find(e => e.type == "navigator")) continue;
-						if (guideData.content.find(e => e.type == "page-nav" && e.parent == state.selected.entry.id)) continue;
+						if (guideData.content.find(e => e.type == "page-nav" && e.parent == state.currentEntry?.id)) continue;
 					}
 
 					const itemTitle = capitalizeString(i);
@@ -70,7 +70,7 @@ function loadMenu() {
 					}
 
 					itemWrap.addEventListener("click", function() {
-						addEntry(i,state.selected?.entry.id);
+						addEntry(i,state.currentEntry?.id);
 						closeMenu();
 					})
 				}
@@ -130,7 +130,7 @@ function loadMenu() {
 				break;
 			case "remove":
 				actionWrap.addEventListener("click", function() {
-					removeEntry(state.selected?.element);
+					removeEntry(state.currentEntry?.id);
 					closeMenu();
 				});
 				break;
@@ -171,7 +171,7 @@ function openMenu(x, y) {
 	loadMenu();
 	
 	const menu = document.getElementById("context-menu");
-	const hasSelection = !!state.selected?.element;
+	const hasSelection = !!state.currentEntry;
 	const removeButton = menu.querySelector("button[data-action='remove']");
 	if (removeButton) removeButton.hidden = !hasSelection;
 	menu.dataset.open = true;
@@ -200,7 +200,7 @@ document.getElementById("context-menu").addEventListener("click", (e) => {
 			openSidebar(true);
 			break;
 		case "remove":
-			removeEntry(state.selected?.element);
+			removeEntry(state.currentEntry?.id);
 			break;
 		case "close":
 			closeMenu();
@@ -225,10 +225,13 @@ document.addEventListener("mousedown", (e) => {
 document.addEventListener("contextmenu", (e) => {
 	if (!isEditor()) return;
 	if (e.altKey) return;
+
 	const el = getSelectableTarget(e.target.closest("#content *"));
-	if (!el || (!el.id && !el.dataset.id)) return;
+	const id = el?.dataset.id || el?.id;
+	if (!el || !id) return;
 	e.preventDefault();
-	selectTarget(el);
+	selectTarget(id);
+
 	buildSidebar();
 	openMenu(e.clientX, e.clientY);
 });
@@ -241,19 +244,16 @@ document.addEventListener("click", (e) => {
 	const inContent = e.target.closest("#content");
 	if (!inContent) {
 		if (!inSidebar && !inHeader) {
-			//clearSelection();
 			closeMenu();
 		}
 		return;
 	}
 
-	if (state.selected?.element && !state.selected?.element.contains(e.target)) {
-		//clearSelection();
-	}
-
 	const el = getSelectableTarget(e.target.closest("#content *"));
-	if (!el || (!el.id && !el.dataset.id)) return;
-	selectTarget(el);
+	const id = el?.dataset.id || el?.id;
+
+	if (!el || !id) return;
+	selectTarget(id);
 	buildSidebar();
 	closeMenu();
 });

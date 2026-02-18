@@ -50,7 +50,7 @@ function updateOrderNumbers(container) {
 	});
 
 	buildSidebar();
-	buildData(guideData);
+	handleBuild();
 	saveGuide();
 }
 
@@ -135,7 +135,7 @@ function initSortable(container) {
 		$this.on("dblclick", function() {
 			const el = document.querySelector(`#content #${id}`);
 			if (el) {
-				selectTarget(el);
+				selectTarget(id);
 				buildSidebar();
 			}
 		});
@@ -174,7 +174,7 @@ function buildOrderSort(configs) {
 		sortedData.forEach(item => {
 			const isFirst = item.order === -1;
 			const isLast = item.order === 9999;
-			const isCurrent = item.id == state.selected.entry.id;
+			const isCurrent = item.id == state.currentEntry?.id;
 			
 			let $div = $(`
 				<div data-id="${item.id}" class="${isFirst || isLast ? 'no-sort' : ''}" data-current="${isCurrent}" data-order="${item.order}">

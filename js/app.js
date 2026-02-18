@@ -163,67 +163,6 @@ function processText(text) {
 	return textile.convert(text);
 }
 
-function _processText(text) {
-	const pattern = /\{\[([^\{\}]*?)\]\|([^\{\}]*?)\}/g;
-
-	if (!text) return "";
-
-	text = text.toString();
-	
-	let prev;
-	do {
-		prev = text;
-		text = text.replace(pattern, function(match, innerText, modifiers) {
-
-			// 🔁 Process inner styles first
-			innerText = processText(innerText);
-
-			let style = "";
-			let url = "";
-			let tags = [];
-
-			modifiers.split(';').forEach(mod => {
-				mod = mod.trim();
-				if (mod === "bold") tags.push("b");
-				else if (mod === "italic") tags.push("i");
-				else if (mod === "strike") tags.push("s");
-				else if (mod === "underline") tags.push("u");
-				else if (mod === "super") tags.push("sup");
-				else if (mod === "quote") tags.push("blockquote");
-				else if (mod === "code") tags.push("code");
-				else if (mod === "spoiler") tags.push("spoiler");
-				else if (mod.startsWith("size:")) style += `font-size:${mod.slice(5).replace(/^'|'$/g, "")};`;
-				else if (mod.startsWith("color:")) style += `color:${mod.slice(6).replace(/^'|'$/g, "")};`;
-				else if (mod.startsWith("link:")) url = mod.slice(5).replace(/^'|'$/g, "");
-			});
-
-			let result = innerText;
-			tags.forEach(tag => {
-				if (tag == "spoiler") {
-					result = `<span class='spoiler' data-spoiler='true' data-text='${result.replace(/<[^>]*>/g, '')}'><span class='spoiler-content'>${result}</span></span>`
-				}
-				else {
-					result = `<${tag}>${result}</${tag}>`;
-				}
-			});
-
-			if (url) {
-				let onClick = "";
-				if (url.startsWith("#")) {
-					url = window.location.protocol === 'file:' ? `./index.html${window.location.search}${url}` : `${window.location.search}${url}`;
-				}
-				result = `<a class='link' href='${url}' ${onClick}>${result}</a>`;
-			}
-
-			if (style) result = `<span style='${style}'>${result}</span>`;
-			return result;
-		});
-	} while (text !== prev); // keep going until no more replacements
-
-	text = text.replaceAll("\n","<br>")
-
-	return text;
-}
 
 
 function findById(id, obj = guideData, visited = new Set()) {
@@ -260,7 +199,10 @@ function redirectHighlight() {
 
 function changePage(id) {
 
-	if (document.querySelector(`#content > *[id='${id}'][data-open='true']`)) return;
+	if (state.currentPage == id || !id) return;
+
+	const pageEntry = guideData.content.find(e => e.id == id);
+	if (!pageEntry || !["page","navigator"].includes(pageEntry.type)) return;
 
 	document.querySelectorAll("#content *[data-type='navigator'] a[data-open='true']").forEach(el => el.dataset.open = false);
     const link = document.querySelector(`#content *[data-type="navigator"] a[data-page='${id}']`)
@@ -271,6 +213,8 @@ function changePage(id) {
 	
 	const page = document.querySelector(`#content > *[id='${id}']`)
 	page && (page.dataset.open = true);
+
+	state.currentPage = pageEntry;
 
 	renderDiagrams();
 	history.replaceState(null, "", location.pathname + location.search);
@@ -310,15 +254,12 @@ async function renderDiagrams() {
 
 		if (location.protocol === 'file:') {
 			document.querySelectorAll('#content a[href*="#"]').forEach(a => {
-				console.log(a)
 				const href = a.getAttribute('href');
 
 				if (href.startsWith('#') && !href.includes('index.html')) a.setAttribute('href', `./index.html${window.location.search}${href}`);
 			});
 		}
 	}
-
-
 }
 
 function saveGuide() {
@@ -331,6 +272,25 @@ function enterEditor() {
 
 	const editBtn = document.querySelector("header .editWrapper button.editor")
 	editBtn.className = editorMode ? "btn btn-secondary editor" : "btn btn-primary editor";
+
+	initDragDrop();
+}
+
+
+async function handleBuild(override = false) {
+	if (state.autoBuild || override) {
+		document.getElementById("content").dataset.loading = true;
+		document.getElementById("buildBtn").style.display = "none";
+		await new Promise(resolve => setTimeout(resolve, 0));
+		await buildData(guideData);
+		document.getElementById("content").dataset.loading = false;
+		document.getElementById("buildBtn").style.removeProperty("display");
+	}
+	else {
+		state.edited = true;
+	}
+	document.body.dataset.edited = state.edited;
+
 }
 
 

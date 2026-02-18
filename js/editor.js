@@ -1,5 +1,9 @@
 const state = {
 	selected: null,
+	currentEntry: null,
+	currentPage: null,
+	autoBuild: false,
+	edited: false,
 };
 
 const entryOptions = {
@@ -493,8 +497,6 @@ const entryTypeGrouping = [
 	["id", "parent", "order", "target"],
 ];
 
-const isEditor = () => document.body.dataset.editor === "true";
-
 function openSidebar(open = document.body.dataset.sidebar != "true") {
 	document.body.dataset.sidebar = open ? "true" : "false";
 };
@@ -532,10 +534,10 @@ function renderAddTools(section) {
 	const addWrap = document.createElement("div");
 	addWrap.className = "sidebar-grid";
 
-	Object.keys(entryTypes).filter(key => entryTypes[key].add === true && (entryTypes[key].parentTypes.includes(state.selected?.entry.type) || !state.selected && entryTypes[key].parentTypes.includes("base"))).forEach(i => {
-		if (getCurrentPage()?.type == "navigator" && i != "page") return;
-		if (!getCurrentPage() && (i != "page" && i != "navigator")) return;
-		if (i == "page-nav" && guideData.content.find(e => e.type == "page-nav" && e.parent == getCurrentPage()?.id)) return;
+	Object.keys(entryTypes).filter(key => entryTypes[key].add === true && (entryTypes[key].parentTypes.includes(state.currentEntry?.type) || !state.currentEntry && entryTypes[key].parentTypes.includes("base"))).forEach(i => {
+		if (state.currentPage?.type == "navigator" && i != "page") return;
+		if (!state.currentPage && (i != "page" && i != "navigator")) return;
+		if (i == "page-nav" && guideData.content.find(e => e.type == "page-nav" && e.parent == state.currentPage?.id)) return;
 
 		const button = document.createElement("button");
 		button.classList.add(i);
@@ -545,7 +547,7 @@ function renderAddTools(section) {
 			button.addEventListener("click", function() { addEntry(i, "base") })
 		}
 		else {
-			button.addEventListener("click", function() { addEntry(i, state.selected.entry.id) })
+			button.addEventListener("click", function() { addEntry(i, state.currentEntry?.id) })
 		}
 
 		const txt = document.createElement("span");
@@ -580,8 +582,8 @@ function renderMiscTools(section) {
 	cloneButton.textContent = "Clone";
 	actionRow.appendChild(cloneButton);
 
-	removeButton.addEventListener("click", removeEntry)
-	cloneButton.addEventListener("click", cloneEntry)
+	removeButton.addEventListener("click", function() {removeEntry(state.currentEntry?.id)})
+	cloneButton.addEventListener("click", function() {cloneEntry(state.currentEntry?.id)})
 }
 
 async function addEntry(entryType,entryParent) {
@@ -731,19 +733,18 @@ async function addEntry(entryType,entryParent) {
 	}
 	
 
-	await buildData(guideData);
+	await handleBuild();
 	saveGuide();
 
 	if (newId !== null) {
-		const newPageId = getEntryPageId(newId);
-
-		if (newPageId) {
-			changePage(newPageId);
+		const newPage = getEntryPage(newId);
+		if (newPage) {
+			changePage(newPage?.id);
 		}
 
-		const element = document.getElementById(newId) || document.querySelector(`*[data-id='${newId}']`);
-		if (element) {
-			selectTarget(element, { allowIgnored: true });
+		const entry = guideData.content.find(e => e.id == newId)
+		if (entry) {
+			selectTarget(newId);
 		} else {
 			clearSelection();
 		}
@@ -782,12 +783,12 @@ function renderSelectors(section, selected) {
 		pageSelect.appendChild(option);
 	});
 
-	// prefer selected entry's page (data-driven); fall back to visible page
-	const selectedEntryId = state.selected?.entry?.id || (selected?.dataset?.id || selected?.id);
-	const pageToShowId = selectedEntryId ? getEntryPageId(selectedEntryId) : getCurrentPage()?.id;
+	
+	
+	const pageToShow = state.currentPage || getEntryPage(state.currentEntry?.id);
 
-	if (pageToShowId) {
-		pageSelect.value = pageToShowId;
+	if (pageToShow) {
+		pageSelect.value = pageToShow?.id;
 
 		elementSelect.innerHTML = "";
 		const placeholder = document.createElement("option");
@@ -795,16 +796,20 @@ function renderSelectors(section, selected) {
 		placeholder.textContent = "";
 		elementSelect.appendChild(placeholder);
 
-		const selectContent = [guideData.content.find(e => e.id === pageToShowId), ...getPageChildren(pageToShowId)].map(entry => `${(capitalizeString(entry.type))} (${entry.id})`);
-		selectContent.forEach(sel => {
-			const option = document.createElement("option");
-			option.value = sel?.match(/(?<=\()[^)]+(?=\))/) || sel;
-			option.textContent = sel;
-			elementSelect.appendChild(option);
-		});
+		const pageChildren = getPageChildren(pageToShow?.id);
+		if (pageChildren) {
 
-		if (selectedEntryId) {
-			elementSelect.value = selectedEntryId;
+			const selectContent = [pageToShow, ...pageChildren].map(entry => entry && `${(capitalizeString(entry.type))} (${entry.id})`);
+			selectContent.forEach(sel => {
+				const option = document.createElement("option");
+				option.value = sel?.match(/(?<=\()[^)]+(?=\))/) || sel;
+				option.textContent = sel;
+				elementSelect.appendChild(option);
+			});
+
+			if (state.currentEntry?.id) {
+				elementSelect.value = state.currentEntry?.id;
+			}
 		}
 	}
 
@@ -817,7 +822,7 @@ function renderEditControls(section) {
 	stylesWrap.className = "sidebar-style-groups";
 	section.appendChild(stylesWrap);
 
-	const selectedType = state.selected?.entry?.type;
+	const selectedType = state.currentEntry?.type;
 
 	entryTypeGrouping.forEach(group => {
 		const groupEl = document.createElement("div");
@@ -851,7 +856,7 @@ function renderEditControls(section) {
 
 				const input = document.createElement("textarea");
 				input.dataset.field = field;
-				input.value = state.selected?.entry?.[field] || "";
+				input.value = state.currentEntry?.[field] || "";
 				fieldDiv.appendChild(input);
 
 				const wrap = document.createElement("div");
@@ -1189,10 +1194,10 @@ function renderEditControls(section) {
 					}
 			}
 			else if (field == "order") {
-				if (state.selected.entry.type == "table-cell") {
+				if (state.currentEntry?.type == "table-cell") {
 
 					const orderBuildData = [];
-					const entries = guideData.content.filter(e => e.parent == state.selected.entry.parent && e.type == 'table-cell');
+					const entries = guideData.content.filter(e => e.parent == state.currentEntry?.parent && e.type == 'table-cell');
 					const rowMax = entries.reduce((max, current) => current.row > max.row ? current : max).row;
 
 					let totalRows = 0;
@@ -1208,7 +1213,7 @@ function renderEditControls(section) {
 						}
 					}
 
-					const extraRowMax = guideData.content.filter(e => e.parent == state.selected.entry.parent && e.type == 'table-cell' && e.id != state.selected.entry.id).reduce((max, current) => current.row > max.row ? current : max).row;
+					const extraRowMax = guideData.content.filter(e => e.parent == state.currentEntry?.parent && e.type == 'table-cell' && e.id != state.currentEntry?.id).reduce((max, current) => current.row > max.row ? current : max).row;
 					let extraRows = 0;
 					for (let r = 0; r < extraRowMax; r++) {
 						const foundEntries = entries.filter(e => e.row == (r+1));
@@ -1229,7 +1234,7 @@ function renderEditControls(section) {
 				}
 				else {
 					fieldDiv.append(buildOrderSort([
-						{ data: guideData.content.filter(e => e.parent == state.selected.entry.parent), }
+						{ data: guideData.content.filter(e => e.parent == state.currentEntry?.parent), }
 					])[0]);
 				}
 			}
@@ -1239,8 +1244,8 @@ function renderEditControls(section) {
 				input.id = generateID();
 				input.dataset.field = field;
 				input.min = 1;
-				input.max = (guideData.content.filter(e => e.parent == state.selected.entry.parent && e.type == 'table-cell' && e.id != state.selected.entry.id).reduce((max, current) => current.row > max.row ? current : max).row)+1;
-				input.value = (state.selected?.entry?.[field] || 1)
+				input.max = (guideData.content.filter(e => e.parent == state.currentEntry?.parent && e.type == 'table-cell' && e.id != state.currentEntry?.id).reduce((max, current) => current.row > max.row ? current : max).row)+1;
+				input.value = (state.currentEntry?.[field] || 1)
 				input.dataset.oldValue = input.value;
 				fieldDiv.appendChild(input);
 			}
@@ -1251,13 +1256,12 @@ function renderEditControls(section) {
 				input.dataset.field = field;
 				input.min = 1;
 				input.max = 99;
-				input.value = state.selected?.entry?.[field] || 1
+				input.value = state.currentEntry?.[field] || 1
 				input.dataset.oldValue = input.value;
 				fieldDiv.appendChild(input);
 			}
 			else if (field == "parent") {
-				const currentPage = getCurrentPage();
-				const selectContent = [guideData.content.find(e => e.id === currentPage?.id), ...getPageChildren(currentPage?.id,state.selected?.entry.id)].filter(e => ["page","panel","section","tab"].includes(e?.type)).map(entry => `${(capitalizeString(entry.type))} (${entry.id})` );
+				const selectContent = [guideData.content.find(e => e.id === state.currentPage?.id), ...getPageChildren(state.currentPage?.id, state.currentEntry?.id)].filter(e => ["page","panel","section","tab"].includes(e?.type)).map(entry => `${(capitalizeString(entry.type))} (${entry.id})` );
 		
 				const select = document.createElement("select");
 				select.dataset.field = field;
@@ -1268,15 +1272,15 @@ function renderEditControls(section) {
 					option.textContent = sel;
 					select.appendChild(option);
 				});
-				select.value = (state.selected?.entry?.[field] || "");
+				select.value = (state.currentEntry?.[field] || "");
 				fieldDiv.appendChild(select);
 			}
 			else if (field == "target") {
 				const wrap = document.createElement("div");
 				fieldDiv.appendChild(wrap)
 
-				const targets = state.selected.entry.target || [];
-				const allTargets = guideData.content.filter(e => e.parent == state.selected.entry.parent && e.id != state.selected.entry.id);
+				const targets = state.currentEntry?.target || [];
+				const allTargets = guideData.content.filter(e => e.parent == state.currentEntry?.parent && e.id != state.currentEntry?.id);
 				
 				allTargets.forEach(t => {
 					const inputId = generateID();
@@ -1304,9 +1308,9 @@ function renderEditControls(section) {
 						array.push(i.dataset.id);
 					});
 
-					state.selected.entry.target = array;
+					state.currentEntry?.target = array;
 
-					buildData(guideData);
+					handleBuild();
 					saveGuide();
 				}
 			
@@ -1320,7 +1324,7 @@ function renderEditControls(section) {
 				input.type = "text";
 				input.id = generateID();
 				input.dataset.field = field;
-				input.value = entryOptions[field].type == "style" ? (state.selected?.entry?.style?.[field] || "") : entryOptions[field].type == "key" ? (state.selected?.entry?.[field] || "") : ""
+				input.value = entryOptions[field].type == "style" ? (state.currentEntry?.style?.[field] || "") : entryOptions[field].type == "key" ? (state.currentEntry?.[field] || "") : ""
 				input.dataset.oldValue = input.value;
 				wrap.appendChild(input);
 
@@ -1344,7 +1348,7 @@ function renderEditControls(section) {
 				})
 			}
 			else if (entryOptions[field]?.options) {
-				const select = createSelect(field, entryOptions[field]?.options, (entryOptions[field].type == "style" ? (state.selected?.entry?.style?.[field] || "") : entryOptions[field].type == "key" ? (state.selected?.entry?.[field] || "") : ""));
+				const select = createSelect(field, entryOptions[field]?.options, (entryOptions[field].type == "style" ? (state.currentEntry?.style?.[field] || "") : entryOptions[field].type == "key" ? (state.currentEntry?.[field] || "") : ""));
 				fieldDiv.appendChild(select);
 			}
 			else {
@@ -1352,7 +1356,7 @@ function renderEditControls(section) {
 				input.type = "text";
 				input.id = generateID();
 				input.dataset.field = field;
-				input.value = entryOptions[field].type == "style" ? (state.selected?.entry?.style?.[field] || "") : entryOptions[field].type == "key" ? (state.selected?.entry?.[field] || "") : ""
+				input.value = entryOptions[field].type == "style" ? (state.currentEntry?.style?.[field] || "") : entryOptions[field].type == "key" ? (state.currentEntry?.[field] || "") : ""
 				input.dataset.oldValue = input.value;
 				fieldDiv.appendChild(input);
 			}
@@ -1371,7 +1375,7 @@ async function buildSidebar() {
 	const selectorSection = document.createElement("section");
 	selectorSection.className = "sidebar-section";
 	selectorSection.dataset.section = "selectors";
-	renderSelectors(selectorSection, state.selected?.element);
+	renderSelectors(selectorSection);
 	sidebar.appendChild(selectorSection);
 
 	const editSection = document.createElement("section");
@@ -1392,7 +1396,7 @@ async function buildSidebar() {
 	renderMiscTools(miscSection);
 	sidebar.appendChild(miscSection);
 
-	if (!state.selected?.element) {
+	if (!state.currentEntry) {
 		editSection.hidden = true;
 		miscSection.hidden = true;
 	}
@@ -1407,7 +1411,7 @@ function consoleText(text, config = {}) {
 	
 	const { 
         duration = 2000, 
-        position = "bottom-right", 
+        position = "bottom-left", 
         id = generateID(),
     } = config;
 
@@ -1423,7 +1427,6 @@ function consoleText(text, config = {}) {
 
 	if (duration != Infinity) {
 		removeConsoleText(p.id, duration)
-		
 	}
 
     console.log(text);
@@ -1523,24 +1526,24 @@ function handleFieldChange(_this,val,field) {
 
 
 	function inputChange(val,field) {
-		if (!state.selected) return;
+		if (!state.currentEntry) return;
 		if (!field) return;
 		
 		switch (entryOptions[field]?.type) {
 			case "style":
-				state.selected.entry.style = state.selected.entry.style || {};
-				state.selected.entry.style[field] = val;
-				val === "" && (delete state.selected?.entry?.style?.[field]);
+				state.currentEntry?.style = state.currentEntry?.style || {};
+				state.currentEntry?.style[field] = val;
+				val === "" && (delete state.currentEntry?.style?.[field]);
 				break;
 			case "key":
-				state.selected.entry[field] = !isNaN(Number(val)) ? Number(val) : val;
-				val === "" && (delete state.selected?.entry?.[field]);
+				state.currentEntry[field] = !isNaN(Number(val)) ? Number(val) : val;
+				val === "" && (delete state.currentEntry?.[field]);
 				break;
 			default:
 				break;
 		}
 		
-		buildData(guideData);
+		handleBuild();
 		saveGuide();
 	}
 }
@@ -1624,13 +1627,11 @@ function handleIdChange(_this) {
 			e.target = e.target.map(item => item === oldVal ? newVal : item);
 		});
 
-		
-
-		buildData(guideData);
+		handleBuild();
 		buildSidebar();
 
-		changePage(getElementPage(newVal))
-		selectTarget(document.getElementById(newVal));
+		changePage(newVal)
+		selectTarget(newVal);
 
 		saveGuide();
 	}
@@ -1651,12 +1652,14 @@ function handlePageSelect(_this = document.getElementById("sidebar-page-select")
 }
 function handleElementSelect(_this = document.getElementById("sidebar-element-select")) {
 	const val = _this.value;
-	const element = document.getElementById(val) || document.querySelector(`*[data-id='${val}']`);
+	const entry = guideData.content.find(e => e.id == val)
 
-	if (element) {
-		selectTarget(element, { allowIgnored: true });
+
+	if (entry) {
+		selectTarget(val);
 		buildSidebar();
-	} else {
+	}
+	else {
 		clearSelection();
 	}
 }
@@ -1666,41 +1669,49 @@ function handleElementSelect(_this = document.getElementById("sidebar-element-se
 
 
 function clearSelection() {
-	if (state.selected?.element) {
-		state.selected?.element.classList.remove("editor-selected");
-	}
-	state.selected = null;
+	if (!state.currentEntry?.id) return;
+	const el = document.getElementById(state.currentEntry?.id);
+	if (!el) return;
+	
+	document.querySelectorAll(".editor-selected").forEach(e => {e.classList.remove("editor-selected")});
+	
+	state.currentEntry = null;
 	buildSidebar();
 }
 
 
 
-function selectTarget(el, options = {}) {
-	if (!el || (!el.id && !el.dataset.id)) return;
-	if (!getElementType(el)) return;
-	if (!options.allowIgnored && isIgnoredElement(el)) return;
-	if (state.selected?.element && state.selected?.element !== el) {
-		state.selected?.element.classList.remove("editor-selected");
-	}
-	const entry = guideData.content.find(item => item.id === el.id || item.id === el.dataset.id);
-	if (!entry) return;
+function selectTarget(id) {
+	if (!id) { console.error(`Invalid id: ${id}`); return};
+	const entry = guideData.content.find(e => e.id == id);
+	if (!entry) { console.error(`Invalid entry: ${id}`); return; }
+	if (!entryTypes[entry?.type]) { console.error(`Invalid entry type: ${id}`); return; }
 
-	const page = el.closest('#content > *');
-	if (page && page.dataset.open != "true") {
-		changePage(page.id);
+	const page = getEntryPage(entry.id);
+
+	if (page?.id != state.currentPage?.id) {
+		changePage(page?.id);
 	}
 
-	state.selected = {};
-	state.selected.element = el;
-	state.selected.entry = entry;
+	state.currentEntry = entry;
 	
-	el.classList.add("editor-selected");
+	const el = document.getElementById(id) || document.querySelector(`#content [data-id='${id}']`);
+	if (el) {
+		document.querySelectorAll(".editor-selected").forEach(e => {e.classList.remove("editor-selected")});
+		el.classList.add("editor-selected");
+	}
+	else {
+		console.warn(`Invalid el: ${id}`)
+	}
 }
 
-function removeEntry() {
-	if (state.selected && confirm(`Warning: You're about to remove '${capitalizeString(state.selected.entry.type)} (${state.selected.entry.id})' and all of its content.\nProceed?`)) {
+function removeEntry(id) {
+	const entryToRemove = guideData.content.find(e => e.id == id);
+	if (!entryToRemove) return;
+
+	if (state.currentEntry && confirm(`Warning: You're about to remove '${capitalizeString(entryToRemove.type)} (${entryToRemove.id})' and all of its content.\nProceed?`)) {
 		
-		const idsToRemove = [state.selected.entry.id, ...collectDescendantIds(state.selected.entry.id)];
+		const idsToRemove = [entryToRemove.id, ...collectDescendantIds(entryToRemove.id)];
 
 		// remove ids
 		guideData.content = guideData.content.filter(e => !idsToRemove.includes(e.id));
@@ -1713,9 +1724,8 @@ function removeEntry() {
 		// clean targets
 		guideData.content = guideData.content.map(entry => entry.target ? { ...entry, target: entry.target.filter(id => !idsToRemove.includes(id)) } : entry);
 
-
-		const currentPage = getCurrentPage()?.id;
-		buildData(guideData);
+		const currentPage = state.currentPage;
+		handleBuild();
 		saveGuide();
 
 		clearSelection();
@@ -1725,7 +1735,7 @@ function removeEntry() {
 	}
 }
 function cloneEntry() {
-	if (state.selected && confirm("Duplicate this element?")) {
+	if (state.currentEntry && confirm("Duplicate this element?")) {
 		
 	}
 }
@@ -1734,29 +1744,10 @@ document.addEventListener("keydown", (e) => {
 
 	if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' || document.activeElement.isContentEditable) return;
 
-	if (e.ctrlKey && e.key === 'z') {
-		if (false) {
-			alert("undo")
-			handleUndoRedo();
-		}
-		return;
-	}
-
-	if ((e.ctrlKey && e.key === 'y') || (e.shiftKey && e.ctrlKey && e.key == 'z')) {
-		if (false) {
-			alert("redo")
-			handleUndoRedo();
-		}
-		return;
-	}
-
 	if (e.ctrlKey && e.key === 'c') {
-		copiedEntry = !["page-nav"].includes(state.selected?.entry.type) ? state.selected?.entry.id : null;
+		copiedEntry = !["page-nav"].includes(state.currentEntry?.type) ? state.currentEntry?.id : null;
 		if (copiedEntry) {
 			consoleText("Copy successful")
-		}
-		else {
-			consoleText("Element")
 		}
 	}
 
@@ -1767,7 +1758,7 @@ document.addEventListener("keydown", (e) => {
 
 				if (!entry) break;
 		
-				if (!entryTypes[entry.type]?.parentTypes.includes(state.selected?.entry.type) && !(entryTypes[entry.type]?.parentTypes.includes("base") && !state.selected)) {
+				if (!entryTypes[entry.type]?.parentTypes.includes(state.currentEntry?.type) && !(entryTypes[entry.type]?.parentTypes.includes("base") && !state.currentEntry)) {
 					consoleText("Not a valid parent");
 					break;
 				}
@@ -1775,19 +1766,16 @@ document.addEventListener("keydown", (e) => {
 				const newId = copyPasteEntry(entry.id);
 				if (newId) {
 
-					buildData(guideData);
+					handleBuild();
 					saveGuide();
 					
-					const newPageId = getEntryPageId(newId);
-					if (newPageId) {
-						changePage(newPageId);
+					const newPage = getEntryPage(newId);
+					if (newPage) {
+						changePage(newPage?.id);
 					}
 					
-					const element = document.getElementById(newId) || document.querySelector(`*[data-id='${newId}']`);
-					if (element) {
-						selectTarget(element, { allowIgnored: true });
-					}
-
+				
+					selectTarget(newId);
 					buildSidebar();
 					
 					consoleText("Paste successful");
@@ -1796,17 +1784,13 @@ document.addEventListener("keydown", (e) => {
 		}
 	}
 
-
-	function handleUndoRedo() {
-		guideData.modified = Date.now();
-		buildSidebar();
-		buildData(guideData);
-		changePage(getCurrentPage()?.id);
+	if (e.ctrlKey && e.key === 'b') {
+		handleBuild(true);
 	}
 
 	switch (e.key) {
 		case "Escape":
-			if (state.selected) {
+			if (state.currentEntry) {
 				clearSelection();
 			}
 			else {
@@ -1815,8 +1799,8 @@ document.addEventListener("keydown", (e) => {
 			closeMenu();
 			break;
 		case "Delete":
-			if (state.selected) {
-				removeEntry();
+			if (state.currentEntry) {
+				removeEntry(state.currentEntry?.id);
 			}
 			break;
 		default:
@@ -1845,8 +1829,8 @@ function copyPasteEntry(id, recursive = true) {
 		// root copy: attach to current selection (if present), otherwise keep original parent
 
 		if (oldId === id) {
-			if (state.selected) {
-				copy.parent = state.selected.entry.id;
+			if (state.currentEntry) {
+				copy.parent = state.currentEntry?.id;
 			}
 
 			if (copy.type == "page" && copy.title) {
@@ -2005,7 +1989,7 @@ async function readDataFile(_this) {
 		guideData = new ManualSaveWrapper(requestedData);
 
 		initLoad();
-		buildData();
+		handleBuild(true);
 		changePage(guideData.content.filter(e => e.type == "page").sort((a, b) => a.order - b.order)[0]?.id);
 		buildSidebar();
 
@@ -2134,7 +2118,7 @@ function loadGuide(data) {
 
 	guideData = new ManualSaveWrapper(data);
 	initLoad();
-	buildData();
+	handleBuild(true);
 	changePage(guideData.content.filter(e => e.type == "page").sort((a, b) => a.order - b.order)[0]?.id);
 	buildSidebar();
 }
@@ -2166,7 +2150,7 @@ function newGuide() {
 		guideName && (guideData.title = guideName);
 
 		initLoad();
-		buildData();
+		handleBuild(true);
 		changePage(guideData.content.filter(e => e.type == "page").sort((a, b) => a.order - b.order)[0]?.id);
 		buildSidebar();
 	}
@@ -2205,29 +2189,27 @@ function handleGuideBaseChange(_this) {
 }
 
 async function buildData() {
-	document.getElementById("content").innerHTML = "";
+	const content = document.getElementById("content");
+    content.innerHTML = "";
 
 	const data = guideData.content.filter(e => e.type === "page" || e.type === "navigator").sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).flatMap(page => [page, ...getPageChildren(page.id)]);
 	data.forEach(content => {
 		const base = content.parent && (document.getElementById(`${content.parent}`)) || document.getElementById("content")
 		base.innerHTML += buildContent(content)
 	});
-
-
-	// prefer data-driven restore of the selected entry (entry.id -> page)
-	if (state.selected?.entry?.id) {
-	const pageId = getEntryPageId(state.selected.entry.id);
-	pageId && changePage(pageId);
+	
+	const pageId = getEntryPage(state.currentEntry?.id)?.id;
+	if (pageId) {
+		changePage(pageId);
 	}
 
 	await renderDiagrams();
 
-	// select by entry id first (stable), otherwise fall back to sidebar select value
-	const restoreId = state.selected?.entry?.id || document.getElementById("sidebar-element-select")?.value;
-	const el = restoreId ? (document.getElementById(restoreId) || document.querySelector(`*[data-id='${restoreId}']`)) : null;
-	selectTarget(el, { allowIgnored: true });
+	const id = state.currentEntry?.id || document.getElementById("sidebar-element-select")?.value;
+	id && (selectTarget(id));
 
 	initDragDrop();
+	handlePageSelect();
 
 	document.querySelectorAll("#content a").forEach(a => {
 		a.addEventListener("click", redirectHighlight);
@@ -2257,6 +2239,8 @@ async function buildData() {
 			this.dataset.spoiler = false;
 		}) 
 	})
+
+	state.edited = false;
 }
 
 
@@ -2270,6 +2254,8 @@ function initDragDrop() {
 		if ($(this).data('ui-droppable')) { try { $(this).droppable('destroy'); } catch(e){} }
 	});
 
+	if (!isEditor()) return;
+
 	$nodes.draggable({
 		helper: 'clone',
 		revert: true,
@@ -2277,7 +2263,7 @@ function initDragDrop() {
 		start(event, ui) {
 			const oe = event.originalEvent || {};
 			const isModifier = !!(oe.ctrlKey || oe.altKey || oe.shiftKey);
-			if (!isModifier || !isEditor()) return false;
+			if (!isModifier) return false;
 
 			const mode = oe.ctrlKey ? 'copy' : 'move';
 			ui.helper.data('dragMode', mode);
@@ -2349,9 +2335,9 @@ function initDragDrop() {
 			if (mode === 'move') {
 				src.parent = targetId;
 				saveGuide();
-				buildData(guideData);
+				handleBuild();
 				buildSidebar();
-				selectTarget(document.getElementById(src.id));
+				selectTarget(src.id);
 			}
 			else if (mode === 'copy') {
 				const newId = copyPasteEntry(src.id);
@@ -2360,9 +2346,9 @@ function initDragDrop() {
 				if (!newEntry) return;
 				newEntry.parent = targetId;
 				saveGuide();
-				buildData(guideData);
+				handleBuild();
 				buildSidebar();
-				selectTarget(document.getElementById(newId));
+				selectTarget(newId);
 			}
 		}
 	});

@@ -35,6 +35,8 @@
 		</div>
     </header>
 
+	<button id="buildBtn" class="btn btn-primary" onClick="handleBuild(true)">Build</button>
+
 	<div id="console"></div>
 
 	<div id="context-menu"></div>
@@ -52,6 +54,8 @@
 			<button class="btn btn-primary load"><label for="load-data-input">Load<input type="file" accept=".json,application/json" id='load-data-input' onChange="readDataFile(this)"></span></button>
 		</div>
 	</div>
+
+	
 
 	<script src="./js/textile.js"></script>
 	<script src="./js/template-data.js"></script>

@@ -212,6 +212,7 @@ header .guide-info .title * {
     padding: 1rem 0;
     overflow: auto;
 	transition: width 0.2s ease;
+	position: relative;
 }
 body[data-sidebar='true'][data-editor='true'] {
 	#browse,
